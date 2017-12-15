@@ -50,3 +50,10 @@ sourceSets {
     }
 }
 ```
+<br>
+
+#### 2017/12/15更新
+* 以上gradle构建暂停,因为无法与plugin项目完全贴近,导致启动时.无法调试.所以暂时以plugin项目直接开发
+* 检索sdk26内所有java widget源码,获得所有控件attr引用属性
+* parser目录下为,正则分析所有attr并生成类代码
+* 在iml文件中添加 <sourceFolder url="file://$MODULE_DIR$/src/com/cz/layout2anko/test" isTestSource="true" /> 使之成为测试目录
