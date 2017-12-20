@@ -18,13 +18,10 @@ open class ViewStub : View() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"inflatedId"->{
-				
-				}
-				"layout"->{
-				
-				}
+				"inflatedId"->attributes.add("inflatedId(=${id(value)})")
+				"layout"->attributes.add("layoutResource = ${resourceRef(value)})")
 			}
 		}
 	}

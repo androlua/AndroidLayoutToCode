@@ -78,7 +78,39 @@ open class ViewGroup : View() {
 	open class LayoutParams {
 
 		val attributes= mutableListOf<String>()
-		
+
+		/**
+		 * Gravity.BOTTOM
+		 * Gravity.CENTER
+		 * Gravity.CENTER_HORIZONTAL
+		 * Gravity.CENTER_VERTICAL
+		 * Gravity.CLIP_HORIZONTAL
+		 * Gravity.CLIP_VERTICAL
+		 * Gravity.END
+		 * Gravity.FILL
+		 * Gravity.FILL_HORIZONTAL
+		 * Gravity.FILL_VERTICAL
+		 * Gravity.LEFT
+		 * Gravity.RIGHT
+		 * Gravity.START
+		 * Gravity.TOP
+		 */
+		fun gravity(gravity:String)=when(gravity){
+			"bottom"->"Gravity.BOTTOM"
+			"center"->"Gravity.CENTER"
+			"center_horizontal"->"Gravity.CENTER_HORIZONTAL"
+			"center_vertical"->"Gravity.CENTER_VERTICAL"
+			"clip_horizontal"->"Gravity.CLIP_HORIZONTAL"
+			"clip_vertical"->"Gravity.CLIP_VERTICAL"
+			"end"->"Gravity.END"
+			"fill"->"Gravity.FILL"
+			"fill_horizontal"->"Gravity.FILL_HORIZONTAL"
+			"fill_vertical"->"Gravity.FILL_VERTICAL"
+			"right"->"Gravity.RIGHT"
+			"start"->"Gravity.START"
+			"top"->"Gravity.TOP"
+			else->"Gravity.LEFT"
+		}
 		/**
 		 * 解析LayoutParams属性集,并返回解析后的anko代码
 		 */

@@ -120,20 +120,14 @@ open class View {
 			val int = matcher.group("int")
 			val float = matcher.group("float")
 			val unit = matcher.group("unit")
-			val number = if (null != int) {
-				"$int"
-			} else if (null != float) {
-				"${float}f"
-			} else {
-				"0"
-			}
+			val number = int?:float?:"0"
 			if (null == unit) {
 				result = number
 			} else {
 				if (null != int) {
 					when (unit) {
 						"sp" -> result = "sp($number*1f)"
-						"dip", "dp" -> result = "dp($number*1f"
+						"dip", "dp" -> result = "dp($number*1f)"
 					}
 				} else if (null != float) {
 					when (unit) {
@@ -146,12 +140,61 @@ open class View {
 		return result
 	}
 
+	fun int(value:String):String{
+		if(value.startsWith("@")){
+			return resource(value)
+		} else {
+			return dimen(value)
+		}
+	}
+
+	fun float(value:String):String{
+		if(value.startsWith("@")){
+			return resource(value)
+		} else {
+			return value+"f"
+		}
+	}
+
+	fun long(value:String):String{
+		if(value.startsWith("@")){
+			return resource(value)
+		} else {
+			return value+"l"
+		}
+	}
+
 	fun bool(value:String):String{
 		if(value.startsWith("@")){
 			return resource(value)
 		} else {
 			return value
 		}
+	}
+
+	fun color(value:String):String{
+		if(value.startsWith("@")){
+			return resource(value)
+		} else {
+			return value
+		}
+	}
+
+	fun id(value:String)=resource(value)
+
+	fun colorStateList(value:String):String{
+		var result=String()
+		val matcher=RESOURCE_PATTERN.matcher(value)
+		if(matcher.find()) {
+			val type = matcher.group(1)
+			val ref = matcher.group(2)
+			if("drawable"==type){
+				result = "ContextCompat.getColorStateList(context,R.drawable.$ref)"
+			} else {
+				result = "//$ref is not a drawable ref! Can't reverse it!"
+			}
+		}
+		return result
 	}
 
 	/**
@@ -302,6 +345,39 @@ open class View {
 		"viewStart"->"View.TEXT_ALIGNMENT_VIEW_START"
 		"viewEnd"->"View.TEXT_ALIGNMENT_VIEW_END"
 		else->"View.TEXT_ALIGNMENT_GRAVITY"
+	}
+
+	/**
+	 * Gravity.BOTTOM
+	 * Gravity.CENTER
+	 * Gravity.CENTER_HORIZONTAL
+	 * Gravity.CENTER_VERTICAL
+	 * Gravity.CLIP_HORIZONTAL
+	 * Gravity.CLIP_VERTICAL
+	 * Gravity.END
+	 * Gravity.FILL
+	 * Gravity.FILL_HORIZONTAL
+	 * Gravity.FILL_VERTICAL
+	 * Gravity.LEFT
+	 * Gravity.RIGHT
+	 * Gravity.START
+	 * Gravity.TOP
+	 */
+	fun gravity(gravity:String)=when(gravity){
+		"bottom"->"Gravity.BOTTOM"
+		"center"->"Gravity.CENTER"
+		"center_horizontal"->"Gravity.CENTER_HORIZONTAL"
+		"center_vertical"->"Gravity.CENTER_VERTICAL"
+		"clip_horizontal"->"Gravity.CLIP_HORIZONTAL"
+		"clip_vertical"->"Gravity.CLIP_VERTICAL"
+		"end"->"Gravity.END"
+		"fill"->"Gravity.FILL"
+		"fill_horizontal"->"Gravity.FILL_HORIZONTAL"
+		"fill_vertical"->"Gravity.FILL_VERTICAL"
+		"right"->"Gravity.RIGHT"
+		"start"->"Gravity.START"
+		"top"->"Gravity.TOP"
+		else->"Gravity.LEFT"
 	}
 
 	

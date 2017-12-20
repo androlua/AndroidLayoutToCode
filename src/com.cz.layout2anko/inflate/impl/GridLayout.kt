@@ -14,7 +14,11 @@ import org.jdom.Element
  *
  */
 open class GridLayout : ViewGroup() {
-	
+
+	fun orientation(orientation:String)=when(orientation){
+		"horizontal"->"GridLayout.HORIZONTAL"
+		else ->"GridLayout.VERTICAL"
+	}
 	/**
 	 * 解析GridLayout属性集,并返回解析后的anko代码
 	 */
@@ -22,25 +26,14 @@ open class GridLayout : ViewGroup() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"orientation"->{
-				
-				}
-				"rowCount"->{
-				
-				}
-				"columnCount"->{
-				
-				}
-				"useDefaultMargins"->{
-				
-				}
-				"rowOrderPreserved"->{
-				
-				}
-				"columnOrderPreserved"->{
-				
-				}
+				"orientation"->attributes.add("orientation=${orientation(value)}")
+				"rowCount"->attributes.add("rowCount=${int(value)}")
+				"columnCount"->attributes.add("columnCount=${int(value)}")
+				"useDefaultMargins"->attributes.add("useDefaultMargins=${bool(value)}")
+				"rowOrderPreserved"->attributes.add("isRowOrderPreserved=${bool(value)}")
+				"columnOrderPreserved"->attributes.add("isColumnOrderPreserved=${bool(value)}")
 			}
 		}
 	}
@@ -69,28 +62,33 @@ open class GridLayout : ViewGroup() {
 			super.inflateAttributes(element)
 			element.attributes.forEach {
 				val name=it.name
+				val value=it.value
 				when(name){
 					"layout_row"->{
-					
+						attributes.add("//Can't reverse layout_row!")
+						attributes.add("//layout_row=$value")
 					}
 					"layout_rowSpan"->{
-					
+						attributes.add("//Can't reverse layout_rowSpan!")
+						attributes.add("//layout_rowSpan=$value")
 					}
 					"layout_rowWeight"->{
-					
+						attributes.add("//Can't reverse layout_rowWeight!")
+						attributes.add("//layout_rowWeight=$value")
 					}
 					"layout_column"->{
-					
+						attributes.add("//Can't reverse layout_column!")
+						attributes.add("//layout_column=$value")
 					}
 					"layout_columnSpan"->{
-					
+						attributes.add("//Can't reverse layout_columnSpan!")
+						attributes.add("//layout_columnSpan=$value")
 					}
 					"layout_columnWeight"->{
-					
+						attributes.add("//Can't reverse layout_columnWeight!")
+						attributes.add("//layout_columnWeight=$value")
 					}
-					"layout_gravity"->{
-					
-					}
+					"layout_gravity"->attributes.add("gravity=${gravity(value)}")
 				}
 			}
 		}

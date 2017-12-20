@@ -17,10 +17,9 @@ open class HorizontalScrollView : FrameLayout() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"fillViewport"->{
-				
-				}
+				"fillViewport"->attributes.add("fillViewport=${bool(value)}")
 			}
 		}
 	}

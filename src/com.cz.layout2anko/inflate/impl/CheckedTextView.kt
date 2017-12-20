@@ -18,13 +18,10 @@ open class CheckedTextView : TextView() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"checked"->{
-				
-				}
-				"checkMark"->{
-				
-				}
+				"checked"->attributes.add("isChecked=${bool(value)}\n")
+				"checkMark"->attributes.add("checkMarkDrawableResource=${resourceRef(value)}\n")
 			}
 		}
 	}

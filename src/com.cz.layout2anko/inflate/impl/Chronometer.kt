@@ -18,12 +18,13 @@ open class Chronometer : TextView() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"format"->{
-				
-				}
+				"format"->attributes.add("format=${string(value)}\n")
 				"countDown"->{
-				
+					attributes.add("doFromSdk(Build.VERSION_CODES.N){\n")
+					attributes.add("isCountDown=${bool(value)}\n")
+					attributes.add("}")
 				}
 			}
 		}

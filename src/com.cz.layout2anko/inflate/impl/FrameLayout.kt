@@ -17,10 +17,9 @@ open class FrameLayout : ViewGroup() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"measureAllChildren"->{
-				
-				}
+				"measureAllChildren"->attributes.add("measureAllChildren=${bool(value)}")
 			}
 		}
 	}
@@ -43,10 +42,9 @@ open class FrameLayout : ViewGroup() {
 			super.inflateAttributes(element)
 			element.attributes.forEach {
 				val name=it.name
+				val value=it.value
 				when(name){
-					"layout_gravity"->{
-					
-					}
+					"layout_gravity"->attributes.add("gravity=${gravity(value)}")
 				}
 			}
 		}

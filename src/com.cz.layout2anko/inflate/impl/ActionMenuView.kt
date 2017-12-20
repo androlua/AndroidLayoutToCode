@@ -16,7 +16,7 @@ open class ActionMenuView : LinearLayout() {
 		super.inflateAttributes(element)
 	}
 
-	 fun getLayoutParams()=LayoutParams()
+	 override fun getLayoutParams()=LayoutParams()
 
 	/**
 	 * Created by cz on 2017/12/19.

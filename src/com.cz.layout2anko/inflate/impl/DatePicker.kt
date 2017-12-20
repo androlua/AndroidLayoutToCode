@@ -32,54 +32,38 @@ open class DatePicker : FrameLayout() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
 				"startYear"->{
-				
 				}
 				"endYear"->{
-				
 				}
-				"maxDate"->{
-				
-				}
-				"minDate"->{
-				
-				}
-				"spinnersShown"->{
-				
-				}
-				"calendarViewShown"->{
-				
-				}
+				"maxDate"->attributes.add("maxDate=${long(value)}\n")
+				"minDate"->attributes.add("minDate=${long(value)}\n")
+				"spinnersShown"->attributes.add("spinnersShown=${bool(value)}\n")
+				"calendarViewShown"->attributes.add("calendarViewShown=${bool(value)}\n")
 				"dayOfWeekBackground"->{
-				
+					attributes.add("calendarViewShown=${bool(value)}\n")
 				}
 				"dayOfWeekTextAppearance"->{
-				
 				}
 				"headerBackground"->{
-				
 				}
 				"headerMonthTextAppearance"->{
-				
 				}
 				"headerDayOfMonthTextAppearance"->{
-				
 				}
 				"headerYearTextAppearance"->{
-				
 				}
 				"yearListItemTextAppearance"->{
-				
 				}
 				"yearListSelectorColor"->{
-				
 				}
 				"calendarTextColor"->{
-				
 				}
 				"datePickerMode"->{
-				
+					attributes.add("//Can't reverse datePickerMode!")
+					attributes.add("//datePickerMode=$value")
 				}
 			}
 		}

@@ -19,15 +19,19 @@ open class AnalogClock : View() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
 				"dial"->{
-				
+					attributes.add("//Can't reverse dial!")
+					attributes.add("//dial=$value")
 				}
 				"hand_hour"->{
-				
+					attributes.add("//Can't reverse hand_hour!")
+					attributes.add("//hand_hour=$value")
 				}
 				"hand_minute"->{
-				
+					attributes.add("//Can't reverse hand_minute!")
+					attributes.add("//hand_minute=$value")
 				}
 			}
 		}

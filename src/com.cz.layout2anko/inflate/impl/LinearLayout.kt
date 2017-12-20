@@ -14,7 +14,11 @@ import org.jdom.Element
  *
  */
 open class LinearLayout : ViewGroup() {
-	
+
+	fun orientation(orientation:String)=when(orientation){
+		"horizontal"->"LinearLayout.HORIZONTAL"
+		else ->"LinearLayout.VERTICAL"
+	}
 	/**
 	 * 解析LinearLayout属性集,并返回解析后的anko代码
 	 */
@@ -22,25 +26,14 @@ open class LinearLayout : ViewGroup() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"baselineAligned"->{
-				
-				}
-				"baselineAlignedChildIndex"->{
-				
-				}
-				"gravity"->{
-				
-				}
-				"measureWithLargestChild"->{
-				
-				}
-				"orientation"->{
-				
-				}
-				"weightSum"->{
-				
-				}
+				"baselineAligned"->attributes.add("isBaselineAligned = ${bool(value)})")
+				"baselineAlignedChildIndex"->attributes.add("baselineAlignedChildIndex = ${int(value)})")
+				"gravity"->attributes.add("gravity = ${gravity(value)})")
+				"measureWithLargestChild"->attributes.add("isMeasureWithLargestChildEnabled = ${bool(value)})")
+				"orientation"->attributes.add("orientation = ${orientation(value)})")
+				"weightSum"-> attributes.add("weightSum = ${float(value)})")
 			}
 		}
 	}
@@ -66,7 +59,8 @@ open class LinearLayout : ViewGroup() {
 				val name=it.name
 				when(name){
 					"layout_weight"->{
-					
+//						attributes.add("weight = ${float(value)})")
+//						attributes.add("maxWidth(=${dimen(value)})")
 					}
 					"layout_gravity"->{
 					

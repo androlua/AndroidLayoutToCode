@@ -25,34 +25,23 @@ open class AutoCompleteTextView : EditText() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"completionHint"->{
-				
-				}
-				"completionThreshold"->{
-				
-				}
+				"completionHint"->attributes.add("completionHint=${string(value)}")
+				"completionThreshold"->attributes.add("threshold=${dimen(value)}")
 				"completionHintView"->{
-				
+					attributes.add("//Can't reverse completionHintView!")
+					attributes.add("//completionHintView=$value")
 				}
 				"dropDownSelector"->{
-				
+					attributes.add("//Can't reverse dropDownSelector!")
+					attributes.add("//dropDownSelector=$value")
 				}
-				"dropDownAnchor"->{
-				
-				}
-				"dropDownWidth"->{
-				
-				}
-				"dropDownHeight"->{
-				
-				}
-				"dropDownVerticalOffset"->{
-				
-				}
-				"dropDownHorizontalOffset"->{
-				
-				}
+				"dropDownAnchor"->attributes.add("dropDownAnchor=${id(value)}")
+				"dropDownWidth"->attributes.add("dropDownWidth=${int(value)}")
+				"dropDownHeight"->attributes.add("dropDownHeight=${int(value)}")
+				"dropDownVerticalOffset"->attributes.add("dropDownVerticalOffset=${int(value)}")
+				"dropDownHorizontalOffset"->attributes.add("dropDownHorizontalOffset=${int(value)}")
 			}
 		}
 	}

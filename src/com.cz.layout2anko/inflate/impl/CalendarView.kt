@@ -29,45 +29,32 @@ open class CalendarView : FrameLayout() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"showWeekNumber"->{
-				
-				}
-				"firstDayOfWeek"->{
-				
-				}
-				"minDate"->{
-				
-				}
-				"maxDate"->{
-				
-				}
-				"shownWeekCount"->{
-				
-				}
+				"showWeekNumber"->attributes.add("showWeekNumber=${bool(value)}")
+				"firstDayOfWeek"->attributes.add("showWeekNumber=${int(value)}")
+				"minDate"->attributes.add("minDate=${long(value)}")
+				"maxDate"->attributes.add("maxDate=${long(value)}")
+				"shownWeekCount"->attributes.add("shownWeekCount=${int(value)}")
 				"selectedWeekBackgroundColor"->{
-				
+					attributes.add("doFromSdk(Build.VERSION_CODES.JELLY_BEAN){\n")
+					attributes.add("\tselectedWeekBackgroundColor=${color(value)}\n")
+					attributes.add("}")
 				}
-				"focusedMonthDateColor"->{
-				
-				}
-				"unfocusedMonthDateColor"->{
-				
-				}
-				"weekNumberColor"->{
-				
-				}
-				"weekSeparatorLineColor"->{
-				
-				}
-				"selectedDateVerticalBar"->{
-				
-				}
+				"focusedMonthDateColor"->attributes.add("focusedMonthDateColor=${color(value)}\n")
+				"unfocusedMonthDateColor"->attributes.add("unfocusedMonthDateColor=${color(value)}\n")
+				"weekNumberColor"->attributes.add("weekNumberColor=${color(value)}\n")
+				"weekSeparatorLineColor"->attributes.add("weekSeparatorLineColor=${color(value)}\n")
+				"selectedDateVerticalBar"->attributes.add("selectedDateVerticalBar=${resource(value)}\n")
 				"weekDayTextAppearance"->{
-				
+					attributes.add("doFromSdk(Build.VERSION_CODES.JELLY_BEAN){\n")
+					attributes.add("weekDayTextAppearance=${resourceRef(value)}\n")
+					attributes.add("}")
 				}
 				"dateTextAppearance"->{
-				
+					attributes.add("doFromSdk(Build.VERSION_CODES.JELLY_BEAN){\n")
+					attributes.add("\tdateTextAppearance=${resourceRef(value)}\n")
+					attributes.add("}")
 				}
 			}
 		}
