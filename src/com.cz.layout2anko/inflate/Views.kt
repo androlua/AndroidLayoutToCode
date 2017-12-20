@@ -6,9 +6,9 @@ import com.cz.layout2anko.inflate.impl.ViewGroup
 /**
  * Created by cz on 2017/12/20.
  */
-val DIMEN_PATTERN="((?<int>\\d+)|(?<float>[\\d\\.]+))(?<unit>(?:di?p)|(?:sp)|?:(px))".toPattern()
-val RESOURCE_PATTERN="@+?(\\w+)/(.+)".toPattern()
-
+val DIMEN_PATTERN="(?:(?<float>\\d+\\.\\d+)|(?<int>\\d+))(?<unit>(?:di?p)|(?:sp)|(?:px))?".toPattern()
+//?android:attr/actionBarDivider   ?attr/actionBarDivider  ?actionBarDivider 三种引用方式
+val RESOURCE_PATTERN="(@\\+?(?<type>\\w+)/(?<res>.+))|(\\?(?<android>android:)?(attr/)?(?<attr>\\w+))".toPattern()
 
 /**
  * 转换尺寸
@@ -22,9 +22,7 @@ fun ViewGroup.LayoutParams.dimen(value:String):String=dimen(value)
 fun View.string(value:String):String=string(value)
 fun ViewGroup.LayoutParams.string(value:String):String=string(value)
 
-/**
- * 转换int
- */
+
 fun View.int(value:String):String=int(value)
 fun ViewGroup.LayoutParams.int(value:String):String=int(value)
 
@@ -34,9 +32,7 @@ fun ViewGroup.LayoutParams.float(value:String):String=float(value)
 
 fun View.long(value:String):String=long(value)
 fun ViewGroup.LayoutParams.long(value:String):String=long(value)
-/**
- * 转换bool
- */
+
 fun View.bool(value:String):String=bool(value)
 fun ViewGroup.LayoutParams.bool(value:String):String=bool(value)
 
@@ -55,6 +51,25 @@ fun ViewGroup.LayoutParams.resource(value:String):String=resource(value)
 fun View.resourceRef(value:String):String=resourceRef(value)
 fun ViewGroup.LayoutParams.resourceRef(value:String):String=resourceRef(value)
 
+fun View.drawingCacheQuality(quality:String)=drawingCacheQuality(quality)
+fun View.layerType(type:String)=layerType(type)
+fun View.layoutDirection(direction:String)=layoutDirection(direction)
+fun View.scrollBarStyle(style:String)=scrollBarStyle(style)
+fun View.textDirection(direction:String)=textDirection(direction)
+fun View.visibility(visible:String)=visibility(visible)
+fun View.textAlignment(alignment:String)=textAlignment(alignment)
+fun View.gravity(gravity:String)=gravity(gravity)
+
+/**
+ * LayoutParams的布局方位
+ */
+fun ViewGroup.LayoutParams.gravity(gravity:String)=gravity(gravity)
+/**
+ * LayoutParams的布局属性
+ * 兼容 wrap_content/fill_parent or (数值sp/dp/dip) or 引用 @dimen/actionBarSize 以及?actionBarSize/?attrs/actionBarSize/?android:attrs/actionBarSize
+ */
+fun ViewGroup.LayoutParams.layoutDimension(value:String):String=layoutDimension(value)
+
 fun dimen(value:String):String{
     if(value.startsWith("@")){
         return resource(value)
@@ -71,31 +86,46 @@ fun string(value:String):String{
     }
 }
 
+
+fun layout(value: String)=when(value){
+    "match_parent"->"ViewGroup.LayoutParams.MATCH_PARENT"
+    "fill_parent"->"ViewGroup.LayoutParams.FILL_PARENT"
+    else->"ViewGroup.LayoutParams.WRAP_CONTENT"
+}
+
+private fun layoutDimension(value:String):String{
+    if(value.startsWith("@")){
+        //引用
+        return resource(value)
+    } else if(DIMEN_PATTERN.matcher(value).matches()){
+        //数值
+        return dimensionValue(value)
+    } else {
+        //布局数值
+        return layout(value)
+    }
+}
+
 private fun dimensionValue(value: String): String {
     //数值分为
     // float:浮点型,后加f
     // sp/dp/dip/px
     // 固定值
     var result = String()
-    val matcher = View.DIMEN_PATTERN.matcher(value)
+    val matcher = DIMEN_PATTERN.matcher(value)
     if (matcher.find()) {
         val int = matcher.group("int")
-        val float = matcher.group("float")
+        var float = matcher.group("float")
+        if(null!=float) float+="f"
         val unit = matcher.group("unit")
         val number = int?:float?:"0"
         if (null == unit) {
             result = number
         } else {
-            if (null != int) {
-                when (unit) {
-                    "sp" -> result = "sp($number*1f)"
-                    "dip", "dp" -> result = "dp($number*1f)"
-                }
-            } else if (null != float) {
-                when (unit) {
-                    "sp" -> result = "sp($number)"
-                    "dip", "dp" -> result = "dp($number)"
-                }
+            when (unit) {
+                "sp" -> result = "sp($number)"
+                "dip", "dp" -> result = "dp($number)"
+                else ->result = number
             }
         }
     }
@@ -148,9 +178,13 @@ fun colorStateList(value:String):String{
     var result=String()
     val matcher= View.RESOURCE_PATTERN.matcher(value)
     if(matcher.find()) {
-        val type = matcher.group(1)
-        val ref = matcher.group(2)
-        if("drawable"==type){
+        val type = matcher.group("type")
+        val ref = matcher.group("ref")
+        val attr=matcher.group("attr")
+        if(null!=attr){
+            //资源引用
+            return "R.attr.$attr"
+        } else if("drawable"==type){
             result = "ContextCompat.getColorStateList(context,R.drawable.$ref)"
         } else {
             result = "//$ref is not a drawable ref! Can't reverse it!"
@@ -167,22 +201,28 @@ fun resource(value:String):String{
     var result=String()
     val matcher= View.RESOURCE_PATTERN.matcher(value)
     if(matcher.find()){
-        val type=matcher.group(1)
-        val ref=matcher.group(2)
-        when(type){
-            "id"->result="R.id.$ref"
-            "string"->result="resources.getString(R.string.$ref)"
-            "dimen"->result="resources.getDimension(R.dimen.$ref)"
-            "integer"->result="resources.getInteger(R.integer.$ref)"
-            "color"->result="ContextCompat.getColor(context,R.color.$ref)"
-            "drawable"->result="ContextCompat.getDrawable(R.drawable.$ref)"
-            "mipmap"->result="ContextCompat.getDrawable(R.mipmap.$ref)"
-            "string"->result="context.getString(R.string.$ref)"
-            "array"->result="resources.getStringArray(R.array.$ref)"
-            "theme"->result="setTheme(R.style.$ref)"
-            "anim"->result="AnimationUtils.loadAnimation(context,R.anim.$ref)"
-            "bool"->result="resources.getBoolean(R.bool.$ref)"
-            "animator"->result="AnimatorInflater.loadAnimator(context,R.animator.$ref)"
+        val type = matcher.group("type")
+        val ref = matcher.group("ref")
+        val attr=matcher.group("attr")
+        if(null!=attr){
+            //资源引用
+            return "R.attr.$attr"
+        } else {
+            when(type){
+                "id"->result="R.id.$ref"
+                "string"->result="resources.getString(R.string.$ref)"
+                "dimen"->result="resources.getDimension(R.dimen.$ref)"
+                "integer"->result="resources.getInteger(R.integer.$ref)"
+                "color"->result="ContextCompat.getColor(context,R.color.$ref)"
+                "drawable"->result="ContextCompat.getDrawable(R.drawable.$ref)"
+                "mipmap"->result="ContextCompat.getDrawable(R.mipmap.$ref)"
+                "string"->result="context.getString(R.string.$ref)"
+                "array"->result="resources.getStringArray(R.array.$ref)"
+                "theme"->result="setTheme(R.style.$ref)"
+                "anim"->result="AnimationUtils.loadAnimation(context,R.anim.$ref)"
+                "bool"->result="resources.getBoolean(R.bool.$ref)"
+                "animator"->result="AnimatorInflater.loadAnimator(context,R.animator.$ref)"
+            }
         }
     }
     return result
@@ -196,20 +236,26 @@ fun resourceRef(value:String):String{
     var result=String()
     val matcher= View.RESOURCE_PATTERN.matcher(value)
     if(matcher.find()){
-        val type=matcher.group(1)
-        val ref=matcher.group(2)
-        when(type){
-            "id"->result="R.id.$ref"
-            "dimen"->result="R.dimen.$ref"
-            "integer"->result="R.integer.$ref"
-            "color"->result="context,R.color.$ref"
-            "drawable"->result="R.drawable.$ref"
-            "mipmap"->result="R.mipmap.$ref"
-            "string"->result="R.string.$ref"
-            "array"->result="R.array.$ref"
-            "theme"->result="R.style.$ref"
-            "anim"->result="R.anim.$ref"
-            "animator"->result="R.animator.$ref"
+        val type = matcher.group("type")
+        val ref = matcher.group("ref")
+        val attr=matcher.group("attr")
+        if(null!=attr){
+            //资源引用
+            return "R.attr.$attr"
+        } else {
+            when(type){
+                "id"->result="R.id.$ref"
+                "dimen"->result="R.dimen.$ref"
+                "integer"->result="R.integer.$ref"
+                "color"->result="context,R.color.$ref"
+                "drawable"->result="R.drawable.$ref"
+                "mipmap"->result="R.mipmap.$ref"
+                "string"->result="R.string.$ref"
+                "array"->result="R.array.$ref"
+                "theme"->result="R.style.$ref"
+                "anim"->result="R.anim.$ref"
+                "animator"->result="R.animator.$ref"
+            }
         }
     }
     return result
@@ -231,7 +277,6 @@ fun layerType(type:String)=when(type){
     "software"->"View.LAYER_TYPE_SOFTWARE"
     else->"View.LAYER_TYPE_NONE"
 }
-
 /**
  * {@link #LAYOUT_DIRECTION_LTR},
  * {@link #LAYOUT_DIRECTION_RTL},

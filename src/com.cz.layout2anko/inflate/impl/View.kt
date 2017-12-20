@@ -80,8 +80,9 @@ import org.jdom.Element
  */
 open class View {
 	companion object{
-		val DIMEN_PATTERN="((?<int>\\d+)|(?<float>[\\d\\.]+))(?<unit>(?:di?p)|(?:sp)|?:(px))".toPattern()
-		val RESOURCE_PATTERN="@+?(\\w+)/(.+)".toPattern()
+		val DIMEN_PATTERN="(?:(?<float>\\d+\\.\\d+)|(?<int>\\d+))(?<unit>(?:di?p)|(?:sp)|(?:px))?".toPattern()
+		//?android:attr/actionBarDivider   ?attr/actionBarDivider  ?actionBarDivider 三种引用方式
+		val RESOURCE_PATTERN="(@\\+?(?<type>\\w+)/(?<res>.+))|(\\?(?<android>android:)?(attr/)?(?<attr>\\w+))".toPattern()
 	}
 	val attributes= mutableListOf<Any>()
 
@@ -186,9 +187,13 @@ open class View {
 		var result=String()
 		val matcher=RESOURCE_PATTERN.matcher(value)
 		if(matcher.find()) {
-			val type = matcher.group(1)
-			val ref = matcher.group(2)
-			if("drawable"==type){
+			val type = matcher.group("type")
+			val ref = matcher.group("ref")
+			val attr=matcher.group("attr")
+			if(null!=attr){
+				//资源引用
+				return "R.attr.$attr"
+			} else if("drawable"==type){
 				result = "ContextCompat.getColorStateList(context,R.drawable.$ref)"
 			} else {
 				result = "//$ref is not a drawable ref! Can't reverse it!"
@@ -205,23 +210,30 @@ open class View {
 		var result=String()
 		val matcher=RESOURCE_PATTERN.matcher(value)
 		if(matcher.find()){
-			val type=matcher.group(1)
-			val ref=matcher.group(2)
-			when(type){
-				"id"->result="R.id.$ref"
-				"string"->result="resources.getString(R.string.$ref)"
-				"dimen"->result="resources.getDimension(R.dimen.$ref)"
-				"integer"->result="resources.getInteger(R.integer.$ref)"
-				"color"->result="ContextCompat.getColor(context,R.color.$ref)"
-				"drawable"->result="ContextCompat.getDrawable(R.drawable.$ref)"
-				"mipmap"->result="ContextCompat.getDrawable(R.mipmap.$ref)"
-				"string"->result="context.getString(R.string.$ref)"
-				"array"->result="resources.getStringArray(R.array.$ref)"
-				"theme"->result="setTheme(R.style.$ref)"
-				"anim"->result="AnimationUtils.loadAnimation(context,R.anim.$ref)"
-				"bool"->result="resources.getBoolean(R.bool.$ref)"
-				"animator"->result="AnimatorInflater.loadAnimator(context,R.animator.$ref)"
+			val type = matcher.group("type")
+			val ref = matcher.group("ref")
+			val attr=matcher.group("attr")
+			if(null!=attr){
+				//资源引用
+				return "R.attr.$attr"
+			} else {
+				when(type){
+					"id"->result="R.id.$ref"
+					"string"->result="resources.getString(R.string.$ref)"
+					"dimen"->result="resources.getDimension(R.dimen.$ref)"
+					"integer"->result="resources.getInteger(R.integer.$ref)"
+					"color"->result="ContextCompat.getColor(context,R.color.$ref)"
+					"drawable"->result="ContextCompat.getDrawable(R.drawable.$ref)"
+					"mipmap"->result="ContextCompat.getDrawable(R.mipmap.$ref)"
+					"string"->result="context.getString(R.string.$ref)"
+					"array"->result="resources.getStringArray(R.array.$ref)"
+					"theme"->result="setTheme(R.style.$ref)"
+					"anim"->result="AnimationUtils.loadAnimation(context,R.anim.$ref)"
+					"bool"->result="resources.getBoolean(R.bool.$ref)"
+					"animator"->result="AnimatorInflater.loadAnimator(context,R.animator.$ref)"
+				}
 			}
+
 		}
 		return result
 	}
@@ -234,20 +246,26 @@ open class View {
 		var result=String()
 		val matcher=RESOURCE_PATTERN.matcher(value)
 		if(matcher.find()){
-			val type=matcher.group(1)
-			val ref=matcher.group(2)
-			when(type){
-				"id"->result="R.id.$ref"
-				"dimen"->result="R.dimen.$ref"
-				"integer"->result="R.integer.$ref"
-				"color"->result="context,R.color.$ref"
-				"drawable"->result="R.drawable.$ref"
-				"mipmap"->result="R.mipmap.$ref"
-				"string"->result="R.string.$ref"
-				"array"->result="R.array.$ref"
-				"theme"->result="R.style.$ref"
-				"anim"->result="R.anim.$ref"
-				"animator"->result="R.animator.$ref"
+			val type = matcher.group("type")
+			val ref = matcher.group("ref")
+			val attr=matcher.group("attr")
+			if(null!=attr){
+				//资源引用
+				return "R.attr.$attr"
+			} else {
+				when (type) {
+					"id" -> result = "R.id.$ref"
+					"dimen" -> result = "R.dimen.$ref"
+					"integer" -> result = "R.integer.$ref"
+					"color" -> result = "context,R.color.$ref"
+					"drawable" -> result = "R.drawable.$ref"
+					"mipmap" -> result = "R.mipmap.$ref"
+					"string" -> result = "R.string.$ref"
+					"array" -> result = "R.array.$ref"
+					"theme" -> result = "R.style.$ref"
+					"anim" -> result = "R.anim.$ref"
+					"animator" -> result = "R.animator.$ref"
+				}
 			}
 		}
 		return result

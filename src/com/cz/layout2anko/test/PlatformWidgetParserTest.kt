@@ -28,7 +28,8 @@ class PlatformWidgetParserTest {
     @Test
     fun parse(){
         //TODO 此处动态取用户目录下的adb path
-        val folder= File("/Users/cz/Library/Android/sdk/sources/android-26/android")
+//        val folder= File("/Users/cz/Library/Android/sdk/sources/android-26/android")
+        val folder=File("D:\\Android\\Sdk\\sources\\android-25\\android")
         //合并目录内所有的类信息
         val classItems = mergeFolder(File(folder,"/view/"), File(folder,"/widget/"))
         val classRefItems= mutableListOf<ClassRefItem>()
