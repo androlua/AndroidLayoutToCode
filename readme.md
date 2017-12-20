@@ -57,3 +57,21 @@ sourceSets {
 * 检索sdk26内所有java widget源码,获得所有控件attr引用属性
 * parser目录下为,正则分析所有attr并生成类代码
 * 在iml文件中添加 <sourceFolder url="file://$MODULE_DIR$/src/com/cz/layout2anko/test" isTestSource="true" /> 使之成为测试目录
+
+#### 2017/12/20
+* 代码生成了所有映射关系类
+* 完成了View类的所有属性映射
+
+
+#### 包结构说明
+* action 为事件源
+* delegate 为工具定义,如弹出消息,刷新项目结构
+* exception 为自定义异常
+* inflateAttributes 为xml解析以及生成anko的控件映射类
+* model涉及部分对象体
+* prefs为配置项
+* util为一个扩展工具类
+
+####测试类介绍
+* test/LayoutParser 测试xml解析
+* test/PlatformWidgetParserTest 为解析平台Source目录内widget源码,然后生成anko的映射解析类代码,构建类似LayoutInflater的解析机制代码
