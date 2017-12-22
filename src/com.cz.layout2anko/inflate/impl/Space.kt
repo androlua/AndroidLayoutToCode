@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class Space : View() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="space"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedSpace"
 	/**
 	 * 解析Space属性集,并返回解析后的anko代码
 	 */

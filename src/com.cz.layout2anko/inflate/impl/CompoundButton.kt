@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class CompoundButton : Button() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="compoundButton"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedCompoundButton"
 	/**
 	 * 解析CompoundButton属性集,并返回解析后的anko代码
 	 */

@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class DateTimeView : TextView() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="dateTimeView"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedDateTimeView"
 	/**
 	 * 解析DateTimeView属性集,并返回解析后的anko代码
 	 */

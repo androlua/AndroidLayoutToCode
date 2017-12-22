@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class ZoomControls : LinearLayout() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="zoomControls"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedZoomControls"
 	/**
 	 * 解析ZoomControls属性集,并返回解析后的anko代码
 	 */

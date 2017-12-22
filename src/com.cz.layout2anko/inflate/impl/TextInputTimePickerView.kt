@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class TextInputTimePickerView : RelativeLayout() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="textInputTimePickerView"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedTextInputTimePickerView"
 	/**
 	 * 解析TextInputTimePickerView属性集,并返回解析后的anko代码
 	 */

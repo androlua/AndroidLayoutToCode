@@ -8,6 +8,16 @@ import org.jdom.Element
  *
  */
 open class AbsoluteLayout : ViewGroup() {
+
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="absoluteLayout"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedAbsoluteLayout"
 	
 	/**
 	 * 解析AbsoluteLayout属性集,并返回解析后的anko代码

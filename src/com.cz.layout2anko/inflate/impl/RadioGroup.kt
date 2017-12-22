@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class RadioGroup : LinearLayout() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="radioGroup"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedRadioGroup"
 	/**
 	 * 解析RadioGroup属性集,并返回解析后的anko代码
 	 */
@@ -16,7 +24,7 @@ open class RadioGroup : LinearLayout() {
 		super.inflateAttributes(element)
 	}
 
-	 fun getLayoutParams()=LayoutParams()
+	 override fun getLayoutParams()=LayoutParams()
 
 	/**
 	 * Created by cz on 2017/12/19.

@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class RadioButton : CompoundButton() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="radioButton"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedRadioButton"
 	/**
 	 * 解析RadioButton属性集,并返回解析后的anko代码
 	 */

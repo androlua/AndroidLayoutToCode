@@ -1,5 +1,9 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.*
+import com.cz.layout2anko.inflate.item.AttributeConvert
+import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -19,7 +23,15 @@ import org.jdom.Element
  *
  */
 open class ViewGroup : View() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="viewGroup"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedViewGroup"
 	/**
 	 * 解析ViewGroup属性集,并返回解析后的anko代码
 	 */
@@ -27,40 +39,24 @@ open class ViewGroup : View() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"clipChildren"->{
-				
-				}
-				"clipToPadding"->{
-				
-				}
-				"layoutAnimation"->{
-				
-				}
-				"animationCache"->{
-				
-				}
-				"persistentDrawingCache"->{
-				
-				}
-				"alwaysDrawnWithCache"->{
-				
-				}
-				"addStatesFromChildren"->{
-				
-				}
-				"descendantFocusability"->{
-				
-				}
+				"clipChildren"->attributes.add(ViewConvertItem("clipChildren",bool(value)))
+				"clipToPadding"->attributes.add(ViewConvertItem("clipToPadding",bool(value)))
+				"layoutAnimation"->attributes.add(ViewMethodConvertItem("setLayoutAnimation(${resource(value)})"))
+				"animationCache"->attributes.add(ViewConvertItem("isAnimationCacheEnabled",resource(value)))
+				"persistentDrawingCache"->attributes.add(ViewConvertItem("persistentDrawingCache",persistentDrawingCache(value)))
+				"alwaysDrawnWithCache"->attributes.add(ViewConvertItem("isAlwaysDrawnWithCacheEnabled","setAlwaysDrawnWithCacheEnabled",persistentDrawingCache(value)))
+				"addStatesFromChildren"->attributes.add(ViewMethodConvertItem("setAddStatesFromChildren${bool(value)}"))
+				"descendantFocusability"->attributes.add(ViewConvertItem("descendantFocusability",descendantFocusability(value)))
 				"animateLayoutChanges"->{
-				
+//					val animateLayoutChanges = a.getBoolean(attr, false)
+//					if (animateLayoutChanges) {
+//						setLayoutTransition(LayoutTransition())
+//					}
 				}
-				"splitMotionEvents"->{
-				
-				}
-				"layoutMode"->{
-				
-				}
+				"splitMotionEvents"->attributes.add(ViewConvertItem("isMotionEventSplittingEnabled","setMotionEventSplittingEnabled",bool(value)))
+				"layoutMode"->attributes.add(ViewConvertItem("layoutMode",layoutMode(value)))
 			}
 		}
 	}
@@ -77,40 +73,8 @@ open class ViewGroup : View() {
 	 */
 	open class LayoutParams {
 
-		val attributes= mutableListOf<String>()
+		val attributes= mutableListOf<AttributeConvert>()
 
-		/**
-		 * Gravity.BOTTOM
-		 * Gravity.CENTER
-		 * Gravity.CENTER_HORIZONTAL
-		 * Gravity.CENTER_VERTICAL
-		 * Gravity.CLIP_HORIZONTAL
-		 * Gravity.CLIP_VERTICAL
-		 * Gravity.END
-		 * Gravity.FILL
-		 * Gravity.FILL_HORIZONTAL
-		 * Gravity.FILL_VERTICAL
-		 * Gravity.LEFT
-		 * Gravity.RIGHT
-		 * Gravity.START
-		 * Gravity.TOP
-		 */
-		fun gravity(gravity:String)=when(gravity){
-			"bottom"->"Gravity.BOTTOM"
-			"center"->"Gravity.CENTER"
-			"center_horizontal"->"Gravity.CENTER_HORIZONTAL"
-			"center_vertical"->"Gravity.CENTER_VERTICAL"
-			"clip_horizontal"->"Gravity.CLIP_HORIZONTAL"
-			"clip_vertical"->"Gravity.CLIP_VERTICAL"
-			"end"->"Gravity.END"
-			"fill"->"Gravity.FILL"
-			"fill_horizontal"->"Gravity.FILL_HORIZONTAL"
-			"fill_vertical"->"Gravity.FILL_VERTICAL"
-			"right"->"Gravity.RIGHT"
-			"start"->"Gravity.START"
-			"top"->"Gravity.TOP"
-			else->"Gravity.LEFT"
-		}
 		/**
 		 * 解析LayoutParams属性集,并返回解析后的anko代码
 		 */
@@ -119,7 +83,7 @@ open class ViewGroup : View() {
 				val name=it.name
 				when(name){
 					"layout_height"->{
-					
+
 					}
 					"layout_width"->{
 					

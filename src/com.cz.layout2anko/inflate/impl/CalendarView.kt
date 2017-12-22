@@ -1,5 +1,7 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.*
+import com.cz.layout2anko.inflate.item.ViewConvertItem
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -21,7 +23,16 @@ import org.jdom.Element
  *
  */
 open class CalendarView : FrameLayout() {
-	
+
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="calendarView"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedCalendarView"
 	/**
 	 * 解析CalendarView属性集,并返回解析后的anko代码
 	 */
@@ -31,31 +42,19 @@ open class CalendarView : FrameLayout() {
 			val name=it.name
 			val value=it.value
 			when(name){
-				"showWeekNumber"->attributes.add("showWeekNumber=${bool(value)}")
-				"firstDayOfWeek"->attributes.add("showWeekNumber=${int(value)}")
-				"minDate"->attributes.add("minDate=${long(value)}")
-				"maxDate"->attributes.add("maxDate=${long(value)}")
-				"shownWeekCount"->attributes.add("shownWeekCount=${int(value)}")
-				"selectedWeekBackgroundColor"->{
-					attributes.add("doFromSdk(Build.VERSION_CODES.JELLY_BEAN){\n")
-					attributes.add("\tselectedWeekBackgroundColor=${color(value)}\n")
-					attributes.add("}")
-				}
-				"focusedMonthDateColor"->attributes.add("focusedMonthDateColor=${color(value)}\n")
-				"unfocusedMonthDateColor"->attributes.add("unfocusedMonthDateColor=${color(value)}\n")
-				"weekNumberColor"->attributes.add("weekNumberColor=${color(value)}\n")
-				"weekSeparatorLineColor"->attributes.add("weekSeparatorLineColor=${color(value)}\n")
-				"selectedDateVerticalBar"->attributes.add("selectedDateVerticalBar=${resource(value)}\n")
-				"weekDayTextAppearance"->{
-					attributes.add("doFromSdk(Build.VERSION_CODES.JELLY_BEAN){\n")
-					attributes.add("weekDayTextAppearance=${resourceRef(value)}\n")
-					attributes.add("}")
-				}
-				"dateTextAppearance"->{
-					attributes.add("doFromSdk(Build.VERSION_CODES.JELLY_BEAN){\n")
-					attributes.add("\tdateTextAppearance=${resourceRef(value)}\n")
-					attributes.add("}")
-				}
+				"showWeekNumber"->attributes.add(ViewConvertItem("showWeekNumber",bool(value)))
+				"firstDayOfWeek"->attributes.add(ViewConvertItem("firstDayOfWeek",int(value)))
+				"minDate"->attributes.add(ViewConvertItem("minDate",long(value)))
+				"maxDate"->attributes.add(ViewConvertItem("maxDate",long(value)))
+				"shownWeekCount"->attributes.add(ViewConvertItem("shownWeekCount",int(value)))
+				"selectedWeekBackgroundColor"-> attributes.add(ViewConvertItem("selectedWeekBackgroundColor",color(value),16))
+				"focusedMonthDateColor"->attributes.add(ViewConvertItem("focusedMonthDateColor",color(value)))
+				"unfocusedMonthDateColor"->attributes.add(ViewConvertItem("unfocusedMonthDateColor",color(value)))
+				"weekNumberColor"->attributes.add(ViewConvertItem("weekNumberColor",color(value)))
+				"weekSeparatorLineColor"->attributes.add(ViewConvertItem("weekSeparatorLineColor",color(value)))
+				"selectedDateVerticalBar"->attributes.add(ViewConvertItem("selectedDateVerticalBar",resource(value)))
+				"weekDayTextAppearance"->attributes.add(ViewConvertItem("weekDayTextAppearance",resourceRef(value),16))
+				"dateTextAppearance"->attributes.add(ViewConvertItem("dateTextAppearance",resourceRef(value),16))
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.item.ViewConvertItem
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -11,7 +12,15 @@ import org.jdom.Element
  *
  */
 open class AnalogClock : View() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="analogClock"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedAnalogClock"
 	/**
 	 * 解析AnalogClock属性集,并返回解析后的anko代码
 	 */
@@ -21,17 +30,8 @@ open class AnalogClock : View() {
 			val name=it.name
 			val value=it.value
 			when(name){
-				"dial"->{
-					attributes.add("//Can't reverse dial!")
-					attributes.add("//dial=$value")
-				}
-				"hand_hour"->{
-					attributes.add("//Can't reverse hand_hour!")
-					attributes.add("//hand_hour=$value")
-				}
-				"hand_minute"->{
-					attributes.add("//Can't reverse hand_minute!")
-					attributes.add("//hand_minute=$value")
+				"dial","hand_hour","hand_minute"->{
+					attributes.add(ViewConvertItem(name,value,false))
 				}
 			}
 		}

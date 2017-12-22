@@ -1,5 +1,8 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.bool
+import com.cz.layout2anko.inflate.int
+import com.cz.layout2anko.inflate.item.ViewConvertItem
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -14,6 +17,15 @@ import org.jdom.Element
  *
  */
 open class GridLayout : ViewGroup() {
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="gridLayout"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedGridLayout"
 
 	fun orientation(orientation:String)=when(orientation){
 		"horizontal"->"GridLayout.HORIZONTAL"
@@ -28,12 +40,12 @@ open class GridLayout : ViewGroup() {
 			val name=it.name
 			val value=it.value
 			when(name){
-				"orientation"->attributes.add("orientation=${orientation(value)}")
-				"rowCount"->attributes.add("rowCount=${int(value)}")
-				"columnCount"->attributes.add("columnCount=${int(value)}")
-				"useDefaultMargins"->attributes.add("useDefaultMargins=${bool(value)}")
-				"rowOrderPreserved"->attributes.add("isRowOrderPreserved=${bool(value)}")
-				"columnOrderPreserved"->attributes.add("isColumnOrderPreserved=${bool(value)}")
+				"orientation"->attributes.add(ViewConvertItem("orientation",orientation(value)))
+				"rowCount"->attributes.add(ViewConvertItem("rowCount",int(value)))
+				"columnCount"->attributes.add(ViewConvertItem("columnCount",int(value)))
+				"useDefaultMargins"->attributes.add(ViewConvertItem("useDefaultMargins","setUseDefaultMargins",bool(value)))
+				"rowOrderPreserved"->attributes.add(ViewConvertItem("isRowOrderPreserved","setRowOrderPreserved",bool(value)))
+				"columnOrderPreserved"->attributes.add(ViewConvertItem("isColumnOrderPreserved","setColumnOrderPreserved",bool(value)))
 			}
 		}
 	}
@@ -64,31 +76,11 @@ open class GridLayout : ViewGroup() {
 				val name=it.name
 				val value=it.value
 				when(name){
-					"layout_row"->{
-						attributes.add("//Can't reverse layout_row!")
-						attributes.add("//layout_row=$value")
+					"layout_row","layout_rowSpan","layout_rowWeight",
+					"layout_column","layout_columnSpan","layout_columnWeight",
+					"layout_gravity" ->{
+						attributes.add(ViewConvertItem(name,value,false))
 					}
-					"layout_rowSpan"->{
-						attributes.add("//Can't reverse layout_rowSpan!")
-						attributes.add("//layout_rowSpan=$value")
-					}
-					"layout_rowWeight"->{
-						attributes.add("//Can't reverse layout_rowWeight!")
-						attributes.add("//layout_rowWeight=$value")
-					}
-					"layout_column"->{
-						attributes.add("//Can't reverse layout_column!")
-						attributes.add("//layout_column=$value")
-					}
-					"layout_columnSpan"->{
-						attributes.add("//Can't reverse layout_columnSpan!")
-						attributes.add("//layout_columnSpan=$value")
-					}
-					"layout_columnWeight"->{
-						attributes.add("//Can't reverse layout_columnWeight!")
-						attributes.add("//layout_columnWeight=$value")
-					}
-					"layout_gravity"->attributes.add("gravity=${gravity(value)}")
 				}
 			}
 		}

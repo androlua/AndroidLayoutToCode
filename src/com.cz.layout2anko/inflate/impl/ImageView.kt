@@ -1,5 +1,8 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.*
+import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -15,27 +18,16 @@ import org.jdom.Element
  *
  */
 open class ImageView : View() {
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="imageView"
 
 	/**
-	 * ImageView.ScaleType.CENTER
-	 * ImageView.ScaleType.CENTER_CROP
-	 * ImageView.ScaleType.CENTER_INSIDE
-	 * ImageView.ScaleType.FIT_CENTER
-	 * ImageView.ScaleType.FIT_END
-	 * ImageView.ScaleType.FIT_START
-	 * ImageView.ScaleType.FIT_XY
-	 * ImageView.ScaleType.MATRIX
+	 * 获得控件带样式映射名称
 	 */
-	fun scaleType(type:String)=when(type){
-		"center"->"ImageView.ScaleType.CENTER"
-		"centerCrop"->"ImageView.ScaleType.CENTER_CROP"
-		"centerInside"->"ImageView.ScaleType.CENTER_INSIDE"
-		"fitCenter"->"ImageView.ScaleType.FIT_CENTER"
-		"fitEnd"->"ImageView.ScaleType.FIT_END"
-		"fitStart"->"ImageView.ScaleType.FIT_START"
-		"fitXY"->"ImageView.ScaleType.FIT_XY"
-		else ->"ImageView.ScaleType.MATRIX"
-	}
+	override fun getThemeViewName()="themedImageView"
+
 	/**
 	 * 解析ImageView属性集,并返回解析后的anko代码
 	 */
@@ -45,19 +37,13 @@ open class ImageView : View() {
 			val name=it.name
 			val value=it.value
 			when(name){
-				"adjustViewBounds"->attributes.add("adjustViewBounds=${bool(value)}")
-				"src"->attributes.add("setImageResource(=${resourceRef(value)})")
-				"maxWidth"->{
-					attributes.add("setImageDrawable(=${resource(value)})")
-				}
-				"maxHeight"->attributes.add("maxWidth(=${dimen(value)})")
-				"tint"->attributes.add("imageTintList(=${colorStateList(value)})")
-				"scaleType"->attributes.add("imageTintList(=${scaleType(value)})")
-				"cropToPadding"->{
-					attributes.add("doFromSdk(Build.VERSION_CODES.JELLY_BEAN){\n")
-					attributes.add("\tcropToPadding=${bool(value)}\n")
-					attributes.add("}\n")
-				}
+				"adjustViewBounds"->attributes.add(ViewConvertItem("adjustViewBounds",bool(value)))
+				"src"->attributes.add(ViewMethodConvertItem("setImageResource(${resourceRef(value)})"))
+				"maxWidth"->attributes.add(ViewConvertItem("maxWidth",dimen(value)))
+				"maxHeight"->attributes.add(ViewConvertItem("maxWidth",dimen(value)))
+				"tint"->attributes.add(ViewConvertItem("imageTintList",colorStateList(value)))
+				"scaleType"->attributes.add(ViewConvertItem("scaleType",scaleType(value)))
+				"cropToPadding"->attributes.add(ViewConvertItem("cropToPadding",bool(value),16))
 			}
 		}
 	}

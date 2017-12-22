@@ -9,7 +9,15 @@ import org.jdom.Element
  *
  */
 open class TimePicker : FrameLayout() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="timePicker"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedTimePicker"
 	/**
 	 * 解析TimePicker属性集,并返回解析后的anko代码
 	 */

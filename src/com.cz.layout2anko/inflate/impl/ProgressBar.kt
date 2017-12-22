@@ -1,5 +1,11 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.bool
+import com.cz.layout2anko.inflate.dimen
+import com.cz.layout2anko.inflate.int
+import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
+import com.cz.layout2anko.inflate.resource
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -25,7 +31,15 @@ import org.jdom.Element
  *
  */
 open class ProgressBar : View() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="progressBar"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedProgressBar"
 	/**
 	 * 解析ProgressBar属性集,并返回解析后的anko代码
 	 */
@@ -33,58 +47,25 @@ open class ProgressBar : View() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"animationResolution"->{
-				
-				}
-				"indeterminate"->{
-				
-				}
-				"indeterminateBehavior"->{
-				
-				}
-				"indeterminateDrawable"->{
-				
-				}
-				"indeterminateDuration"->{
-				
-				}
-				"indeterminateOnly"->{
-				
-				}
-				"interpolator"->{
-				
-				}
-				"min"->{
-				
-				}
-				"max"->{
-				
-				}
-				"maxHeight"->{
-				
-				}
-				"maxWidth"->{
-				
-				}
-				"minHeight"->{
-				
-				}
-				"minWidth"->{
-				
-				}
-				"mirrorForRtl"->{
-				
-				}
-				"progress"->{
-				
-				}
-				"progressDrawable"->{
-				
-				}
-				"secondaryProgress"->{
-				
-				}
+				"animationResolution"->attributes.add(ViewConvertItem(name,value,false))
+				"indeterminate"->attributes.add(ViewConvertItem("isIndeterminate","setIndeterminate",bool(value)))
+				"indeterminateBehavior"->attributes.add(ViewConvertItem(name,value,false))
+				"indeterminateDrawable"->attributes.add(ViewConvertItem("indeterminateDrawable",resource(value)))
+				"indeterminateDuration"->attributes.add(ViewConvertItem(name,value,false))
+				"indeterminateOnly"->attributes.add(ViewConvertItem(name,value,false))
+				"interpolator"->attributes.add(ViewConvertItem("interpolator",resource(value)))
+				"min"->attributes.add(ViewConvertItem(name,value,false))
+				"max"->attributes.add(ViewConvertItem("max",int(value)))
+				"maxHeight"->attributes.add(ViewConvertItem(name,value,false))
+				"maxWidth"->attributes.add(ViewConvertItem(name,value,false))
+				"minHeight"->attributes.add(ViewConvertItem(name,value,false))
+				"minWidth"->attributes.add(ViewConvertItem(name,value,false))
+				"mirrorForRtl"->attributes.add(ViewConvertItem(name,value,false))
+				"progress"->attributes.add(ViewConvertItem("progress",int(value)))
+				"progressDrawable"-> attributes.add(ViewConvertItem("progressDrawable",resource(value)))
+				"secondaryProgress"->attributes.add(ViewMethodConvertItem("setSecondaryProgress(${int(value)})"))
 			}
 		}
 	}

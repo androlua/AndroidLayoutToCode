@@ -1,5 +1,8 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.bool
+import com.cz.layout2anko.inflate.gravity
+import com.cz.layout2anko.inflate.item.ViewConvertItem
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -9,7 +12,15 @@ import org.jdom.Element
  *
  */
 open class FrameLayout : ViewGroup() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="frameLayout"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedFrameLayout"
 	/**
 	 * 解析FrameLayout属性集,并返回解析后的anko代码
 	 */
@@ -19,7 +30,7 @@ open class FrameLayout : ViewGroup() {
 			val name=it.name
 			val value=it.value
 			when(name){
-				"measureAllChildren"->attributes.add("measureAllChildren=${bool(value)}")
+				"measureAllChildren"->attributes.add(ViewConvertItem("measureAllChildren",bool(value)))
 			}
 		}
 	}
@@ -44,7 +55,7 @@ open class FrameLayout : ViewGroup() {
 				val name=it.name
 				val value=it.value
 				when(name){
-					"layout_gravity"->attributes.add("gravity=${gravity(value)}")
+					"layout_gravity"->attributes.add(ViewConvertItem("gravity",gravity(value)))
 				}
 			}
 		}

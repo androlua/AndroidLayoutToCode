@@ -1,5 +1,8 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.bool
+import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.string
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -10,7 +13,15 @@ import org.jdom.Element
  *
  */
 open class Chronometer : TextView() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="chronometer"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedChronometer"
 	/**
 	 * 解析Chronometer属性集,并返回解析后的anko代码
 	 */
@@ -20,12 +31,8 @@ open class Chronometer : TextView() {
 			val name=it.name
 			val value=it.value
 			when(name){
-				"format"->attributes.add("format=${string(value)}\n")
-				"countDown"->{
-					attributes.add("doFromSdk(Build.VERSION_CODES.N){\n")
-					attributes.add("isCountDown=${bool(value)}\n")
-					attributes.add("}")
-				}
+				"format"->attributes.add(ViewConvertItem("format",string(value)))
+				"countDown"->attributes.add(ViewConvertItem("isCountDown","setCountDown",string(value),24))
 			}
 		}
 	}

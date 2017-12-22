@@ -1,5 +1,8 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.*
+import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -13,7 +16,15 @@ import org.jdom.Element
  *
  */
 open class SearchView : LinearLayout() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="searchView"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedSearchView"
 	/**
 	 * 解析SearchView属性集,并返回解析后的anko代码
 	 */
@@ -21,22 +32,13 @@ open class SearchView : LinearLayout() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"iconifiedByDefault"->{
-				
-				}
-				"imeOptions"->{
-				
-				}
-				"inputType"->{
-				
-				}
-				"maxWidth"->{
-				
-				}
-				"queryHint"->{
-				
-				}
+				"iconifiedByDefault"->attributes.add(ViewMethodConvertItem("setIconifiedByDefault(${bool(value)})"))
+				"imeOptions"->attributes.add(ViewConvertItem("imeOptions",imeOptions(value)))
+				"inputType"->attributes.add(ViewConvertItem("inputType",inputType(value)))
+				"maxWidth"->attributes.add(ViewConvertItem("maxWidth",dimen(value)))
+				"queryHint"->attributes.add(ViewConvertItem("queryHint",string(value)))
 			}
 		}
 	}

@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class DialerFilter : RelativeLayout() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="dialerFilter"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedDialerFilter"
 	/**
 	 * 解析DialerFilter属性集,并返回解析后的anko代码
 	 */

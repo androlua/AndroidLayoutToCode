@@ -11,7 +11,15 @@ import org.jdom.Element
  *
  */
 open class ToggleButton : CompoundButton() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="toggleButton"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedToggleButton"
 	/**
 	 * 解析ToggleButton属性集,并返回解析后的anko代码
 	 */

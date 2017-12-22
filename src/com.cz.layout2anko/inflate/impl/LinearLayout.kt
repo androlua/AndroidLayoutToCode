@@ -1,5 +1,7 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.*
+import com.cz.layout2anko.inflate.item.ViewConvertItem
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -14,6 +16,15 @@ import org.jdom.Element
  *
  */
 open class LinearLayout : ViewGroup() {
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="linearLayout"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedLinearLayout"
 
 	fun orientation(orientation:String)=when(orientation){
 		"horizontal"->"LinearLayout.HORIZONTAL"
@@ -28,12 +39,12 @@ open class LinearLayout : ViewGroup() {
 			val name=it.name
 			val value=it.value
 			when(name){
-				"baselineAligned"->attributes.add("isBaselineAligned = ${bool(value)})")
-				"baselineAlignedChildIndex"->attributes.add("baselineAlignedChildIndex = ${int(value)})")
-				"gravity"->attributes.add("gravity = ${gravity(value)})")
-				"measureWithLargestChild"->attributes.add("isMeasureWithLargestChildEnabled = ${bool(value)})")
-				"orientation"->attributes.add("orientation = ${orientation(value)})")
-				"weightSum"-> attributes.add("weightSum = ${float(value)})")
+				"baselineAligned"->attributes.add(ViewConvertItem("isBaselineAligned","setBaselineAligned",bool(value)))
+				"baselineAlignedChildIndex"->attributes.add(ViewConvertItem("baselineAlignedChildIndex",int(value)))
+				"gravity"->attributes.add(ViewConvertItem("gravity",gravity(value)))
+				"measureWithLargestChild"->attributes.add(ViewConvertItem("isMeasureWithLargestChildEnabled","setMeasureWithLargestChildEnabled",bool(value)))
+				"orientation"->attributes.add(ViewConvertItem("orientation",orientation(value)))
+				"weightSum"-> attributes.add(ViewConvertItem("weightSum",float(value)))
 			}
 		}
 	}
@@ -57,14 +68,10 @@ open class LinearLayout : ViewGroup() {
 			super.inflateAttributes(element)
 			element.attributes.forEach {
 				val name=it.name
+				val value=it.value
 				when(name){
-					"layout_weight"->{
-//						attributes.add("weight = ${float(value)})")
-//						attributes.add("maxWidth(=${dimen(value)})")
-					}
-					"layout_gravity"->{
-					
-					}
+					"layout_weight"->attributes.add(ViewConvertItem("weight",float(value)))
+					"layout_gravity"->attributes.add(ViewConvertItem("gravity",gravity(value)))
 				}
 			}
 		}

@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class NumberPicker : LinearLayout() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="numberPicker"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedNumberPicker"
 	/**
 	 * 解析NumberPicker属性集,并返回解析后的anko代码
 	 */

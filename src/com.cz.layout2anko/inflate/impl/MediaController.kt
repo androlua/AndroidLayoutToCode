@@ -8,7 +8,16 @@ import org.jdom.Element
  *
  */
 open class MediaController : FrameLayout() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="mediaController"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedMediaController"
+
 	/**
 	 * 解析MediaController属性集,并返回解析后的anko代码
 	 */

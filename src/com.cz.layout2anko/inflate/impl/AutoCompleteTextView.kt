@@ -1,5 +1,10 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.dimen
+import com.cz.layout2anko.inflate.id
+import com.cz.layout2anko.inflate.int
+import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.string
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -17,7 +22,15 @@ import org.jdom.Element
  *
  */
 open class AutoCompleteTextView : EditText() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="autoCompleteTextView"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedAutoCompleteTextView"
 	/**
 	 * 解析AutoCompleteTextView属性集,并返回解析后的anko代码
 	 */
@@ -27,21 +40,14 @@ open class AutoCompleteTextView : EditText() {
 			val name=it.name
 			val value=it.value
 			when(name){
-				"completionHint"->attributes.add("completionHint=${string(value)}")
-				"completionThreshold"->attributes.add("threshold=${dimen(value)}")
-				"completionHintView"->{
-					attributes.add("//Can't reverse completionHintView!")
-					attributes.add("//completionHintView=$value")
-				}
-				"dropDownSelector"->{
-					attributes.add("//Can't reverse dropDownSelector!")
-					attributes.add("//dropDownSelector=$value")
-				}
-				"dropDownAnchor"->attributes.add("dropDownAnchor=${id(value)}")
-				"dropDownWidth"->attributes.add("dropDownWidth=${int(value)}")
-				"dropDownHeight"->attributes.add("dropDownHeight=${int(value)}")
-				"dropDownVerticalOffset"->attributes.add("dropDownVerticalOffset=${int(value)}")
-				"dropDownHorizontalOffset"->attributes.add("dropDownHorizontalOffset=${int(value)}")
+				"completionHint"->attributes.add(ViewConvertItem("completionHint",string(value)))
+				"completionThreshold"->attributes.add(ViewConvertItem("threshold",int(value)))
+				"completionHintView","dropDownSelector"->attributes.add(ViewConvertItem(name,value,false))
+				"dropDownAnchor"->attributes.add(ViewConvertItem("dropDownAnchor",id(value)))
+				"dropDownWidth"->attributes.add(ViewConvertItem("dropDownWidth",int(value)))
+				"dropDownHeight"->attributes.add(ViewConvertItem("dropDownHeight",int(value)))
+				"dropDownVerticalOffset"->attributes.add(ViewConvertItem("dropDownVerticalOffset",int(value)))
+				"dropDownHorizontalOffset"->attributes.add(ViewConvertItem("dropDownHorizontalOffset",int(value)))
 			}
 		}
 	}

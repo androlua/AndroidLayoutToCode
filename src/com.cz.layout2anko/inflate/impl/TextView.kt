@@ -1,5 +1,9 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.*
+import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
+import com.cz.layout2anko.inflate.item.ViewMultiMethodConvertItem
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -84,243 +88,89 @@ import org.jdom.Element
  *
  */
 open class TextView : View() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="textView"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedTextView"
 	/**
 	 * 解析TextView属性集,并返回解析后的anko代码
 	 */
 	override fun inflateAttributes(element:Element){
 		super.inflateAttributes(element)
+		//setShadowLayer
+		attributes.add(ViewMultiMethodConvertItem("setShadowLayer",element.attributes, arrayOf("shadowColor","shadowDx","shadowDy","shadowRadius"),16))
+		attributes.add(ViewMultiMethodConvertItem("setCompoundDrawablesWithIntrinsicBounds",element.attributes,arrayOf("drawableLeft","drawableTop","drawableRight", "drawableBottom")))
+		attributes.add(ViewMultiMethodConvertItem("setCompoundDrawablesRelative",element.attributes,arrayOf("drawableStart","drawableTop","drawableEnd", "drawableBottom")))
+		attributes.add(ViewMultiMethodConvertItem("setLineSpacing",element.attributes,arrayOf("lineSpacingExtra","lineSpacingMultiplier")))
+		attributes.add(ViewMultiMethodConvertItem("setImeActionLabel",element.attributes,arrayOf("imeActionLabel","imeActionId")))
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"text"->{
-				
-				}
-				"bufferType"->{
-				
-				}
-				"hint"->{
-				
-				}
-				"textColor"->{
-				
-				}
-				"textColorHighlight"->{
-				
-				}
-				"textColorHint"->{
-				
-				}
+				"text"->attributes.add(ViewConvertItem("text",string(value)))
+				"bufferType"->attributes.add(ViewMethodConvertItem("setText(text, ${bufferType(value)})"))
+				"hint"->attributes.add(ViewConvertItem("hint",string(value)))
+				"textColor"->attributes.add(ViewConvertItem("textColor{",color(value)))
+				"textColorHighlight"->attributes.add(ViewConvertItem("highlightColor",color(value)))
+				"textColorHint"->attributes.add(ViewMethodConvertItem("setHintTextColor(${color(value)})"))
 				"textAppearance"->{
-				
-				}
-				"textColorLink"->{
-				
-				}
-				"textSize"->{
-				
-				}
-				"textScaleX"->{
-				
-				}
-				"fontFamily"->{
-				
-				}
-				"typeface"->{
-				
-				}
-				"textStyle"->{
-				
-				}
-				"cursorVisible"->{
-				
-				}
-				"maxLines"->{
-				
-				}
-				"maxHeight"->{
-				
-				}
-				"lines"->{
-				
-				}
-				"height"->{
-				
-				}
-				"minLines"->{
-				
-				}
-				"minHeight"->{
-				
-				}
-				"maxEms"->{
-				
-				}
-				"maxWidth"->{
-				
-				}
-				"ems"->{
-				
-				}
-				"width"->{
-				
-				}
-				"minEms"->{
-				
-				}
-				"minWidth"->{
-				
-				}
-				"gravity"->{
-				
-				}
-				"scrollHorizontally"->{
-				
-				}
-				"password"->{
-				
-				}
-				"singleLine"->{
-				
-				}
-				"selectAllOnFocus"->{
-				
-				}
-				"includeFontPadding"->{
-				
-				}
-				"maxLength"->{
-				
-				}
-				"shadowColor"->{
-				
-				}
-				"shadowDx"->{
-				
-				}
-				"shadowDy"->{
-				
-				}
-				"shadowRadius"->{
-				
-				}
-				"autoLink"->{
-				
-				}
-				"linksClickable"->{
-				
-				}
-				"numeric"->{
-				
-				}
-				"digits"->{
-				
-				}
-				"phoneNumber"->{
-				
-				}
-				"inputMethod"->{
-				
-				}
-				"capitalize"->{
-				
-				}
-				"autoText"->{
-				
-				}
-				"editable"->{
-				
-				}
-				"freezesText"->{
-				
-				}
-				"ellipsize"->{
-				
-				}
-				"drawableTop"->{
-				
-				}
-				"drawableBottom"->{
-				
-				}
-				"drawableRight"->{
-				
-				}
-				"drawableLeft"->{
-				
-				}
-				"drawableStart"->{
-				
-				}
-				"drawableEnd"->{
-				
-				}
-				"drawablePadding"->{
-				
-				}
-				"drawableTint"->{
-				
-				}
-				"drawableTintMode"->{
-				
-				}
-				"lineSpacingExtra"->{
-				
-				}
-				"lineSpacingMultiplier"->{
-				
-				}
-				"marqueeRepeatLimit"->{
-				
-				}
-				"inputType"->{
-				
-				}
-				"imeOptions"->{
-				
-				}
-				"privateImeOptions"->{
-				
-				}
-				"imeActionLabel"->{
-				
-				}
-				"imeActionId"->{
-				
-				}
-				"editorExtras"->{
-				
-				}
-				"elegantTextHeight"->{
-				
-				}
-				"letterSpacing"->{
-				
-				}
-				"fontFeatureSettings"->{
-				
-				}
-				"breakStrategy"->{
-				
-				}
-				"hyphenationFrequency"->{
-				
-				}
-				"autoSizeTextType"->{
-				
-				}
-				"autoSizeMinTextSize"->{
-				
-				}
-				"autoSizeMaxTextSize"->{
-				
-				}
-				"autoSizeStepGranularity"->{
-				
-				}
-				"autoSizePresetSizes"->{
-				
-				}
+					attributes.add(ViewMethodConvertItem("setTextAppearance(${resourceRef(value)})",23))
+				}
+				"textColorLink"->attributes.add(ViewMethodConvertItem("setLinkTextColor(${color(value)})"))
+				"textSize"->attributes.add(ViewConvertItem("textSize=",float(value)))
+				"textScaleX"->attributes.add(ViewConvertItem("textScaleX",float(value)))
+				"fontFamily"->ViewConvertItem(name,value,false)
+				"typeface"->attributes.add(ViewConvertItem("typeface",typeface(value)))
+				"textStyle"->attributes.add(ViewMethodConvertItem("setTypeface(typeface, ${textStyle(value)})"))
+				"cursorVisible"->attributes.add(ViewConvertItem("isCursorVisible","setCursorVisible",bool(value)))
+				"maxLines"->attributes.add(ViewConvertItem("maxLines",int(value)))
+				"maxHeight"->attributes.add(ViewConvertItem("maxHeight",dimen(value)))
+				"lines"->attributes.add(ViewConvertItem("lines",int(value)))
+				"height"->attributes.add(ViewConvertItem("height",dimen(value)))
+				"minLines"->attributes.add(ViewConvertItem("minLines",int(value)))
+				"minHeight"->attributes.add(ViewConvertItem("minLines",dimen(value)))
+				"maxEms"->attributes.add(ViewConvertItem("maxEms",int(value)))
+				"maxWidth"->attributes.add(ViewConvertItem("maxWidth",dimen(value)))
+				"ems"->attributes.add(ViewMethodConvertItem("setEms(${int(value)})"))
+				"width"->attributes.add(ViewConvertItem("width",dimen(value)))
+				"minEms"->attributes.add(ViewConvertItem("minEms",int(value)))
+				"minWidth"->attributes.add(ViewConvertItem("minWidth",dimen(value)))
+				"gravity"->attributes.add(ViewConvertItem("gravity",gravity(value)))
+				"scrollHorizontally"->attributes.add(ViewMethodConvertItem("setHorizontallyScrolling(${bool(value)})"))
+				"password"->attributes.add(ViewConvertItem(name,value,false))
+				"singleLine"->attributes.add(ViewConvertItem("singleLine",bool(value)))
+				"selectAllOnFocus"->attributes.add(ViewMethodConvertItem("setSelectAllOnFocus(${bool(value)})"))
+				"includeFontPadding"->attributes.add(ViewConvertItem("includeFontPadding",bool(value)))
+				"maxLength"->attributes.add(ViewMethodConvertItem("setFilters(filters = arrayOf<InputFilter>(InputFilter.LengthFilter(${int(value)}))"))
+
+				"autoLink"->attributes.add(ViewMethodConvertItem("setAutoLinkMask(${autoLink(value)})"))
+				"linksClickable"->attributes.add(ViewConvertItem("linksClickable",bool(value)))
+				"numeric"->attributes.add(ViewConvertItem("inputType",bool(value)))
+				"digits","phoneNumber","inputMethod",
+				"capitalize","autoText","editable"->attributes.add(ViewConvertItem(name,value,false))
+				"freezesText"->attributes.add(ViewConvertItem("freezesText",bool(value)))
+				"ellipsize"->attributes.add(ViewConvertItem("ellipsize",ellipsize(value)))
+				"drawablePadding"->attributes.add(ViewConvertItem("compoundDrawablePadding",dimen(value)))
+				"drawableTint"->attributes.add(ViewMethodConvertItem("setCompoundDrawableTintList(${colorStateList(value)})"))
+				"drawableTintMode"->attributes.add(ViewMethodConvertItem("setCompoundDrawableTintMode(${drawableTintMode(value)})"))
+				"marqueeRepeatLimit"->attributes.add(ViewConvertItem("marqueeRepeatLimit",dimen(value)))
+				"inputType"->attributes.add(ViewConvertItem("inputType",inputType(value)))
+				"imeOptions"->attributes.add(ViewConvertItem("imeOptions",imeOptions(value)))
+				"privateImeOptions"->attributes.add(ViewConvertItem("privateImeOptions",string(value)))
+
+				"editorExtras"->attributes.add(ViewMethodConvertItem("setInputExtras${resourceRef(value)}"))
+				"elegantTextHeight"->attributes.add(ViewMethodConvertItem("setElegantTextHeight${bool(value)}",21))
+				"letterSpacing"->attributes.add(ViewConvertItem("letterSpacing",dimen(value),21))
+				"fontFeatureSettings"->attributes.add(ViewConvertItem("fontFeatureSettings",string(value),21))
+				"breakStrategy"->attributes.add(ViewConvertItem("breakStrategy",breakStrategy(value),23))
+				"hyphenationFrequency"->attributes.add(ViewConvertItem("hyphenationFrequency",hyphenationFrequency(value),23))
+				"autoSizeTextType","autoSizeMinTextSize",
+				"autoSizeMaxTextSize","autoSizeStepGranularity","autoSizePresetSizes"->attributes.add(ViewConvertItem(name,value,false))
 			}
 		}
 	}

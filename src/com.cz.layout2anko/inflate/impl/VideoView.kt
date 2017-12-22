@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class VideoView : SurfaceView() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="videoView"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedVideoView"
 	/**
 	 * 解析VideoView属性集,并返回解析后的anko代码
 	 */

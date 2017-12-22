@@ -8,7 +8,15 @@ import org.jdom.Element
  *
  */
 open class TextureView : View() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="textureView"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedTextureView"
 	/**
 	 * 解析TextureView属性集,并返回解析后的anko代码
 	 */

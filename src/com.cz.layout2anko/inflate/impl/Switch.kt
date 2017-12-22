@@ -1,5 +1,10 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.dimen
+import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
+import com.cz.layout2anko.inflate.resourceRef
+import com.cz.layout2anko.inflate.string
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -16,7 +21,15 @@ import org.jdom.Element
  *
  */
 open class Switch : CompoundButton() {
-	
+	/**
+	 * 获得控件映射名称
+	 */
+	override fun getViewName()="switch"
+
+	/**
+	 * 获得控件带样式映射名称
+	 */
+	override fun getThemeViewName()="themedSwitch"
 	/**
 	 * 解析Switch属性集,并返回解析后的anko代码
 	 */
@@ -24,31 +37,16 @@ open class Switch : CompoundButton() {
 		super.inflateAttributes(element)
 		element.attributes.forEach {
 			val name=it.name
+			val value=it.value
 			when(name){
-				"textOn"->{
-				
-				}
-				"textOff"->{
-				
-				}
-				"switchMinWidth"->{
-				
-				}
-				"switchPadding"->{
-				
-				}
-				"switchTextAppearance"->{
-				
-				}
-				"thumb"->{
-				
-				}
-				"thumbTextPadding"->{
-				
-				}
-				"track"->{
-				
-				}
+				"textOn"->attributes.add(ViewConvertItem("textOn",string(value)))
+				"textOff"->attributes.add(ViewConvertItem("textOff",string(value)))
+				"switchMinWidth"-> attributes.add(ViewConvertItem("switchMinWidth",dimen(value),16))
+				"switchPadding"->attributes.add(ViewConvertItem("switchPadding",dimen(value),16))
+				"switchTextAppearance"->attributes.add(ViewMethodConvertItem("setSwitchTextAppearance(context,${resourceRef(value)}"))
+				"thumb"->attributes.add(ViewMethodConvertItem("setSwitchTextAppearance(context,${resourceRef(value)})"))
+				"thumbTextPadding"->attributes.add(ViewMethodConvertItem("setThumbResource(${resourceRef(value)})",16))
+				"track"->attributes.add(ViewMethodConvertItem("setTrackResource(${resourceRef(value)})",16))
 			}
 		}
 	}
