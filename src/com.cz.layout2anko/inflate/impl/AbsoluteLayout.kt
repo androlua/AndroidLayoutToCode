@@ -44,5 +44,9 @@ open class AbsoluteLayout : ViewGroup() {
 		}
 
 	}
+
+	companion object{
+
+	}
 	
 }

@@ -1,10 +1,10 @@
 package com.cz.layout2anko.inflate.impl
 
-import com.cz.layout2anko.inflate.dimen
-import com.cz.layout2anko.inflate.id
-import com.cz.layout2anko.inflate.int
+import com.cz.layout2anko.inflate.*
 import com.cz.layout2anko.inflate.item.ViewConvertItem
-import com.cz.layout2anko.inflate.string
+import com.cz.layout2anko.inflate.prefs.AttrType
+import com.cz.layout2anko.inflate.prefs.ViewConfiguration
+import com.cz.layout2anko.inflate.prefs.ViewStyle
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -48,6 +48,66 @@ open class AutoCompleteTextView : EditText() {
 				"dropDownHeight"->attributes.add(ViewConvertItem("dropDownHeight",int(value)))
 				"dropDownVerticalOffset"->attributes.add(ViewConvertItem("dropDownVerticalOffset",int(value)))
 				"dropDownHorizontalOffset"->attributes.add(ViewConvertItem("dropDownHorizontalOffset",int(value)))
+			}
+		}
+	}
+
+
+	companion object{
+		val viewStyleItems= mutableListOf<ViewStyle>()
+		init {
+			ViewConfiguration.declareStyleable(viewStyleItems) {
+				item {
+					field = "completionHint"
+					attrType = arrayOf(AttrType.STRING)
+					kotlinMethod { "completionHint = ${string(it)}" }
+					javaMethod { "setCompletionHint(${string(it)});" }
+				}
+				item {
+					field = "completionThreshold"
+					attrType = arrayOf(AttrType.INTEGER)
+					kotlinMethod { "threshold = ${int(it)}" }
+					javaMethod { "setThreshold(${int(it)});" }
+				}
+				item {
+					field = "completionHintView"
+					convert=false
+				}
+				item {
+					field = "dropDownSelector"
+					convert=false
+				}
+				item {
+					field = "dropDownAnchor"
+					attrType = arrayOf(AttrType.REFERENCE)
+					kotlinMethod { "dropDownAnchor = ${id(it)}" }
+					javaMethod { "setDropDownAnchor(${id(it)});" }
+				}
+				item {
+					field = "dropDownWidth"
+					attrType = arrayOf(AttrType.DIMENSION)
+					kotlinMethod { "dropDownWidth = ${dimen(it)}" }
+					javaMethod { "setDropDownWidth(${dimen(it)});" }
+				}
+				item {
+					field = "dropDownHeight"
+					attrType = arrayOf(AttrType.DIMENSION)
+					kotlinMethod { "dropDownHeight = ${dimen(it)}" }
+					javaMethod { "setDropDownHeight(${dimen(it)});" }
+				}
+				item {
+					field = "dropDownVerticalOffset"
+					attrType = arrayOf(AttrType.DIMENSION)
+					kotlinMethod { "dropDownVerticalOffset = ${dimen(it)}" }
+					javaMethod { "setDropDownVerticalOffset(${dimen(it)});" }
+				}
+				item {
+					field = "dropDownHorizontalOffset"
+					attrType = arrayOf(AttrType.DIMENSION)
+					kotlinMethod { "dropDownHorizontalOffset = ${dimen(it)}" }
+					javaMethod { "setDropDownHorizontalOffset(${dimen(it)});" }
+				}
+
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package com.cz.layout2anko.inflate.impl
 
 import com.cz.layout2anko.inflate.*
+import com.cz.layout2anko.inflate.item.ImportItem
 import com.cz.layout2anko.inflate.item.ViewConvertItem
 import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
 import org.jdom.Element
@@ -35,8 +36,14 @@ open class SearchView : LinearLayout() {
 			val value=it.value
 			when(name){
 				"iconifiedByDefault"->attributes.add(ViewMethodConvertItem("setIconifiedByDefault(${bool(value)})"))
-				"imeOptions"->attributes.add(ViewConvertItem("imeOptions",imeOptions(value)))
-				"inputType"->attributes.add(ViewConvertItem("inputType",inputType(value)))
+				"imeOptions"->{
+					importLists.add(ImportItem("android.view.inputmethod.EditorInfo"))
+					attributes.add(ViewConvertItem("imeOptions",imeOptions(value)))
+				}
+				"inputType"->{
+					importLists.add(ImportItem("android.text.InputType"))
+					attributes.add(ViewConvertItem("inputType",inputType(value)))
+				}
 				"maxWidth"->attributes.add(ViewConvertItem("maxWidth",dimen(value)))
 				"queryHint"->attributes.add(ViewConvertItem("queryHint",string(value)))
 			}

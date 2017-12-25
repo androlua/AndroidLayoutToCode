@@ -2,6 +2,9 @@ package com.cz.layout2anko.inflate.impl
 
 import com.cz.layout2anko.inflate.*
 import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.prefs.AttrType
+import com.cz.layout2anko.inflate.prefs.ViewConfiguration
+import com.cz.layout2anko.inflate.prefs.ViewStyle
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -55,6 +58,94 @@ open class CalendarView : FrameLayout() {
 				"selectedDateVerticalBar"->attributes.add(ViewConvertItem("selectedDateVerticalBar",resource(value)))
 				"weekDayTextAppearance"->attributes.add(ViewConvertItem("weekDayTextAppearance",resourceRef(value),16))
 				"dateTextAppearance"->attributes.add(ViewConvertItem("dateTextAppearance",resourceRef(value),16))
+			}
+		}
+	}
+
+	companion object{
+		val viewStyleItems= mutableListOf<ViewStyle>()
+		init {
+			ViewConfiguration.declareStyleable(viewStyleItems) {
+				item {
+					field = "showWeekNumber"
+					attrType = arrayOf(AttrType.BOOLEAN)
+					kotlinMethod { "showWeekNumber = ${bool(it)}" }
+					javaMethod { "setShowWeekNumber(${bool(it)});" }
+				}
+				item {
+					field = "firstDayOfWeek"
+					attrType = arrayOf(AttrType.INTEGER)
+					kotlinMethod { "firstDayOfWeek = ${int(it)}" }
+					javaMethod { "setFirstDayOfWeek(${int(it)});" }
+				}
+				item {
+					//minData配置时为string类型,但方法设置为long型
+					field = "minDate"
+					attrType = arrayOf(AttrType.STRING)
+					kotlinMethod { "minDate = ${string(it)}" }
+					javaMethod { "setMinDate(${string(it)});" }
+				}
+				item {
+					//maxData配置时为string类型,但方法设置为long型
+					field = "maxDate"
+					attrType = arrayOf(AttrType.STRING)
+					kotlinMethod { "maxDate = ${string(it)}" }
+					javaMethod { "setMaxDate(${string(it)});" }
+				}
+				item {
+					field = "shownWeekCount"
+					attrType = arrayOf(AttrType.BOOLEAN)
+					kotlinMethod { "shownWeekCount = ${int(it)}" }
+					javaMethod { "setShownWeekCount(${int(it)});" }
+				}
+				item {
+					field = "selectedWeekBackgroundColor"
+					attrType = arrayOf(AttrType.COLOR,AttrType.REFERENCE)
+					kotlinMethod { "selectedWeekBackgroundColor = ${color(it)}" }
+					javaMethod { "setSelectedWeekBackgroundColor(${color(it)});" }
+				}
+				item {
+					field = "focusedMonthDateColor"
+					attrType = arrayOf(AttrType.COLOR,AttrType.REFERENCE)
+					kotlinMethod { "focusedMonthDateColor = ${color(it)}" }
+					javaMethod { "setfFocusedMonthDateColor(${color(it)});" }
+				}
+				item {
+					field = "unfocusedMonthDateColor"
+					attrType = arrayOf(AttrType.COLOR,AttrType.REFERENCE)
+					kotlinMethod { "unfocusedMonthDateColor = ${color(it)}" }
+					javaMethod { "setUnfocusedMonthDateColor(${color(it)});" }
+				}
+				item {
+					field = "weekNumberColor"
+					attrType = arrayOf(AttrType.COLOR,AttrType.REFERENCE)
+					kotlinMethod { "weekNumberColor = ${color(it)}" }
+					javaMethod { "setWeekNumberColor(${color(it)});" }
+				}
+				item {
+					field = "weekSeparatorLineColor"
+					attrType = arrayOf(AttrType.COLOR,AttrType.REFERENCE)
+					kotlinMethod { "weekSeparatorLineColor = ${color(it)}" }
+					javaMethod { "setWeekSeparatorLineColor(${color(it)});" }
+				}
+				item {
+					field = "selectedDateVerticalBar"
+					attrType = arrayOf(AttrType.REFERENCE)
+					kotlinMethod { "selectedDateVerticalBar = ${resourceRef(it)}" }
+					javaMethod { "setWeekDayTextAppearance(${resourceRef(it)});" }
+				}
+				item {
+					field = "weekDayTextAppearance"
+					attrType = arrayOf(AttrType.REFERENCE)
+					kotlinMethod { "weekDayTextAppearance = ${resourceRef(it)}" }
+					javaMethod { "setWeekSeparatorLineColor(${resourceRef(it)});" }
+				}
+				item {
+					field = "dateTextAppearance"
+					attrType = arrayOf(AttrType.REFERENCE)
+					kotlinMethod { "dateTextAppearance = ${resourceRef(it)}" }
+					javaMethod { "setDateTextAppearance(${resourceRef(it)});" }
+				}
 			}
 		}
 	}

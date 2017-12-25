@@ -2,6 +2,7 @@ package com.cz.layout2anko.inflate.impl
 
 import com.cz.layout2anko.inflate.bool
 import com.cz.layout2anko.inflate.gravity
+import com.cz.layout2anko.inflate.item.ImportItem
 import com.cz.layout2anko.inflate.item.ViewConvertItem
 import org.jdom.Element
 /**
@@ -55,7 +56,10 @@ open class FrameLayout : ViewGroup() {
 				val name=it.name
 				val value=it.value
 				when(name){
-					"layout_gravity"->attributes.add(ViewConvertItem("gravity",gravity(value)))
+					"layout_gravity"->{
+						importList.add(ImportItem("android.view.Gravity"))
+						attributes.add(ViewConvertItem("gravity",gravity(value)))
+					}
 				}
 			}
 		}

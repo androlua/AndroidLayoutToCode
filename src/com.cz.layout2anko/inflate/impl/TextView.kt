@@ -1,6 +1,7 @@
 package com.cz.layout2anko.inflate.impl
 
 import com.cz.layout2anko.inflate.*
+import com.cz.layout2anko.inflate.item.ImportItem
 import com.cz.layout2anko.inflate.item.ViewConvertItem
 import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
 import com.cz.layout2anko.inflate.item.ViewMultiMethodConvertItem
@@ -113,7 +114,10 @@ open class TextView : View() {
 			val value=it.value
 			when(name){
 				"text"->attributes.add(ViewConvertItem("text",string(value)))
-				"bufferType"->attributes.add(ViewMethodConvertItem("setText(text, ${bufferType(value)})"))
+				"bufferType"->{
+					importLists.add(ImportItem("android.widget.TextView.BufferType"))
+					attributes.add(ViewMethodConvertItem("setText(text, ${bufferType(value)})"))
+				}
 				"hint"->attributes.add(ViewConvertItem("hint",string(value)))
 				"textColor"->attributes.add(ViewConvertItem("textColor{",color(value)))
 				"textColorHighlight"->attributes.add(ViewConvertItem("highlightColor",color(value)))
@@ -125,8 +129,14 @@ open class TextView : View() {
 				"textSize"->attributes.add(ViewConvertItem("textSize=",float(value)))
 				"textScaleX"->attributes.add(ViewConvertItem("textScaleX",float(value)))
 				"fontFamily"->ViewConvertItem(name,value,false)
-				"typeface"->attributes.add(ViewConvertItem("typeface",typeface(value)))
-				"textStyle"->attributes.add(ViewMethodConvertItem("setTypeface(typeface, ${textStyle(value)})"))
+				"typeface"->{
+					importLists.add(ImportItem("android.graphics.Typeface"))
+					attributes.add(ViewConvertItem("typeface",typeface(value)))
+				}
+				"textStyle"->{
+					importLists.add(ImportItem("android.graphics.Typeface"))
+					attributes.add(ViewMethodConvertItem("setTypeface(typeface, ${textStyle(value)})"))
+				}
 				"cursorVisible"->attributes.add(ViewConvertItem("isCursorVisible","setCursorVisible",bool(value)))
 				"maxLines"->attributes.add(ViewConvertItem("maxLines",int(value)))
 				"maxHeight"->attributes.add(ViewConvertItem("maxHeight",dimen(value)))
@@ -140,7 +150,10 @@ open class TextView : View() {
 				"width"->attributes.add(ViewConvertItem("width",dimen(value)))
 				"minEms"->attributes.add(ViewConvertItem("minEms",int(value)))
 				"minWidth"->attributes.add(ViewConvertItem("minWidth",dimen(value)))
-				"gravity"->attributes.add(ViewConvertItem("gravity",gravity(value)))
+				"gravity"->{
+					importLists.add(ImportItem("android.view.Gravity"))
+					attributes.add(ViewConvertItem("gravity",gravity(value)))
+				}
 				"scrollHorizontally"->attributes.add(ViewMethodConvertItem("setHorizontallyScrolling(${bool(value)})"))
 				"password"->attributes.add(ViewConvertItem(name,value,false))
 				"singleLine"->attributes.add(ViewConvertItem("singleLine",bool(value)))
@@ -148,27 +161,48 @@ open class TextView : View() {
 				"includeFontPadding"->attributes.add(ViewConvertItem("includeFontPadding",bool(value)))
 				"maxLength"->attributes.add(ViewMethodConvertItem("setFilters(filters = arrayOf<InputFilter>(InputFilter.LengthFilter(${int(value)}))"))
 
-				"autoLink"->attributes.add(ViewMethodConvertItem("setAutoLinkMask(${autoLink(value)})"))
+				"autoLink"->{
+					importLists.add(ImportItem("android.text.util.Linkify"))
+					attributes.add(ViewMethodConvertItem("setAutoLinkMask(${autoLink(value)})"))
+				}
 				"linksClickable"->attributes.add(ViewConvertItem("linksClickable",bool(value)))
 				"numeric"->attributes.add(ViewConvertItem("inputType",bool(value)))
 				"digits","phoneNumber","inputMethod",
 				"capitalize","autoText","editable"->attributes.add(ViewConvertItem(name,value,false))
 				"freezesText"->attributes.add(ViewConvertItem("freezesText",bool(value)))
-				"ellipsize"->attributes.add(ViewConvertItem("ellipsize",ellipsize(value)))
+				"ellipsize"->{
+					importLists.add(ImportItem("android.text.TextUtils"))
+					attributes.add(ViewConvertItem("ellipsize",ellipsize(value)))
+				}
 				"drawablePadding"->attributes.add(ViewConvertItem("compoundDrawablePadding",dimen(value)))
 				"drawableTint"->attributes.add(ViewMethodConvertItem("setCompoundDrawableTintList(${colorStateList(value)})"))
-				"drawableTintMode"->attributes.add(ViewMethodConvertItem("setCompoundDrawableTintMode(${drawableTintMode(value)})"))
+				"drawableTintMode"->{
+					importLists.add(ImportItem("android.graphics.PorterDuff"))
+					attributes.add(ViewMethodConvertItem("setCompoundDrawableTintMode(${drawableTintMode(value)})"))
+				}
 				"marqueeRepeatLimit"->attributes.add(ViewConvertItem("marqueeRepeatLimit",dimen(value)))
-				"inputType"->attributes.add(ViewConvertItem("inputType",inputType(value)))
-				"imeOptions"->attributes.add(ViewConvertItem("imeOptions",imeOptions(value)))
+				"inputType"->{
+					importLists.add(ImportItem("android.text.InputType"))
+					attributes.add(ViewConvertItem("inputType",inputType(value)))
+				}
+				"imeOptions"->{
+					importLists.add(ImportItem("android.view.inputmethod.EditorInfo"))
+					attributes.add(ViewConvertItem("imeOptions",imeOptions(value)))
+				}
 				"privateImeOptions"->attributes.add(ViewConvertItem("privateImeOptions",string(value)))
 
 				"editorExtras"->attributes.add(ViewMethodConvertItem("setInputExtras${resourceRef(value)}"))
 				"elegantTextHeight"->attributes.add(ViewMethodConvertItem("setElegantTextHeight${bool(value)}",21))
 				"letterSpacing"->attributes.add(ViewConvertItem("letterSpacing",dimen(value),21))
 				"fontFeatureSettings"->attributes.add(ViewConvertItem("fontFeatureSettings",string(value),21))
-				"breakStrategy"->attributes.add(ViewConvertItem("breakStrategy",breakStrategy(value),23))
-				"hyphenationFrequency"->attributes.add(ViewConvertItem("hyphenationFrequency",hyphenationFrequency(value),23))
+				"breakStrategy"->{
+					importLists.add(ImportItem("android.text.Layout"))
+					attributes.add(ViewConvertItem("breakStrategy",breakStrategy(value),23))
+				}
+				"hyphenationFrequency"->{
+					importLists.add(ImportItem("android.text.Layout"))
+					attributes.add(ViewConvertItem("hyphenationFrequency",hyphenationFrequency(value),23))
+				}
 				"autoSizeTextType","autoSizeMinTextSize",
 				"autoSizeMaxTextSize","autoSizeStepGranularity","autoSizePresetSizes"->attributes.add(ViewConvertItem(name,value,false))
 			}

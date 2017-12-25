@@ -6,7 +6,7 @@ import org.jdom.Attribute
 /**
  * Created by cz on 2017/12/21.
  */
-class ViewMultiMethodConvertItem(val method:String,attributes:List<Attribute>,vararg val attributeNames:String):AttributeConvert{
+class ViewMultiMethodConvertItem(val method:String,attributes:List<Attribute>,vararg val attri:String):AttributeConvert{
     //方法使用sdk
     private var sdk=0
 

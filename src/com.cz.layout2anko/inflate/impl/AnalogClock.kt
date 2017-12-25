@@ -1,6 +1,10 @@
 package com.cz.layout2anko.inflate.impl
 
+import com.cz.layout2anko.inflate.gravity
 import com.cz.layout2anko.inflate.item.ViewConvertItem
+import com.cz.layout2anko.inflate.prefs.AttrType
+import com.cz.layout2anko.inflate.prefs.ViewConfiguration
+import com.cz.layout2anko.inflate.prefs.ViewStyle
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -32,6 +36,26 @@ open class AnalogClock : View() {
 			when(name){
 				"dial","hand_hour","hand_minute"->{
 					attributes.add(ViewConvertItem(name,value,false))
+				}
+			}
+		}
+	}
+
+	companion object{
+		val viewStyleItems= mutableListOf<ViewStyle>()
+		init {
+			ViewConfiguration.declareStyleable(viewStyleItems) {
+				item {
+					field = "dial"
+					convert = false
+				}
+				item {
+					field = "hand_hour"
+					convert = false
+				}
+				item {
+					field = "hand_minute"
+					convert = false
 				}
 			}
 		}

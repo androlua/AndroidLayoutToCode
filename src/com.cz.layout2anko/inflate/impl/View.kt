@@ -1,10 +1,7 @@
 package com.cz.layout2anko.inflate.impl
 
 import com.cz.layout2anko.inflate.*
-import com.cz.layout2anko.inflate.item.AttributeConvert
-import com.cz.layout2anko.inflate.item.ViewConvertItem
-import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
-import com.cz.layout2anko.inflate.item.ViewMethodTextConvertItem
+import com.cz.layout2anko.inflate.item.*
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -85,13 +82,28 @@ import org.jdom.Element
  */
 open class View {
 
+	val importLists= mutableSetOf<ImportItem>()
 	val attributes= mutableListOf<AttributeConvert>()
 
-	fun convert(element:Element,level:Int):String{
+	init {
+		//默认引入 v4 ContextCompat,如果做针对性一一匹配,需要引入地方太多
+	    importLists.add(ImportItem("android.support.v4.content.ContextCompat"))
+		importLists.add(ImportItem("android.animation.AnimatorInflater",false))
+		importLists.add(ImportItem("android.view.animation.AnimationUtils",false))
+
+	}
+
+	fun convert(element:Element,level:Int,toAnko:Boolean=true):String{
 		val out=StringBuilder()
-		val tab="".padEnd(level,'\t')
+		val tab="".padEnd(level+1,'\t')
 		inflateAttributes(element)
-		attributes.forEach { out.append("$tab$it") }
+		attributes.forEach {
+			if(toAnko){
+				out.append("$tab${it.toAnkoString()}\n")
+			} else {
+				out.append("$tab${it.toJavaString()}\n")
+			}
+		}
 		return out.toString()
 	}
 
@@ -117,7 +129,10 @@ open class View {
 				"background"->attributes.add(ViewConvertItem("backgroundResource",resourceRef(value)))
 				"clickable"->attributes.add(ViewConvertItem("isClickable","setClickable",bool(value)))
 				"contentDescription"->attributes.add(ViewConvertItem("contentDescription",string(value)))
-				"drawingCacheQuality"->attributes.add(ViewConvertItem("drawingCacheQuality",drawingCacheQuality(value)))
+				"drawingCacheQuality"->{
+					importLists.add(ImportItem("android.view.View"))
+					attributes.add(ViewConvertItem("drawingCacheQuality",drawingCacheQuality(value)))
+				}
 				"duplicateParentState"->attributes.add(ViewConvertItem("isDuplicateParentStateEnabled","setDuplicateParentStateEnabled",bool(value)))
 				"id"->attributes.add(ViewConvertItem("id",resourceRef(value)))
 				"requiresFadingEdge"->attributes.add(ViewConvertItem(name,value,false))
@@ -132,8 +147,14 @@ open class View {
 				"hapticFeedbackEnabled"->attributes.add(ViewConvertItem("isHapticFeedbackEnabled","setHapticFeedbackEnabled",bool(value)))
 				"keepScreenOn"->attributes.add(ViewConvertItem("keepScreenOn",bool(value)))
 				"keyboardNavigationCluster"->attributes.add(ViewConvertItem(name,value,false))
-				"layerType"->attributes.add(ViewMethodConvertItem("setLayerType(${layerType(value)}, null)"))
-				"layoutDirection"->attributes.add(ViewConvertItem("layoutDirection",layoutDirection(value),17))
+				"layerType"->{
+					importLists.add(ImportItem("android.view.View"))
+					attributes.add(ViewMethodConvertItem("setLayerType(${layerType(value)}, null)"))
+				}
+				"layoutDirection"->{
+					importLists.add(ImportItem("android.view.View"))
+					attributes.add(ViewConvertItem("layoutDirection",layoutDirection(value),17))
+				}
 				"longClickable"->attributes.add(ViewConvertItem("isLongClickable","setLongClickable",bool(value)))
 				"minWidth"->attributes.add(ViewConvertItem("minimumWidth",dimen(value)))
 				"minHeight"->attributes.add(ViewConvertItem("minimumHeight",dimen(value)))
@@ -162,7 +183,10 @@ open class View {
 				"scrollX"->attributes.add(ViewConvertItem("scrollX","setScrollX",dimen(value)))
 				"scrollY"->attributes.add(ViewConvertItem("scrollY","setScrollY",dimen(value)))
 				"scrollbarSize"->attributes.add(ViewConvertItem("scrollBarSize",dimen(value),16))
-				"scrollbarStyle"->attributes.add(ViewConvertItem("scrollBarStyle",scrollBarStyle(value)))
+				"scrollbarStyle"->{
+					importLists.add(ImportItem("android.view.View"))
+					attributes.add(ViewConvertItem("scrollBarStyle",scrollBarStyle(value)))
+				}
 				"scrollbars"->attributes.add(ViewConvertItem(name,value,false))
 				"scrollbarDefaultDelayBeforeFade"->attributes.add(ViewConvertItem("scrollBarDefaultDelayBeforeFade",dimen(value),16))
 				"scrollbarFadeDuration"-> attributes.add(ViewConvertItem("scrollBarFadeDuration",dimen(value),16))
@@ -183,14 +207,23 @@ open class View {
 				"transitionName"->attributes.add(ViewConvertItem("transitionName",resource(value),21))
 				"soundEffectsEnabled"->attributes.add(ViewConvertItem("isSoundEffectsEnabled","setSoundEffectsEnabled",value))
 				"tag"->attributes.add(ViewConvertItem("tag",string(value)))
-				"textAlignment"->attributes.add(ViewConvertItem("textAlignment",textAlignment(value)))
-				"textDirection"->attributes.add(ViewConvertItem("textDirection",textDirection(value)))
+				"textAlignment"->{
+					importLists.add(ImportItem("android.view.View"))
+					attributes.add(ViewConvertItem("textAlignment",textAlignment(value)))
+				}
+				"textDirection"->{
+					importLists.add(ImportItem("android.view.View"))
+					attributes.add(ViewConvertItem("textDirection",textDirection(value)))
+				}
 				"transformPivotX"->attributes.add(ViewConvertItem("transformPivotX",dimen(value)))
 				"transformPivotY"->attributes.add(ViewConvertItem("transformPivotY",dimen(value)))
 				"translationX"->attributes.add(ViewConvertItem("translationX",dimen(value)))
 				"translationY"->attributes.add(ViewConvertItem("translationY",dimen(value)))
 				"translationZ"->attributes.add(ViewConvertItem("translationZ",dimen(value)))
-				"visibility"->attributes.add(ViewConvertItem("visibility",visibility(value)))
+				"visibility"->{
+					importLists.add(ImportItem("android.view.View"))
+					attributes.add(ViewConvertItem("visibility",visibility(value)))
+				}
 				"theme"->attributes.add(ViewConvertItem("theme",resourceRef(value)))
 			}
 		}

@@ -3,6 +3,7 @@ package com.cz.layout2anko.inflate.impl
 import com.cz.layout2anko.inflate.gravity
 import com.cz.layout2anko.inflate.id
 import com.cz.layout2anko.inflate.int
+import com.cz.layout2anko.inflate.item.ImportItem
 import com.cz.layout2anko.inflate.item.ViewConvertItem
 import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
 import com.cz.layout2anko.inflate.relativeRule
@@ -34,7 +35,10 @@ open class RelativeLayout : ViewGroup() {
 			val name=it.name
 			val value=it.value
 			when(name){
-				"gravity"->attributes.add(ViewConvertItem("gravity",gravity(value)))
+				"gravity"->{
+					importLists.add(ImportItem("android.view.Gravity"))
+					attributes.add(ViewConvertItem("gravity",gravity(value)))
+				}
 				"ignoreGravity"->attributes.add(ViewMethodConvertItem("setIgnoreGravity(${id(value)})"))
 			}
 		}
@@ -88,12 +92,15 @@ open class RelativeLayout : ViewGroup() {
 					"layout_alignLeft", "layout_alignTop",
 					"layout_alignRight", "layout_alignBottom", "layout_toStartOf",
 					"layout_toEndOf", "layout_alignStart",
-					"layout_alignEnd"->attributes.add(ViewMethodConvertItem("addRule(${relativeRule(name)},${id(value)})"))
+					"layout_alignEnd"->{
+						importList.add(ImportItem("android.widget.RelativeLayout.LayoutParams"))
+						attributes.add(ViewMethodConvertItem("addRule(${relativeRule(name)},${id(value)})"))
+					}
 					"layout_alignParentLeft", "layout_alignParentTop", "layout_alignParentRight",
 					"layout_alignParentBottom", "layout_centerHorizontal", "layout_centerVertical",
 					"layout_alignParentStart", "layout_alignParentEnd", "layout_centerInParent"->{
+						importList.add(ImportItem("android.widget.RelativeLayout.LayoutParams"))
 						attributes.add(ViewMethodConvertItem("addRule(${relativeRule(name)}})"))
-
 					}
 				}
 			}

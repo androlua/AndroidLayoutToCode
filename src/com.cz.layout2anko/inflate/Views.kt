@@ -1,6 +1,7 @@
 package com.cz.layout2anko.inflate
 
 import com.cz.layout2anko.inflate.impl.*
+import com.cz.layout2anko.inflate.prefs.ViewStyle
 
 /**
  * Created by cz on 2017/12/20.
@@ -8,7 +9,7 @@ import com.cz.layout2anko.inflate.impl.*
 val VERSIONS= arrayOf("#","CUR_DEVELOPMENT","BASE","BASE_1_1","CUPCAKE","DONUT","ECLAIR","ECLAIR_0_1","ECLAIR_MR1","FROYO","GINGERBREAD","GINGERBREAD_MR1","HONEYCOMB","HONEYCOMB_MR1","HONEYCOMB_MR2","ICE_CREAM_SANDWICH","ICE_CREAM_SANDWICH_MR1","JELLY_BEAN","JELLY_BEAN_MR1","JELLY_BEAN_MR2","KITKAT","KITKAT_WATCH","L","LOLLIPOP","LOLLIPOP_MR1","M","N","N_MR1")
 val DIMEN_PATTERN="(?:(?<float>\\d+\\.\\d+)|(?<int>\\d+))(?<unit>(?:di?p)|(?:sp)|(?:px))?".toPattern()
 //?android:attr/actionBarDivider   ?attr/actionBarDivider  ?actionBarDivider 三种引用方式
-val RESOURCE_PATTERN="(@\\+?(android:)?(?<type>\\w+)/(?<res>.+))|(\\?(?<android>android:)?(attr/)?(?<attr>\\w+))".toPattern()
+val RESOURCE_PATTERN="(@\\+?(android:)?(?<type>\\w+)/(?<ref>.+))|(\\?(?<android>android:)?(attr/)?(?<attr>\\w+))".toPattern()
 
 /**
  * 转换尺寸
@@ -72,7 +73,7 @@ fun ViewGroup.LayoutParams.gravity(gravity:String)=gravityInner(gravity)
  * LayoutParams的布局属性
  * 兼容 wrap_content/fill_parent or (数值sp/dp/dip) or 引用 @dimen/actionBarSize 以及?actionBarSize/?attrs/actionBarSize/?android:attrs/actionBarSize
  */
-fun ViewGroup.LayoutParams.layoutDimension(value:String):String=layoutDimension(value)
+fun ViewGroup.LayoutParams.layoutDimension(value:String?)= layoutDimensionInner(value)
 
 fun View.inputType(type:String)=inputTypeFlag(type)
 fun View.bufferType(bufferType:String)= bufferTypeInner(bufferType)
@@ -86,6 +87,51 @@ fun View.breakStrategy(strategy:String)=breakStrategyInner(strategy)
 fun View.hyphenationFrequency(hyphenationFrequency:String)=hyphenationFrequencyInner(hyphenationFrequency)
 fun View.persistentDrawingCache(persistentDrawingCache:String)=persistentDrawingCacheInner(persistentDrawingCache)
 fun View.descendantFocusability(descendantFocusability:String)=descendantFocusabilityInner(descendantFocusability)
+
+
+
+fun ViewStyle.dimen(value:String):String=dimenInner(value)
+fun ViewStyle.string(value:String):String=stringInner(value)
+fun ViewStyle.int(value:String):String=intInner(value)
+fun ViewStyle.float(value:String):String=floatInner(value)
+fun ViewStyle.long(value:String):String=longInner(value)
+fun ViewStyle.bool(value:String):String=boolInner(value)
+fun ViewStyle.color(value:String):String= colorInner(value)
+fun ViewStyle.id(value:String):String=idInner(value)
+fun ViewStyle.colorStateList(value:String):String=colorStateListInner(value)
+fun ViewStyle.resource(value:String):String=resourceInner(value)
+fun ViewStyle.resourceRef(value:String):String=resourceRefInner(value)
+fun ViewStyle.drawingCacheQuality(quality:String)=drawingCacheQualityInner(quality)
+fun ViewStyle.layerType(type:String)=layerTypeInner(type)
+fun ViewStyle.layoutDirection(direction:String)=layoutDirectionInner(direction)
+fun ViewStyle.scrollBarStyle(style:String)=scrollBarStyleInner(style)
+fun ViewStyle.textDirection(direction:String)=textDirectionInner(direction)
+fun ViewStyle.visibility(visible:String)=visibilityInner(visible)
+fun ViewStyle.textAlignment(alignment:String)=textAlignmentInner(alignment)
+fun ViewStyle.gravity(gravity:String)=gravityInner(gravity)
+fun ViewStyle.ellipsize(ellipsize:String)=ellipsizeInner(ellipsize)
+fun ViewStyle.layoutMode(layoutMode:String)=layoutModeInner(layoutMode)
+fun ViewStyle.scaleType(gravity:String)= scaleTypeInner(gravity)
+fun ViewStyle.relativeRule(gravity:String)= rule(gravity)
+/**
+ * LayoutParams的布局属性
+ * 兼容 wrap_content/fill_parent or (数值sp/dp/dip) or 引用 @dimen/actionBarSize 以及?actionBarSize/?attrs/actionBarSize/?android:attrs/actionBarSize
+ */
+fun ViewStyle.layoutDimension(value:String?)= layoutDimensionInner(value)
+
+fun ViewStyle.inputType(type:String)=inputTypeFlag(type)
+fun ViewStyle.bufferType(bufferType:String)= bufferTypeInner(bufferType)
+fun ViewStyle.typeface(typeface:String)= typefaceInner(typeface)
+fun ViewStyle.textStyle(textStyle:String)= textStyleInner(textStyle)
+fun ViewStyle.autoLink(autoLink:String)= autoLinkInner(autoLink)
+fun ViewStyle.numeric(numeric:String)= numericFlag(numeric)
+fun ViewStyle.imeOptions(imeOptions:String)=imeOptionsInner(imeOptions)
+fun ViewStyle.drawableTintMode(mode:String)=drawableTintModeInner(mode)
+fun ViewStyle.breakStrategy(strategy:String)=breakStrategyInner(strategy)
+fun ViewStyle.hyphenationFrequency(hyphenationFrequency:String)=hyphenationFrequencyInner(hyphenationFrequency)
+fun ViewStyle.persistentDrawingCache(persistentDrawingCache:String)=persistentDrawingCacheInner(persistentDrawingCache)
+fun ViewStyle.descendantFocusability(descendantFocusability:String)=descendantFocusabilityInner(descendantFocusability)
+
 private fun dimenInner(value:String):String{
     if(value.startsWith("@")){
         return resourceInner(value)
@@ -109,7 +155,8 @@ private fun layoutInner(value: String)=when(value){
     else->"ViewGroup.LayoutParams.WRAP_CONTENT"
 }
 
-private fun layoutDimensionInner(value:String):String{
+private fun layoutDimensionInner(value:String?):String?{
+    val value=value?:return null
     if(value.startsWith("@")){
         //引用
         return resourceInner(value)
@@ -275,7 +322,7 @@ private fun resourceRefInner(value:String):String{
                 "id"->result="R.id.$ref"
                 "dimen"->result="R.dimen.$ref"
                 "integer"->result="R.integer.$ref"
-                "color"->result="context,R.color.$ref"
+                "color"->result="R.color.$ref"
                 "drawable"->result="R.drawable.$ref"
                 "mipmap"->result="R.mipmap.$ref"
                 "string"->result="R.string.$ref"

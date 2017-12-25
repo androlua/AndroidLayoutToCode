@@ -1,6 +1,7 @@
 package com.cz.layout2anko.inflate.impl
 
 import com.cz.layout2anko.inflate.*
+import com.cz.layout2anko.inflate.item.ImportItem
 import com.cz.layout2anko.inflate.item.ViewConvertItem
 import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
 import org.jdom.Element
@@ -42,7 +43,10 @@ open class ImageView : View() {
 				"maxWidth"->attributes.add(ViewConvertItem("maxWidth",dimen(value)))
 				"maxHeight"->attributes.add(ViewConvertItem("maxWidth",dimen(value)))
 				"tint"->attributes.add(ViewConvertItem("imageTintList",colorStateList(value)))
-				"scaleType"->attributes.add(ViewConvertItem("scaleType",scaleType(value)))
+				"scaleType"->{
+					importLists.add(ImportItem("android.widget.ImageView"))
+					attributes.add(ViewConvertItem("scaleType",scaleType(value)))
+				}
 				"cropToPadding"->attributes.add(ViewConvertItem("cropToPadding",bool(value),16))
 			}
 		}

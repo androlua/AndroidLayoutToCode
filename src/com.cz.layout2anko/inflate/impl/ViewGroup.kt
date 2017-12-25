@@ -1,9 +1,8 @@
 package com.cz.layout2anko.inflate.impl
 
 import com.cz.layout2anko.inflate.*
-import com.cz.layout2anko.inflate.item.AttributeConvert
-import com.cz.layout2anko.inflate.item.ViewConvertItem
-import com.cz.layout2anko.inflate.item.ViewMethodConvertItem
+import com.cz.layout2anko.inflate.item.*
+import com.cz.layout2anko.inflate.prefs.ViewStyle
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
@@ -45,10 +44,16 @@ open class ViewGroup : View() {
 				"clipToPadding"->attributes.add(ViewConvertItem("clipToPadding",bool(value)))
 				"layoutAnimation"->attributes.add(ViewMethodConvertItem("setLayoutAnimation(${resource(value)})"))
 				"animationCache"->attributes.add(ViewConvertItem("isAnimationCacheEnabled",resource(value)))
-				"persistentDrawingCache"->attributes.add(ViewConvertItem("persistentDrawingCache",persistentDrawingCache(value)))
+				"persistentDrawingCache"->{
+					importLists.add(ImportItem("android.view.ViewGroup"))
+					attributes.add(ViewConvertItem("persistentDrawingCache",persistentDrawingCache(value)))
+				}
 				"alwaysDrawnWithCache"->attributes.add(ViewConvertItem("isAlwaysDrawnWithCacheEnabled","setAlwaysDrawnWithCacheEnabled",persistentDrawingCache(value)))
 				"addStatesFromChildren"->attributes.add(ViewMethodConvertItem("setAddStatesFromChildren${bool(value)}"))
-				"descendantFocusability"->attributes.add(ViewConvertItem("descendantFocusability",descendantFocusability(value)))
+				"descendantFocusability"->{
+					importLists.add(ImportItem("android.view.ViewGroup"))
+					attributes.add(ViewConvertItem("descendantFocusability",descendantFocusability(value)))
+				}
 				"animateLayoutChanges"->{
 //					val animateLayoutChanges = a.getBoolean(attr, false)
 //					if (animateLayoutChanges) {
@@ -56,7 +61,10 @@ open class ViewGroup : View() {
 //					}
 				}
 				"splitMotionEvents"->attributes.add(ViewConvertItem("isMotionEventSplittingEnabled","setMotionEventSplittingEnabled",bool(value)))
-				"layoutMode"->attributes.add(ViewConvertItem("layoutMode",layoutMode(value)))
+				"layoutMode"->{
+					importLists.add(ImportItem("android.view.ViewGroup"))
+					attributes.add(ViewConvertItem("layoutMode",layoutMode(value)))
+				}
 			}
 		}
 	}
@@ -72,24 +80,19 @@ open class ViewGroup : View() {
 	 *
 	 */
 	open class LayoutParams {
-
+		val viewStyleItems = mutableListOf<ViewStyle>()
+		val importList= mutableSetOf<ImportItem>()
 		val attributes= mutableListOf<AttributeConvert>()
 
 		/**
 		 * 解析LayoutParams属性集,并返回解析后的anko代码
 		 */
 		open fun inflateAttributes(element:Element){
-			element.attributes.forEach {
-				val name=it.name
-				when(name){
-					"layout_height"->{
-
-					}
-					"layout_width"->{
-					
-					}
-				}
-			}
+			val width=element.attributes.find { it.name=="layout_width" }?.value
+			val height=element.attributes.find { it.name=="layout_height" }?.value
+			val widthDimension=layoutDimension(width)?:"ViewGroup.LayoutParams.WRAP_CONTENT"
+			val heightDimension=layoutDimension(height)?:"ViewGroup.LayoutParams.WRAP_CONTENT"
+			attributes.add(LayoutParamsConvertItem(widthDimension,heightDimension))
 		}
 
 	}
@@ -118,34 +121,27 @@ open class ViewGroup : View() {
 			super.inflateAttributes(element)
 			element.attributes.forEach {
 				val name=it.name
+				val value=it.value
 				when(name){
-					"layout_margin"->{
-					
-					}
+					"layout_margin"->attributes.add(ViewConvertItem("margin",dimen(value)) { "layoutParams.margin=${dimen(value)}" })
 					"layout_marginHorizontal"->{
-					
+						attributes.add(ViewConvertItem("horizontalMargin",dimen(value)) {
+							"layoutParams.leftMargin=${dimen(value)}"
+							"layoutParams.rightMargin=${dimen(value)}"
+						})
 					}
 					"layout_marginVertical"->{
-					
+						attributes.add(ViewConvertItem("verticalMargin",dimen(value)) {
+							"layoutParams.topMargin=${dimen(value)}"
+							"layoutParams.bottomMargin=${dimen(value)}"
+						})
 					}
-					"layout_marginLeft"->{
-					
-					}
-					"layout_marginTop"->{
-					
-					}
-					"layout_marginRight"->{
-					
-					}
-					"layout_marginBottom"->{
-					
-					}
-					"layout_marginStart"->{
-					
-					}
-					"layout_marginEnd"->{
-					
-					}
+					"layout_marginLeft"->attributes.add(ViewConvertItem("leftMargin",dimen(value)) { "layoutParams.leftMargin=${dimen(value)}" })
+					"layout_marginTop"->attributes.add(ViewConvertItem("topMargin",dimen(value)) { "layoutParams.topMargin=${dimen(value)}" })
+					"layout_marginRight"->attributes.add(ViewConvertItem("rightMargin",dimen(value)) { "layoutParams.rightMargin=${dimen(value)}" })
+					"layout_marginBottom"->attributes.add(ViewConvertItem("bottomMargin",dimen(value)) { "layoutParams.bottomMargin=${dimen(value)}" })
+					"layout_marginStart"->attributes.add(ViewConvertItem("marginStart",dimen(value),17))
+					"layout_marginEnd"->attributes.add(ViewConvertItem("marginEnd",dimen(value),17))
 				}
 			}
 		}
