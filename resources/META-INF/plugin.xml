@@ -1,6 +1,6 @@
 <idea-plugin>
-  <id>com.cz.layout2anko</id>
-  <name>AndroidLayoutToAnko</name>
+  <id>com.cz.layout2code</id>
+  <name>AndroidLayoutToCode</name>
   <version>1.0</version>
   <vendor email="bingo110@126.com" url="http://www.yourcompany.com">YourCompany</vendor>
 
@@ -29,9 +29,9 @@
   </extensions>
 
   <actions>
-    <action id="layoutToAnkoAction" class="com.cz.layout2anko.action.LayoutConvertAction"
-            text="LayoutToAnko"
-            description="Android layout convert to anko">
+    <action id="layoutToCodeAction" class="com.cz.layout2code.action.LayoutConvertAction"
+            text="LayoutToCode"
+            description="Android layout convert to code">
       <add-to-group group-id="GenerateGroup" anchor="last"/>
     </action>
   </actions>

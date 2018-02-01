@@ -64,6 +64,12 @@ sourceSets {
 * 完成了所有资源的逆向映射并抽离出View映射类,完成了此部分的解析测试
 
 
+#### 2017/1/29
+* 重启此项目,预计在本周完成第一版
+
+#### 2017/1/30
+* 重新更变控件所有引用属性.当前还剩下组合属性,设置方法
+
 #### 包结构说明
 * action 为事件源
 * delegate 为工具定义,如弹出消息,刷新项目结构
@@ -76,3 +82,5 @@ sourceSets {
 ####测试类介绍
 * test/LayoutParser 测试xml解析
 * test/PlatformWidgetParserTest 为解析平台Source目录内widget源码,然后生成anko的映射解析类代码,构建类似LayoutInflater的解析机制代码
+
+
