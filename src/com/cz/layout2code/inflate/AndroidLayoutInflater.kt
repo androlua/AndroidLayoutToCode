@@ -2,7 +2,7 @@ package com.cz.layout2code.inflate
 
 import com.cz.layout2code.inflate.impl.View
 import com.cz.layout2code.inflate.impl.ViewGroup
-import com.cz.layout2code.inflate.item.LayoutParamsConvertItem
+import com.cz.layout2code.inflate.element.LayoutParamsConvertItem
 import org.jdom.Element
 import org.jdom.input.SAXBuilder
 import java.io.File
@@ -16,7 +16,8 @@ import java.io.File
  */
 object AndroidLayoutInflater {
     val PACKAGE_NAME="com.cz.layout2code.inflate.impl"
-    fun inflater(file: File,toAnko:Boolean=true){
+    val APPCOMPAT_PACKAGE="APPCOMPAT_PACKAGE"
+    fun inflater(file: File, toKotlin:Boolean=true){
 //        val file= File("src/com/cz/layout2code/test/activity_test.xml")
         val builder = SAXBuilder()//实例JDOM解析器
         val document = builder.build(file)//读取xml文件
@@ -24,14 +25,20 @@ object AndroidLayoutInflater {
         //打印属性
         val out=StringBuilder()
         val rootElement=document.rootElement
-        inflateElement(rootElement,out, ViewGroup.LayoutParams(),0,toAnko)
+        inflateElement(rootElement,out, ViewGroup.LayoutParams(),0, toKotlin)
         println(out)
     }
 
     private fun inflateElement(element: Element,out:StringBuilder,layoutParams:ViewGroup.LayoutParams,level:Int,toAnko:Boolean=true) {
         val name = element.name
-        if (-1 < name.lastIndexOf(".")) {
-            //TODO 当前为一个绝对路径,一般为自定义控件,取自定义控件模板
+        val index=name.lastIndexOf(".")
+        if (-1 < index) {
+            val packageName=name.substring(0,index)
+            if(APPCOMPAT_PACKAGE==packageName){
+                //v7控件
+            } else {
+                //TODO 其他自定义控件
+            }
         } else {
             try {
                 val clazz = Class.forName(PACKAGE_NAME + "." + name)
@@ -63,7 +70,7 @@ object AndroidLayoutInflater {
                     val paramsTab="".padEnd(level+1,'\t')
                     layoutParams.attributes.forEach {
                         if(toAnko){
-                            it.toKotlinString().lines().forEach {
+                            it.toKotlinString()?.lines()?.forEach {
                                 out.append("$paramsTab$it\n")
                             }
                         } else {

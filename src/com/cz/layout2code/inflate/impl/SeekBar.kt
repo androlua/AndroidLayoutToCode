@@ -1,11 +1,9 @@
 package com.cz.layout2code.inflate.impl
 
+import com.cz.layout2code.inflate.*
 import org.jdom.Element
 import com.cz.layout2code.inflate.prefs.AttrType
-import com.cz.layout2code.inflate.dimen
-import com.cz.layout2code.inflate.bool
-import com.cz.layout2code.inflate.color
-import com.cz.layout2code.inflate.resource
+
 /**
  * Created by cz on 2018/1/29.
  * 
@@ -30,44 +28,9 @@ open class SeekBar : AbsSeekBar() {
 		attribute{
 			field = "splitTrack"
 			attrType = arrayOf(AttrType.BOOLEAN)
+			sdk=21
 			kotlinMethod { "splitTrack = ${bool(it)}" }
 			javaMethod{ "setSplitTrack(${bool(it)})" }
-		}
-		attribute{
-			field = "useDisabledAlpha"
-			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "useDisabledAlpha = ${bool(it)}" }
-			javaMethod{ "setUseDisabledAlpha(${bool(it)})" }
-		}
-		attribute{
-			field = "thumbTint"
-			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "thumbTint = ${color(it)}" }
-			javaMethod{ "setThumbTint(${color(it)})" }
-		}
-		attribute{
-			field = "thumbTintMode"
-			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "thumbTintMode = ${thumbTintMode(it)}" }
-			javaMethod{ "setThumbTintMode(${thumbTintMode(it)})" }
-		}
-		attribute{
-			field = "tickMark"
-			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "tickMark = ${resource(it)}" }
-			javaMethod{ "setTickMark(${resource(it)})" }
-		}
-		attribute{
-			field = "tickMarkTint"
-			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "tickMarkTint = ${color(it)}" }
-			javaMethod{ "setTickMarkTint(${color(it)})" }
-		}
-		attribute{
-			field = "tickMarkTintMode"
-			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "tickMarkTintMode = ${tickMarkTintMode(it)}" }
-			javaMethod{ "setTickMarkTintMode(${tickMarkTintMode(it)})" }
 		}
 	}
 

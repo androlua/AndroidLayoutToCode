@@ -2,10 +2,6 @@ package com.cz.layout2code.inflate.impl
 //------------------------------------------------------------
 // 以下控件没有自定义属性,只需要默认复写即可
 //------------------------------------------------------------
-open class AbsSeekBar : ProgressBar() {
-    override fun getViewName()="absoluteLayout"
-    override fun getThemeViewName()="themedAbsoluteLayout"
-}
 open class Button : TextView() {
     override fun getViewName()="button"
     override fun getThemeViewName()="themedButton"

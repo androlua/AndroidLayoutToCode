@@ -1,4 +1,4 @@
-package com.cz.layout2code.inflate.item
+package com.cz.layout2code.inflate.element
 
 import com.cz.layout2code.inflate.prefs.AttributeStyle
 

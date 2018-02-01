@@ -1,8 +1,6 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
-import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.inflate.item.ViewAttributeItem
 import com.cz.layout2code.inflate.prefs.AttrType
 import org.jdom.Element
 /**

@@ -1,7 +1,7 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
-import com.cz.layout2code.inflate.item.*
+import com.cz.layout2code.inflate.element.*
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.prefs.AttributeStyle
 import org.jdom.Element

@@ -1,4 +1,4 @@
-package com.cz.layout2code.inflate.item
+package com.cz.layout2code.inflate.element
 
 /**
  * Created by cz on 2017/12/21.

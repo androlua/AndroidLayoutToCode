@@ -1,7 +1,4 @@
-package com.cz.layout2code.inflate.item
-
-import com.cz.layout2code.inflate.VERSIONS
-import com.cz.layout2code.inflate.prefs.AttributeStyle
+package com.cz.layout2code.inflate.element
 
 /**
  * Created by cz on 2017/12/21.
