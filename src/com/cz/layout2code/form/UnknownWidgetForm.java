@@ -12,8 +12,7 @@ public class UnknownWidgetForm {
     private JPanel rootContainer;
     private JButton generateButton;
     private JButton cancelButton;
-    private JCheckBox forceCheckBox;
-    private JList list1;
+    private JTree tree1;
 
     public UnknownWidgetForm(Project project){
 

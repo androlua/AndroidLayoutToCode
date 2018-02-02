@@ -35,14 +35,12 @@ object Utils {
      * *
      * @return
      */
-    fun getLayoutFileFromCaret(editor: Editor?, file: PsiFile?): PsiFile? {
+    fun getLayoutFileFromCaret(editor: Editor, file: PsiFile?): PsiFile? {
         var result:PsiFile?=null
         if(null!=editor&&null!=file){
             val offset = editor.caretModel.offset
-
             val candidateA = file.findElementAt(offset)
             val candidateB = file.findElementAt(offset - 1)
-
             val layout = findLayoutResource(candidateA)
             if (layout != null) {
                 return layout
