@@ -5,6 +5,8 @@ package com.cz.layout2code.inflate.item
  * xml节点信息
  */
 class ViewNode(val name:String){
+    //类简称
+    var simpleName:String?=null
     var parent:ViewNode?=null
     var children= mutableListOf<ViewNode>()
     val attributes= mutableListOf<AttributeNode>()
@@ -20,6 +22,8 @@ class ViewNode(val name:String){
             isSystemView=true
         } else {
             isSystemView=false
+            //记录类简称
+            simpleName=name.substring(index+1)
             val packageName=name.substring(0,index)
             if("android.support.v7.widget"==packageName){
                 isCompatView=true

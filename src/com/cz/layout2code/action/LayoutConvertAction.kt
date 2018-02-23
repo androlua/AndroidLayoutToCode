@@ -1,7 +1,9 @@
 package com.cz.layout2code.action
 
+import com.cz.layout2code.config.DeclareStyleableConfiguration
+import com.cz.layout2code.config.WidgetConfiguration
 import com.cz.layout2code.delegate.MessageDelegate
-import com.cz.layout2code.inflate.item.AttributeDefineNode
+import com.cz.layout2code.form.UnknownWidgetForm
 import com.cz.layout2code.inflate.item.AttributeNode
 import com.cz.layout2code.inflate.item.DefineViewNode
 import com.cz.layout2code.inflate.item.ViewNode
@@ -20,15 +22,15 @@ import org.jdom.Element
 import org.jdom.input.SAXBuilder
 import org.jetbrains.kotlin.psi.KtFile
 import java.io.File
-import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiJavaFile
-import com.intellij.psi.PsiFile
 import com.intellij.openapi.actionSystem.DataKeys
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.*
 
 
 /**
  * Created by cz on 2017/12/14.
- * 布局转换anko 的dsl的事件执行体
+ * 布局转换代码的事件执行体
  */
 class LayoutConvertAction : BaseGenerateAction {
     //自定义控件模板
@@ -87,31 +89,33 @@ class LayoutConvertAction : BaseGenerateAction {
             val customNodes= mutableListOf<ViewNode>()
             parseElement(parent,document.rootElement,customNodes)
             //2:检测自定义控件模板是否记录此控件属性.不存在则检索项目内values.xml
+            val defineWidgetAttrs= mutableListOf<DefineViewNode>()
             if(customNodes.isNotEmpty()){
-                //采集所有第三方库的values.xml
+                //2.1:解析出当前项目己有的自定义控件配置项
+                ensuredWidgetAttrs(project,widgetAttrs)
+
+                //2.2:采集所有第三方库的values.xml
                 val valueFiles = FilenameIndex.getVirtualFilesByName(project, "values.xml", GlobalSearchScope.everythingScope(project))
                 valueFiles.forEach{
-                    val builder = SAXBuilder()//实例JDOM解析器
-                    val document = builder.build(File(it.path))//读取xml文件
-                    parseValueStyleElement(document.rootElement,widgetAttrs)
+                    val parseItems = DeclareStyleableConfiguration(it).parse()
+                    defineWidgetAttrs+=parseItems.filter { item-> widgetAttrs.none { it.name==item.name } }
                 }
-                //解析项目attrs.xml定义
+                //2.3:解析项目attrs.xml定义
                 //file:///Users/cz/IntelliJIDEAProjects/MyApplication/app/src/main/res/values/attrs.xml
                 val attrsFiles = FilenameIndex.getVirtualFilesByName(project, "attrs.xml", GlobalSearchScope.projectScope(project))
                 attrsFiles.forEach {
-                    val builder = SAXBuilder()//实例JDOM解析器
-                    val document = builder.build(File(it.path))//读取xml文件
-                    parseValueStyleElement(document.rootElement,widgetAttrs)
+                    val parseItems = DeclareStyleableConfiguration(it).parse()
+                    defineWidgetAttrs+=parseItems.filter { item-> widgetAttrs.none { it.name==item.name } }
                 }
                 val st=System.currentTimeMillis()
                 customNodes.forEach {
                     val name=it.name
                     val findClass = JavaPsiFacade.getInstance(project).findClass(name, GlobalSearchScope.everythingScope(project))
                     if(null!=findClass){
-                        val widgetAttrs = widgetAttrs.filter { name.endsWith(it.name) }
+                        val widgetAttrs = defineWidgetAttrs.filter { name.endsWith(it.name) }
                         widgetAttrs?.forEach { widget->
                             val methods=findClass.methods.filter { !it.isConstructor }
-                            //检测每个属性,与所有方法的文字匹配度,取最高的前5个方法
+                            //2.4:检测每个属性,与所有方法的文字匹配度,取最高的前5个方法
                             val MAX_SIZE=5
                             widget.attributes.forEach { attribute->
                                 //遍历源码所有方法,求得各方法文本匹配度
@@ -119,9 +123,9 @@ class LayoutConvertAction : BaseGenerateAction {
                                     //相似度
                                     val degree = TextCalculation.similarDegree(attribute.name, it.name)
                                     if(attribute.methods.size>=MAX_SIZE){
-                                        //超出5个,移掉最小的
+                                        //超出5个,移掉最小的,太多的选择无意义
                                         val keys=attribute.methods.keys
-                                        keys.remove(keys.first())
+                                        keys.remove(keys.last())
                                     }
                                     attribute.methods.put(degree,it.name)
                                 }
@@ -131,8 +135,41 @@ class LayoutConvertAction : BaseGenerateAction {
                 }
                 println("耗时:${System.currentTimeMillis()-st}")
             }
-            //3:弹出提示框,建议用户用做配置定义
-//            ReferencesSearch.
+            //过滤出所有未配置的节点
+            val filterNodes = defineWidgetAttrs.filter { v -> customNodes.any { v.name==it.simpleName } }
+            if(filterNodes.isNotEmpty()){
+                //记录首选的声明方法
+                filterNodes.forEach {
+                    it.attributes.forEach {
+                        val keys = it.items.keys
+                        if(keys.isNotEmpty()){
+                            it.defineMethod=it.items.keys.first()
+                        }
+                    }
+                }
+                //3:弹出提示框,建议用户用做配置定义
+                val unknownWidgetForm = UnknownWidgetForm(filterNodes)
+                unknownWidgetForm.setActionListener {
+                    //1:更新自定义控件信息
+                    widgetAttrs+=unknownWidgetForm.treeWidgetAttributes
+                    //2:写入配置文件
+                    ensuredConfigurationFolder(project) { subDirectory ->
+                        val findFile = subDirectory.findFile("widget.xml")
+                        var virtualFile:VirtualFile
+                        if(null!=findFile){
+                            virtualFile=findFile.virtualFile
+                        } else {
+                            val createFile = subDirectory.createFile("widget.xml")
+                            virtualFile=createFile.virtualFile
+                        }
+                        //更新节点
+                        WidgetConfiguration(virtualFile).createOrUpdate(widgetAttrs)
+                        MessageDelegate.logEventMessage("Update widget attributes complete!")
+                    }
+                }
+            } else {
+                //直接生成代码
+            }
         }
     }
 
@@ -158,41 +195,37 @@ class LayoutConvertAction : BaseGenerateAction {
     }
 
     /**
-     * 解析values.xml文件
+     * 确认所有自定义控件列
      */
-    private fun parseValueStyleElement(element: Element,widgets:MutableList<DefineViewNode>){
-        val children=element.getChildren("declare-styleable")
-        children.forEach {
-            //如果不存在此控件添加到声明定义中
-            val name=it.getAttributeValue("name")
-            if(widgets.none { it.name==name }){
-                val viewNode=DefineViewNode(name)
-                //添加节点
-                widgets.add(viewNode)
-                it.children.forEach {
-                    val name=it.getAttributeValue("name")
-                    val format=it.getAttributeValue("format")
-                    val attributeNode=AttributeDefineNode(name,format)
-                    //添加属性节点
-                    viewNode.attributes.add(attributeNode)
-                    if(null==format||"enum"==format){
-                        //采集预定义属性
-                        it.children.forEach {
-                            //如果没有format格式,记录格式
-                            if(null==attributeNode.format){
-                                attributeNode.format=it.name
-                            }
-                            val itemName=it.getAttributeValue("name")
-                            val itemValue=it.getAttributeValue("value")
-                            val intValue=if(itemValue.startsWith("0x")||itemValue.startsWith("0X")){
-                                itemValue.substring(2).toInt(16)
-                            } else {
-                                itemValue.toInt()
-                            }
-                            attributeNode.items.put(itemName,intValue)
-                        }
-                    }
+    private fun ensuredWidgetAttrs(project: Project, widgetAttrs:MutableList<DefineViewNode>) {
+        ensuredConfigurationFolder(project){ subDirectory->
+            //读取文件
+            val findFile = subDirectory.findFile("widget.xml")
+            if(null!=findFile){
+                val file = File(findFile.virtualFile.path)
+                if(file.exists()){
+                    //添加配置控件信息
+                    widgetAttrs+=WidgetConfiguration(findFile.virtualFile).parse()
                 }
+            }
+        }
+    }
+
+    /**
+     * 确认配置文件夹
+     */
+    private fun ensuredConfigurationFolder(project: Project,callback:(PsiDirectory)->Unit) {
+        val baseDir = project.baseDir
+        val directory = PsiManager.getInstance(project).findDirectory(baseDir)
+        if (null != directory) {
+            //读取是否需要更新
+            WriteCommandAction.runWriteCommandAction(project) {
+                var subDirectory = directory.findSubdirectory(".cfg")
+                if (null == subDirectory) {
+                    //创建文件夹
+                    subDirectory = directory.createSubdirectory(".cfg")
+                }
+                callback(subDirectory)
             }
         }
     }
