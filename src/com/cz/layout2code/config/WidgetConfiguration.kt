@@ -2,6 +2,9 @@ package com.cz.layout2code.config
 
 import com.cz.layout2code.inflate.item.DefineAttributeNode
 import com.cz.layout2code.inflate.item.DefineViewNode
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import org.jdom.Document
 import org.jdom.Element
@@ -14,18 +17,24 @@ import org.jdom.output.Format
 /**
  * Created by cz on 2018/2/22.
  */
-class WidgetConfiguration(file: VirtualFile) : XmlConfiguration<MutableList<DefineViewNode>>(file) {
+class WidgetConfiguration(file: File) : XmlConfiguration<MutableList<DefineViewNode>>(file) {
 
     override fun parse(): MutableList<DefineViewNode> {
         val widgets = mutableListOf<DefineViewNode>()
-        val builder = SAXBuilder()//实例JDOM解析器
-        val document = builder.build(File(file.path))//读取xml文件
-        val children=document.rootElement.getChildren("view")
-        children.forEach {
+        var document:Document?=null
+        try{
+            val builder = SAXBuilder()//实例JDOM解析器
+            document = builder.build(File(file.path))//读取xml文件
+        } catch (e:Exception){
+            //nothing to do
+        }
+        val children=document?.rootElement?.getChildren("view")
+        children?.forEach {
             //如果不存在此控件添加到声明定义中
             val name=it.getAttributeValue("name")
+            val packageName=it.getAttributeValue("package")
             if(widgets.none { it.name==name }){
-                val viewNode=DefineViewNode(name)
+                val viewNode=DefineViewNode(packageName,name)
                 //添加节点
                 widgets.add(viewNode)
                 it.children.forEach {
@@ -59,26 +68,27 @@ class WidgetConfiguration(file: VirtualFile) : XmlConfiguration<MutableList<Defi
         return widgets
     }
 
-    override fun createOrUpdate(nodes:MutableList<DefineViewNode>){
+    override fun createOrUpdate(project: Project,nodes:MutableList<DefineViewNode>){
         //自己封装xml文档对象
         val rootElement = Element("widget")
         val document = Document(rootElement)
         nodes.forEach {
             val viewElement = Element("view")
+            viewElement.setAttribute("package",it.packageName)
             viewElement.setAttribute("name",it.name)
             rootElement.addContent(viewElement)
             //子属性
             it.attributes.forEach {
                 val itemElement = Element("attr")
+                viewElement.addContent(itemElement)
                 itemElement.setAttribute("name",it.name)
-                itemElement.setAttribute("format",it.format)
-                if(null!=it.defineMethod){
-                    itemElement.setAttribute("method",it.defineMethod)
-                }
+                itemElement.setAttribute("format",it.format?:"")
+                itemElement.setAttribute("method",it.defineMethod?:"")
                 //判断枚举与位集
                 if("enum"==it.format||"flag"==it.format){
                     it.items.forEach { name, value ->
                         val element = Element("item")
+                        itemElement.addContent(element)
                         element.setAttribute("name",name)
                         element.setAttribute("value",value.toString())
                     }
@@ -87,13 +97,17 @@ class WidgetConfiguration(file: VirtualFile) : XmlConfiguration<MutableList<Defi
         }
         //写入xml
         try {
-            val format = Format.getCompactFormat()
-            format.encoding = "utf-8"
-            format.indent = " "
-            XMLOutputter(format).output(document,FileOutputStream(file.path))
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
+            WriteCommandAction.runWriteCommandAction(project){
+                if(!file.exists()) {
+                    //这里不在意其是否显示
+                    file.createNewFile()
+                }
+                val format = Format.getCompactFormat()
+                format.encoding = "utf-8"
+                format.indent = " "
+                XMLOutputter(format).output(document,FileOutputStream(file.path))
+            }
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 

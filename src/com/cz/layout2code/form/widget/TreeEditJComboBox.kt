@@ -16,11 +16,6 @@ internal class RendererDispatcher(val treeItem:ViewAttributeTreeItem,comboBox: J
     val titleItem=ViewTitleTreeItem()
     var item: Any?=null
 
-    init {
-
-    }
-
-
     override fun getTreeCellEditorComponent(tree: JTree, value: Any,
                                             selected: Boolean, expanded: Boolean, leaf: Boolean, row: Int): Component? {
         val node=value as DefaultMutableTreeNode
@@ -53,7 +48,8 @@ internal class RendererDispatcher(val treeItem:ViewAttributeTreeItem,comboBox: J
         val item=item
         if(item is DefineAttributeNode){
             //记录选中位置
-            item.selectIndex=treeItem.selectedIndex
+            val selectedIndex = treeItem.selectedIndex
+            item.selectIndex=selectedIndex
         }
         return item
     }

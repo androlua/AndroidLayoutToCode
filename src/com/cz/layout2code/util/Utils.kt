@@ -9,6 +9,7 @@ import com.intellij.psi.*
 import com.intellij.psi.search.EverythingGlobalScope
 import com.intellij.psi.search.FilenameIndex
 import org.jdom.Namespace
+import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 
 object Utils {
     private val NS_ANDROID = Namespace.getNamespace("android", "http://schemas.android.com/apk/res/android")
@@ -75,6 +76,24 @@ object Utils {
         return resolveLayoutResourceFile(element, project, name)
 
 
+    }
+
+    /**
+     * 获得资源包名
+     */
+    fun getResourcesPackage(editor: Editor, file: PsiFile?): String? {
+        var packageName:String?=null
+         if(null!=editor&&null!=file){
+             val offset = editor.caretModel.offset
+             val candidate = file.findElementAt(offset - 1)
+             //parent 获得R.layout.xxx firstChild获得 R.layout 再一次firstChild获得R对象
+             val r = candidate?.parent?.firstChild?.firstChild
+             if(null!=r && r is PsiReferenceExpression){
+                 val qualifiedName=r.qualifiedName
+                 packageName=qualifiedName.substring(0,qualifiedName.lastIndexOf("."))
+             }
+        }
+        return packageName
     }
 
     private fun resolveLayoutResourceFile(element: PsiElement, project: Project, name: String): PsiFile? {

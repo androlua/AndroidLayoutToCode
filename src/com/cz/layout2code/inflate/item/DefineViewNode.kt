@@ -5,8 +5,9 @@ import java.util.*
 /**
  * Created by cz on 2018/2/1.
  */
-class DefineViewNode(val name:String){
+class DefineViewNode(var packageName:String?,val name:String){
     val attributes= mutableListOf<DefineAttributeNode>()
+    val qualifiedName=packageName+"."+name
     override fun toString()=name
 }
 /**
@@ -19,8 +20,11 @@ class DefineAttributeNode(var name:String, var format:String?):Cloneable{
     var defineMethod:String?=null
     //属性子集如:flag/enum
     var items= mutableMapOf<String,Int>()
-    //选中位置
-    var selectIndex=0;
+    //选中位置,并动态设置预声明方法
+    var selectIndex=0
+        set(value) {
+            defineMethod=methods.values.toTypedArray()[value]
+        }
     override fun toString()=name
 
     override public fun clone(): DefineAttributeNode {

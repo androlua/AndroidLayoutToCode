@@ -50,7 +50,6 @@ public class ViewAttributeTreeItem {
         return fieldComboBox.getSelectedIndex();
     }
 
-
     public Component getContainer(){
         return rootContainer;
     }

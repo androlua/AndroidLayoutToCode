@@ -2,6 +2,7 @@ package com.cz.layout2code.config
 
 import com.cz.layout2code.inflate.item.DefineAttributeNode
 import com.cz.layout2code.inflate.item.DefineViewNode
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jdom.input.SAXBuilder
 import java.io.File
@@ -9,7 +10,7 @@ import java.io.File
 /**
  * Created by cz on 2018/2/22.
  */
-class DeclareStyleableConfiguration(file: VirtualFile) : XmlConfiguration<MutableList<DefineViewNode>>(file) {
+class DeclareStyleableConfiguration(val packageName:String?,file: File) : XmlConfiguration<MutableList<DefineViewNode>>(file) {
 
     override fun parse(): MutableList<DefineViewNode> {
         val widgets = mutableListOf<DefineViewNode>()
@@ -20,7 +21,7 @@ class DeclareStyleableConfiguration(file: VirtualFile) : XmlConfiguration<Mutabl
             //如果不存在此控件添加到声明定义中
             val name=it.getAttributeValue("name")
             if(widgets.none { it.name==name }){
-                val viewNode=DefineViewNode(name)
+                val viewNode=DefineViewNode(packageName,name)
                 //添加节点
                 widgets.add(viewNode)
                 it.children.forEach {
@@ -52,5 +53,5 @@ class DeclareStyleableConfiguration(file: VirtualFile) : XmlConfiguration<Mutabl
         return widgets
     }
 
-    override fun createOrUpdate(item: MutableList<DefineViewNode>)=Unit
+    override fun createOrUpdate(project: Project, item: MutableList<DefineViewNode>)=Unit
 }

@@ -71,15 +71,7 @@ public class UnknownWidgetForm {
             //父级节点
             DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)root.getChildAt(i);
             //记录节点
-            DefineViewNode node=new DefineViewNode(childNode.getUserObject().toString());
-            List<DefineAttributeNode> attributes = node.getAttributes();
-            Enumeration children = childNode.children();
-            while(children.hasMoreElements()){
-                DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) children.nextElement();
-                DefineAttributeNode attributeNode = (DefineAttributeNode) treeNode.getUserObject();
-                attributes.add(attributeNode);
-            }
-            widgetAttrs.add(node);
+            widgetAttrs.add(childNode.getUserObject());
         }
         return widgetAttrs;
     }
