@@ -24,7 +24,10 @@ import org.jetbrains.kotlin.psi.KtFile
 import java.io.File
 import com.intellij.openapi.actionSystem.DataKeys
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.*
+import com.intellij.psi.impl.compiled.ClsClassImpl
+import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.KtLightClassForDecompiledDeclaration
 
 
 /**
@@ -250,36 +253,22 @@ class LayoutConvertAction : BaseGenerateAction {
         }
     }
 
-    /**
-     * 输入转换代码
-     * @param isJava 是否为java源文件
-     */
-    private fun outputSource(project: Project, widgetAttrs: MutableList<DefineViewNode>, node: ViewNode, isJava:Boolean, level:Int) {
-        if(null!= node.parent){
-            if(node.isSystemView){
-
-            } else if(node.isCompatView){
-
-            } else if(node.isCustomView){
-                //查找此类是否存在,并一直追查到类的继承到父级
-                var findClass = JavaPsiFacade.getInstance(project).findClass(node.name, GlobalSearchScope.everythingScope(project))
-                while(null!=findClass){
-                    val qualifiedName = findClass.qualifiedName
-                    if(null!=qualifiedName){
-                        val index = qualifiedName.lastIndexOf(".")
-                        val packageName=qualifiedName.substring(0,index)
-                        val className=qualifiedName.substring(index+1)
-                        println("packageName:$packageName className:$className")
-                    }
-                    findClass=findClass.superClass
-                }
+    private fun outputSource(project: Project, widgetAttrs: MutableList<DefineViewNode>, node: ViewNode, java: Boolean, i: Int) {
+        var findClass = JavaPsiFacade.getInstance(project).findClass(node.name, GlobalSearchScope.everythingScope(project))
+//        JarFileSystem.getInstance().getJarRootForLocalFile()
+        if(null!=findClass){
+            println(findClass.text)
+            if(findClass is PsiJavaFile){
+                println("java:"+findClass)
+            } else if(findClass is KtLightClassForDecompiledDeclaration){
+                println("KtFile:"+findClass)
+            } else if(findClass is ClsClassImpl){
+                println("file:"+findClass)
             }
         }
-        //检索控件
         node.children.forEach {
-            outputSource(project,widgetAttrs, it,isJava,level+1);
+            outputSource(project,widgetAttrs,it,java,i);
         }
     }
-
 
 }
