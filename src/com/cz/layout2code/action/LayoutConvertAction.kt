@@ -1,5 +1,6 @@
 package com.cz.layout2code.action
 
+import com.cz.layout2code.analysis.ExplodedAarAnalyzer
 import com.cz.layout2code.config.DeclareStyleableConfiguration
 import com.cz.layout2code.config.WidgetConfiguration
 import com.cz.layout2code.delegate.MessageDelegate
@@ -11,6 +12,7 @@ import com.cz.layout2code.util.TextCalculation
 import com.cz.layout2code.util.Utils
 import com.intellij.codeInsight.CodeInsightActionHandler
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction
+import com.intellij.compiler.ant.taskdefs.Jar
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -24,10 +26,17 @@ import org.jetbrains.kotlin.psi.KtFile
 import java.io.File
 import com.intellij.openapi.actionSystem.DataKeys
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.*
 import com.intellij.psi.impl.compiled.ClsClassImpl
+import org.jetbrains.kotlin.idea.caches.JarUserDataManager
+import org.jetbrains.kotlin.idea.caches.resolve.getNullableModuleInfo
 import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.KtLightClassForDecompiledDeclaration
+import org.jetbrains.kotlin.idea.configuration.externalProjectPath
+import org.jetbrains.kotlin.idea.util.projectStructure.allModules
+import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
+import org.jetbrains.kotlin.psi.moduleInfo
 
 
 /**
@@ -50,8 +59,10 @@ class LayoutConvertAction : BaseGenerateAction {
         val project = DataKeys.PROJECT.getData(dataContext)
         val editor = event.getData(PlatformDataKeys.EDITOR)
         if(null!=project&&null!=editor){
+            println(project.basePath)
             val file = PsiUtilBase.getPsiFileInEditor(editor, project)
             val layout = Utils.getLayoutFileFromCaret(editor, file)
+            ExplodedAarAnalyzer(file).analysis(project)
             val resourcesPackage = Utils.getResourcesPackage(editor, file)
             //采集所有第三方库的values.xml
             if (defineWidgetAttrs.isEmpty()) {
@@ -178,17 +189,7 @@ class LayoutConvertAction : BaseGenerateAction {
      */
     private fun getViewDeclareStyleable(project: Project,packageName:String?):MutableList<DefineViewNode> {
         val defineWidgetAttrs= mutableListOf<DefineViewNode>()
-        val packagePattern = "exploded-aar/([\\w_\\.]+)/".toPattern()
-        val valueFiles = FilenameIndex.getVirtualFilesByName(project, "values.xml", GlobalSearchScope.everythingScope(project))
-        valueFiles.forEach {
-            //获取包名 file:///Users/cz/IntelliJIDEAProjects/MyApplication/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/26.0.0-alpha1/res/values/values.xml
-            var aarPackageName:String?=null
-            val matcher = packagePattern.matcher(it.path)
-            if (matcher.find()) {
-                aarPackageName=matcher.group(1)
-            }
-            defineWidgetAttrs += DeclareStyleableConfiguration(aarPackageName,File(it.path)).parse()
-        }
+        //TODO
         //2.3:解析项目attrs.xml定义
         //file:///Users/cz/IntelliJIDEAProjects/MyApplication/app/src/main/res/values/attrs.xml
         val attrsFiles = FilenameIndex.getVirtualFilesByName(project, "attrs.xml", GlobalSearchScope.projectScope(project))
@@ -255,7 +256,7 @@ class LayoutConvertAction : BaseGenerateAction {
 
     private fun outputSource(project: Project, widgetAttrs: MutableList<DefineViewNode>, node: ViewNode, java: Boolean, i: Int) {
         var findClass = JavaPsiFacade.getInstance(project).findClass(node.name, GlobalSearchScope.everythingScope(project))
-//        JarFileSystem.getInstance().getJarRootForLocalFile()
+//        JarFileSystem.getInstance().getJarRootForLocalFile("")
         if(null!=findClass){
             println(findClass.text)
             if(findClass is PsiJavaFile){
