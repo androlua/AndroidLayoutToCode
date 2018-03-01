@@ -2,9 +2,10 @@ package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
 import com.cz.layout2code.inflate.element.*
+import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.prefs.AttributeStyle
-import org.jdom.Element
+
 /**
  * Created by cz on 2017/12/19.
  * 
@@ -82,9 +83,11 @@ import org.jdom.Element
  * @attr ref android.R.styleable#View_theme
  *
  */
-open class View {
+open class View : IView {
 	val viewStyleItems = mutableMapOf<String,MutableList<AttributeStyle>>()
 	val attributes= mutableListOf<ElementConvert>()
+	//是否为compat v7包内控件
+	var isCompatView=false
 
 	init {
 		attribute{
@@ -706,18 +709,15 @@ open class View {
 		attributes.add(MultiAttributeItem(name,*value))
 	}
 
-
-
-
-	fun convert(element:Element, level:Int, toKotlin:Boolean=true):String{
+	override fun convert(viewNode:ViewNode, toJava:Boolean):String{
 		val out=StringBuilder()
-		val tab="".padEnd(level+1,'\t')
-		inflateAttributes(element)
+		val tab="".padEnd(viewNode.level+1,'\t')
+		inflateAttributes(viewNode)
 		attributes.forEach {
-			if(toKotlin){
-				out.append("$tab${it.toKotlinString()}\n")
-			} else {
+			if(toJava){
 				out.append("$tab${it.toJavaString()}\n")
+			} else {
+				out.append("$tab${it.toKotlinString()}\n")
 			}
 		}
 		return out.toString()
@@ -733,19 +733,20 @@ open class View {
 	 */
 	open fun getThemeViewName()="themeView"
 
+	override fun getClassName(): String =if(!isCompatView) getViewName() else getThemeViewName()
 	/**
 	 * 解析View属性集,并返回解析后的anko代码
 	 */
-	open fun inflateAttributes(element:Element){
-		element.attributes.forEach { addAttributeItems(it.name,it.value) }
+	override fun inflateAttributes(viewNode:ViewNode){
+		viewNode.attributes.forEach { addAttributeItems(it.name,it.value) }
 		//添加内边距属性
-		addPaddingAttribute(element)
+		addPaddingAttribute(viewNode)
 	}
 
 	/**
 	 * 添加内边距属性
 	 */
-	private fun addPaddingAttribute(element: Element) {
+	private fun addPaddingAttribute(element:ViewNode) {
 		val padding = element.attributes.find { it.name == "padding" }?.value
 		var paddingLeft = element.attributes.find { it.name == "paddingLeft" }?.value
 		var paddingTop = element.attributes.find { it.name == "paddingTop" }?.value

@@ -4,7 +4,7 @@ package com.cz.layout2code.inflate.item
  * Created by cz on 2018/2/1.
  * xml节点信息
  */
-class ViewNode(val name:String){
+class ViewNode(val name:String,val level:Int){
     //类简称
     var simpleName:String?=null
     var parent:ViewNode?=null
@@ -13,6 +13,8 @@ class ViewNode(val name:String){
     val isCompatView:Boolean
     val isSystemView:Boolean
     val isCustomView:Boolean
+    //预声明的控件节点信息
+    var widgetAttr:DefineViewNode?=null
 
     init {
         val index=name.lastIndexOf(".")
@@ -42,6 +44,6 @@ class ViewNode(val name:String){
 /**
  * 属性节点
  */
-class AttributeNode(val nameSpace:String,val name:String,value:String?){
+class AttributeNode(val nameSpace:String,val name:String,val value:String){
     override fun toString()=name
 }

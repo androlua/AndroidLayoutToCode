@@ -4,6 +4,7 @@ import org.jdom.Element
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.color
 import com.cz.layout2code.inflate.bool
+import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.resource
 /**
  * Created by cz on 2018/1/29.
@@ -37,7 +38,7 @@ open class TimePicker : FrameLayout() {
 	/**
 	 * 解析LayoutParams属性集
 	 */
-	override fun inflateAttributes(element: Element){
+	override fun inflateAttributes(element: ViewNode){
 		super.inflateAttributes(element)
 		element.attributes.forEach { addAttributeItems(it.name,it.value) }
 	}

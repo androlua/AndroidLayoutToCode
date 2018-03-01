@@ -4,6 +4,8 @@ import org.jdom.Element
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.string
 import com.cz.layout2code.inflate.float
+import com.cz.layout2code.inflate.item.ViewNode
+
 /**
  * Created by cz on 2018/1/29.
  * 
@@ -37,7 +39,7 @@ open class ToggleButton : CompoundButton() {
 	/**
 	 * 解析LayoutParams属性集
 	 */
-	override fun inflateAttributes(element: Element){
+	override fun inflateAttributes(element: ViewNode){
 		super.inflateAttributes(element)
 		element.attributes.forEach { addAttributeItems(it.name,it.value) }
 	}

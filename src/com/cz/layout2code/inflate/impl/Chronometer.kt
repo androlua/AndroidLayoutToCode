@@ -1,6 +1,7 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.bool
+import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.string
 import org.jdom.Element
@@ -36,7 +37,7 @@ open class Chronometer : TextView() {
 	/**
 	 * 解析LayoutParams属性集
 	 */
-	override fun inflateAttributes(element: Element){
+	override fun inflateAttributes(element: ViewNode){
 		super.inflateAttributes(element)
 		element.attributes.forEach { addAttributeItems(it.name,it.value) }
 	}

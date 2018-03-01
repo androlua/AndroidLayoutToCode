@@ -1,8 +1,23 @@
 package com.cz.layout2code.inflate
 
+import com.cz.layout2code.config.WidgetConfiguration
+import com.cz.layout2code.delegate.MessageDelegate
+import com.cz.layout2code.form.UnknownWidgetForm
 import com.cz.layout2code.inflate.impl.View
 import com.cz.layout2code.inflate.impl.ViewGroup
-import com.cz.layout2code.inflate.element.LayoutParamsConvertItem
+import com.cz.layout2code.inflate.impl.IView
+import com.cz.layout2code.inflate.impl.custom.CustomViewWrapper
+import com.cz.layout2code.inflate.item.AttributeNode
+import com.cz.layout2code.inflate.item.DefineViewNode
+import com.cz.layout2code.inflate.item.ViewNode
+import com.cz.layout2code.util.TextCalculation
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiDirectory
+import com.intellij.psi.PsiManager
+import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.Element
 import org.jdom.input.SAXBuilder
 import java.io.File
@@ -17,73 +32,199 @@ import java.io.File
 object AndroidLayoutInflater {
     val PACKAGE_NAME="com.cz.layout2code.inflate.impl"
     val APPCOMPAT_PACKAGE="APPCOMPAT_PACKAGE"
-    fun inflater(file: File, toKotlin:Boolean=true){
-//        val file= File("src/com/cz/layout2code/test/activity_test.xml")
-        val builder = SAXBuilder()//实例JDOM解析器
-        val document = builder.build(file)//读取xml文件
+    //当前己声明的自定义控件属性列
+    val customWidgetAttrs = mutableListOf<DefineViewNode>()
 
-        //打印属性
-        val out=StringBuilder()
-        val rootElement=document.rootElement
-        inflateElement(rootElement,out, ViewGroup.LayoutParams(),0, toKotlin)
-        println(out)
-    }
-
-    private fun inflateElement(element: Element,out:StringBuilder,layoutParams:ViewGroup.LayoutParams,level:Int,toAnko:Boolean=true) {
-        val name = element.name
-        val index=name.lastIndexOf(".")
-        if (-1 < index) {
-            val packageName=name.substring(0,index)
-            if(APPCOMPAT_PACKAGE==packageName){
-                //v7控件
-            } else {
-                //TODO 其他自定义控件
+    /**
+     * 开始装载布局体
+     * @param project 当前项目体
+     * @param virtualFile 当前布局文件
+     * @param isJava 是否为java文件
+     */
+    fun inflater(project: Project, virtualFile: VirtualFile,defineWidgetAttrs:MutableList<DefineViewNode>,isJava:Boolean){
+        //开始解析xml信息
+        if(virtualFile.exists()){
+            val layoutFile= File(virtualFile.path)
+            val builder = SAXBuilder()//实例JDOM解析器
+            val document = builder.build(layoutFile)//读取xml文件
+            //1:递归解析所有节点,收集所有自定义控件
+            val customWidgetAttrs= customWidgetAttrs
+            val parent= ViewNode("root",0)
+            val customNodes= mutableListOf<ViewNode>()
+            parseElement(parent,document.rootElement,customNodes)
+            //2:检测自定义控件模板是否记录此控件属性.不存在则检索项目内values.xml
+            processCustomWidget(project,customNodes,defineWidgetAttrs)
+            //解析出当前项目己有的自定义控件配置项
+            if(customWidgetAttrs.isNotEmpty()){
+                ensuredWidgetAttrs(project, customWidgetAttrs)
             }
-        } else {
-            try {
-                val clazz = Class.forName(PACKAGE_NAME + "." + name)
-                val view = clazz.newInstance() as View
-                val tab="".padEnd(level,'\t')
-                out.append("$tab${view.getViewName()}{\n")
-                val value = view.convert(element, level,toAnko)
-                out.append(value)
-                element.children.forEach{
-                    val layoutParams=(view as ViewGroup).getLayoutParams()
-                    inflateElement(it,out,layoutParams,level+1)
+            if(customWidgetAttrs.isNotEmpty()){
+                showUnKnowWidgetForm(customWidgetAttrs, project){
+                    println("生成代码!")
+                    processLayoutWidget(project,customWidgetAttrs,parent,isJava)
                 }
-                out.append("$tab}")
-                //收集layoutParams属性
-                layoutParams.inflateAttributes(element)
-                val layoutParamsItem=layoutParams.attributes.find { it is LayoutParamsConvertItem }
-                if(null!=layoutParamsItem){
-                    layoutParams.attributes.remove(layoutParamsItem)
-                    out.append(".lparams(")
-                    if(toAnko){
-                        out.append(layoutParamsItem.toKotlinString())
-                    } else {
-                        out.append(layoutParamsItem.toJavaString()+"\n")
-                    }
-                    out.append(")")
-                }
-                if(layoutParams.attributes.isNotEmpty()){
-                    out.append("{\n")
-                    val paramsTab="".padEnd(level+1,'\t')
-                    layoutParams.attributes.forEach {
-                        if(toAnko){
-                            it.toKotlinString()?.lines()?.forEach {
-                                out.append("$paramsTab$it\n")
-                            }
-                        } else {
-                            out.append(it.toJavaString()+"\n")
-                        }
-                    }
-                    out.append("$tab}")
-                }
-                out.append("\n")
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } else {
+                //直接生成代码
+                println("生成代码!")
+//                processLayoutWidget(project,customWidgetAttrs,parent,isJava,0)
             }
         }
+    }
+
+
+    /**
+     * 显示未知的控件表单
+     */
+    private fun showUnKnowWidgetForm(widgetAttrs: MutableList<DefineViewNode>, project: Project, callback:()->Unit) {
+        //3:弹出提示框,建议用户用做配置定义
+        val unknownWidgetForm = UnknownWidgetForm(widgetAttrs)
+        unknownWidgetForm.setActionListener {
+            //1:更新自定义控件信息
+            widgetAttrs += unknownWidgetForm.treeWidgetAttributes
+            //2:写入配置文件
+            ensuredConfigurationFolder(project) { subDirectory ->
+                val findFile = File(subDirectory.virtualFile.path, "widget.xml")
+                //更新节点
+                WidgetConfiguration(findFile).createOrUpdate(project, widgetAttrs)
+                MessageDelegate.logEventMessage("Update widget attributes complete!")
+                //回调事件
+                callback.invoke()
+            }
+        }
+    }
+
+    /**
+     * 处理自定义控件
+     * @param project 当前项目对象
+     * @param customNodes 当前自定义控件的xml节点信息
+     * @param defineWidgetAttrs 当前项目所有引用声明的自定义控件引用信息列
+     *
+     */
+    private fun processCustomWidget(project: Project, customNodes: MutableList<ViewNode>,
+                                    defineWidgetAttrs:MutableList<DefineViewNode>) {
+        val st = System.currentTimeMillis()
+        customNodes.forEach {
+            val name = it.name
+            val findClass = JavaPsiFacade.getInstance(project).findClass(name, GlobalSearchScope.everythingScope(project))
+            if (null != findClass) {
+                val widgetAttr = defineWidgetAttrs.find { name == it.qualifiedName }
+                //记录属性
+                it.widgetAttr=widgetAttr
+                if(null!=widgetAttr){
+                    val methods = findClass.methods.filter { !it.isConstructor }
+                    //2.4:检测每个属性,与所有方法的文字匹配度,取最高的前5个方法
+                    val MAX_SIZE = 5
+                    widgetAttr.attributes.forEach { attribute ->
+                        //遍历源码所有方法,求得各方法文本匹配度
+                        methods.forEach {
+                            //相似度
+                            val degree = TextCalculation.similarDegree(attribute.name, it.name)
+                            if (attribute.methods.size >= MAX_SIZE) {
+                                //超出5个,移掉最小的,太多的选择无意义
+                                val keys = attribute.methods.keys
+                                keys.remove(keys.last())
+                            }
+                            attribute.methods.put(degree, it.name)
+                        }
+                        //预设属性对应方法
+                        attribute.defineMethod=attribute.methods.values.first()
+                    }
+                }
+            }
+        }
+        MessageDelegate.logEventMessage("Process custom widget:${System.currentTimeMillis() - st}")
+    }
+
+    /**
+     * 解析子节点
+     */
+    private fun parseElement(parent: ViewNode, element: Element, customNodes:MutableList<ViewNode>){
+        val node= ViewNode(element.name,parent.level+1)
+        //记录父节点
+        node.parent=parent
+        //父节点记录子节点
+        parent.children.add(node)
+        //记录自定义控件
+        if(node.isCustomView){
+            customNodes.add(node)
+        }
+        //记录所有引用
+        element.attributes.forEach {
+            node.attributes.add(AttributeNode(it.namespacePrefix,it.name,it.value))
+        }
+        //记录所有子孩子
+        element.children.forEach { parseElement(node,it,customNodes) }
+    }
+
+    /**
+     * 确认所有自定义控件列
+     */
+    private fun ensuredWidgetAttrs(project: Project, widgetAttrs:MutableList<DefineViewNode>) {
+        ensuredConfigurationFolder(project){ subDirectory->
+            //读取文件
+            val findFile = File(subDirectory.virtualFile.path,"widget.xml")
+            if(findFile.exists()){
+                //添加配置控件信息
+                widgetAttrs+= WidgetConfiguration(findFile).parse()
+            }
+        }
+    }
+
+    /**
+     * 确认配置文件夹
+     */
+    private fun ensuredConfigurationFolder(project: Project, callback:(PsiDirectory)->Unit) {
+        val baseDir = project.baseDir
+        val directory = PsiManager.getInstance(project).findDirectory(baseDir)
+        if (null != directory) {
+            //读取是否需要更新
+            WriteCommandAction.runWriteCommandAction(project) {
+                var subDirectory = directory.findSubdirectory(".cfg")
+                if (null == subDirectory) {
+                    //创建文件夹
+                    subDirectory = directory.createSubdirectory(".cfg")
+                }
+                callback(subDirectory)
+            }
+        }
+    }
+
+    /**
+     * 处理布局控件
+     */
+    private fun processLayoutWidget(project: Project, customWidgetAttrs: MutableList<DefineViewNode>, viewNode: ViewNode, convertToJava: Boolean) {
+        //从节点获取view
+        val view = getViewFromNode(viewNode, project)
+        if(null==view){
+
+        } else {
+            //处理view
+            view.convert(viewNode,convertToJava)
+        }
+        //遍历子节点
+        viewNode.children.forEach {
+            processLayoutWidget(project,customWidgetAttrs,it,convertToJava)
+        }
+    }
+
+    /**
+     * 从节点获取到view体
+     */
+    private fun getViewFromNode(viewNode: ViewNode, project: Project): IView? {
+        var view:IView?=null
+        if (viewNode.isCustomView) {
+            //进行自定义控件包装
+            view=CustomViewWrapper.wrapper(project, viewNode)
+        } else {
+            //系统控件或v7
+            try {
+                val clazz = Class.forName(PACKAGE_NAME + "." + viewNode.name)
+                view = clazz.newInstance() as View
+                view.isCompatView = viewNode.isCompatView
+            } catch (e: Exception) {
+            }
+        }
+        return view
     }
 
 }

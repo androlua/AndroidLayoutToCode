@@ -15,7 +15,7 @@ class LayoutParserTest{
     @Test
     fun testParser(){
         val file= File("src/com/cz/layout2code/test/activity_test.xml")
-        AndroidLayoutInflater.inflater(file)
+//        AndroidLayoutInflater.inflater(file)
 //        val builder = SAXBuilder()//实例JDOM解析器
 //        val document = builder.build(file)//读取xml文件
 //        printXmlNode(document.rootElement,0)

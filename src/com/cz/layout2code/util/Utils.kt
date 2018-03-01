@@ -78,23 +78,6 @@ object Utils {
 
     }
 
-    /**
-     * 获得资源包名
-     */
-    fun getResourcesPackage(editor: Editor, file: PsiFile?): String? {
-        var packageName:String?=null
-         if(null!=editor&&null!=file){
-             val offset = editor.caretModel.offset
-             val candidate = file.findElementAt(offset - 1)
-             //parent 获得R.layout.xxx firstChild获得 R.layout 再一次firstChild获得R对象
-             val r = candidate?.parent?.firstChild?.firstChild
-             if(null!=r && r is PsiReferenceExpression){
-                 val qualifiedName=r.qualifiedName
-                 packageName=qualifiedName.substring(0,qualifiedName.lastIndexOf("."))
-             }
-        }
-        return packageName
-    }
 
     private fun resolveLayoutResourceFile(element: PsiElement, project: Project, name: String): PsiFile? {
         // restricting the search to the current module - searching the whole project could return wrong layouts

@@ -7,9 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiManager
-import com.intellij.psi.search.FilenameIndex
-import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.input.SAXBuilder
 import org.jetbrains.kotlin.idea.configuration.externalProjectPath
 import java.io.File
@@ -23,7 +20,7 @@ class ExplodedAarAnalyzer(val file:PsiFile?):Analyzer<MutableList<DefineViewNode
     private val FILTER_ITEMS= mutableListOf("com.android.support.test","com.android.support.test.espresso")
 
     override fun analysis(project: Project):MutableList<DefineViewNode> {
-        val pattern = "(.+/exploded-aar/([\\w_\\.]+)/.+)/res/values/values.xml".toPattern()
+        val defineNodes = mutableListOf<DefineViewNode>()
         val virtualFile = file?.virtualFile
         if(null!=virtualFile){
             val module = ModuleUtil.findModuleForFile(virtualFile,project)
@@ -36,37 +33,21 @@ class ExplodedAarAnalyzer(val file:PsiFile?):Analyzer<MutableList<DefineViewNode
                     explodedAArFile.children.forEach { file->
                         //不存在过滤包,开始解析
                         if(FILTER_ITEMS.none { it==file.name }){
-                             parserExplodedAArPackage(project,file)
+                            //添加所有library内的aar文件自定义属性以及类信息
+                            defineNodes+=parserExplodedAArPackage(project,file)
                         }
                     }
                 }
             }
         }
-        val valueFiles = FilenameIndex.getVirtualFilesByName(project, "values.xml", GlobalSearchScope.everythingScope(project))
-        valueFiles.forEach {
-            //获取包名 file:///Users/cz/IntelliJIDEAProjects/MyApplication/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/26.0.0-alpha1/res/values/values.xml
-            var aarPath:String?=null
-            var aarPackageName:String?=null
-            val matcher = pattern.matcher(it.path)
-            if (matcher.find()) {
-                //记录前路径下的
-                aarPath = matcher.group(1)
-                aarPackageName=matcher.group(2)
-            }
-            DeclareStyleableConfiguration(aarPackageName, File(it.path)).parse()
-            val classFile = it.fileSystem.findFileByPath("$aarPath/jars/classes.jar")
-            if(null!=classFile){
-                val rootLocalFile = JarFileSystem.getInstance().getJarRootForLocalFile(classFile)
-                //遍历jar中所有文件
-            }
-        }
-        return null!!
+        return defineNodes
     }
 
     /**
      * 解析导入aar包文件
      */
-    private fun parserExplodedAArPackage(project: Project,file: VirtualFile) {
+    private fun parserExplodedAArPackage(project: Project,file: VirtualFile):MutableList<DefineViewNode> {
+        val nodeItems = mutableListOf<DefineViewNode>()
         if(file.isDirectory){
             //遍历子目录,遍历项目名称
             file.children.forEach { artifactId->
@@ -86,7 +67,6 @@ class ExplodedAarAnalyzer(val file:PsiFile?):Analyzer<MutableList<DefineViewNode
                         //1:获取manifest内配置package
                         var document= SAXBuilder().build(File(manifest.path))
                         val packageName=document.rootElement.getAttributeValue("package")
-                        println("packageName:$packageName")
 
                         //2:检测jar包内,所有class文件
                         val classItems=mutableListOf<String>()
@@ -95,18 +75,26 @@ class ExplodedAarAnalyzer(val file:PsiFile?):Analyzer<MutableList<DefineViewNode
                             collectClassFile(project,classItems,rootFile,rootFile)
                         }
                         //采集属性定义
-                        val nodeItems = mutableListOf<DefineViewNode>()
                         resourceFolder.children.forEach {
                             //检测xml内配置
                             val configuration = DeclareStyleableConfiguration(packageName, File(it.path))
                             nodeItems+=configuration.parse()
                         }
-                        println("size:"+nodeItems.size)
-                        println(nodeItems)
+                        //让style-attr与class建立关联关系
+                        nodeItems.forEach { item->
+                            val qualifiedName = classItems.find { it.endsWith(item.name) }
+                            if(!qualifiedName.isNullOrEmpty()){
+                                //记录控件全称
+                                item.qualifiedName=qualifiedName
+                                //记录控件包名
+                                item.packageName=qualifiedName?.substring(0,qualifiedName.lastIndexOf("."))
+                            }
+                        }
                     }
                 }
             }
         }
+        return nodeItems
     }
 
     /**
@@ -114,7 +102,8 @@ class ExplodedAarAnalyzer(val file:PsiFile?):Analyzer<MutableList<DefineViewNode
      */
     private fun collectClassFile(project: Project,classItems: MutableList<String>, root: VirtualFile,file:VirtualFile) {
         if(!file.isDirectory&&file.name.none { it=='$' }){
-            val filePackage = file.path.substring(root.path.length,file.path.lastIndexOf("."))
+            val start=if(root.path.endsWith("/")) root.path.length else root.path.length+1
+            val filePackage = file.path.substring(start,file.path.lastIndexOf("."))
             classItems.add(filePackage.replace("/","."))
         } else if(file.isDirectory){
             //获取包名

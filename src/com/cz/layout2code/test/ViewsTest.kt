@@ -1,4 +1,4 @@
-import com.cz.layout2code.inflate.impl.CustomView
+import com.cz.layout2code.inflate.impl.custom.CustomViewWrapper
 import org.junit.Test
 import java.util.*
 
@@ -39,7 +39,7 @@ class ViewsTest{
 //    println(layoutDimension("wrap_content"))
 //    println(layoutDimension("@dimen/view_height"))
 //      测试资源控件读取,并生成控件继承树
-        val classLoader = CustomView::class.java.classLoader
+        val classLoader = CustomViewWrapper::class.java.classLoader
         val resourceAsStream = classLoader.getResourceAsStream("views.properties")
         val properties= Properties()
         properties.load(resourceAsStream)

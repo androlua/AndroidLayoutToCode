@@ -2,6 +2,7 @@ package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.gravity
 import com.cz.layout2code.inflate.id
+import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.relativeRule
 import com.cz.layout2code.inflate.resource
@@ -42,7 +43,7 @@ open class RelativeLayout : ViewGroup() {
 	/**
 	 * 解析RelativeLayout属性集,并返回解析后的anko代码
 	 */
-	override fun inflateAttributes(element: Element){
+	override fun inflateAttributes(element: ViewNode){
 		super.inflateAttributes(element)
 		element.attributes.forEach { addAttributeItems(it.name,it.value) }
 	}

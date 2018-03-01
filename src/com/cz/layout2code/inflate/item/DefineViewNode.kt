@@ -5,9 +5,10 @@ import java.util.*
 /**
  * Created by cz on 2018/2/1.
  */
-class DefineViewNode(var packageName:String?,val name:String){
+class DefineViewNode(var modulePackage:String?,val name:String){
     val attributes= mutableListOf<DefineAttributeNode>()
-    val qualifiedName=packageName+"."+name
+    var qualifiedName:String?=null
+    var packageName:String?=null
     override fun toString()=name
 }
 /**

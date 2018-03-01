@@ -32,9 +32,11 @@ class WidgetConfiguration(file: File) : XmlConfiguration<MutableList<DefineViewN
         children?.forEach {
             //如果不存在此控件添加到声明定义中
             val name=it.getAttributeValue("name")
-            val packageName=it.getAttributeValue("package")
             if(widgets.none { it.name==name }){
-                val viewNode=DefineViewNode(packageName,name)
+                //记录module包名,以及类名称
+                val viewNode=DefineViewNode(it.getAttributeValue("package"),name)
+                //记录全路径
+                viewNode.qualifiedName=it.getAttributeValue("qualifiedName")
                 //添加节点
                 widgets.add(viewNode)
                 it.children.forEach {
@@ -75,6 +77,7 @@ class WidgetConfiguration(file: File) : XmlConfiguration<MutableList<DefineViewN
         nodes.forEach {
             val viewElement = Element("view")
             viewElement.setAttribute("package",it.packageName)
+            viewElement.setAttribute("qualifiedName",it.qualifiedName)
             viewElement.setAttribute("name",it.name)
             rootElement.addContent(viewElement)
             //子属性

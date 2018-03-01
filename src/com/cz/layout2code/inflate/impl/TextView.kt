@@ -1,6 +1,7 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
+import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import org.jdom.Element
 /**
@@ -529,14 +530,14 @@ open class TextView : View() {
 	/**
 	 * 解析TextView属性集,并返回解析后的anko代码
 	 */
-	override fun inflateAttributes(element:Element){
+	override fun inflateAttributes(element: ViewNode){
 		super.inflateAttributes(element)
 		element.attributes.forEach { addAttributeItems(it.name,it.value) }
 		addDrawableAttribute(element)
 		addShadowAttribute(element)
 	}
 
-	private fun addShadowAttribute(element: Element) {
+	private fun addShadowAttribute(element: ViewNode) {
 		var shadowRadius = element.attributes.find { it.name == "shadowRadius" }?.value
 		var shadowColor = element.attributes.find { it.name == "shadowColor" }?.value
 		var shadowDx = element.attributes.find { it.name == "shadowDx" }?.value
@@ -550,7 +551,7 @@ open class TextView : View() {
 		}
 	}
 
-	private fun addDrawableAttribute(element: Element) {
+	private fun addDrawableAttribute(element: ViewNode) {
 		val drawableLeft = element.attributes.find { it.name == "drawableLeft" }?.value
 		var drawableTop = element.attributes.find { it.name == "drawableTop" }?.value
 		var drawableRight = element.attributes.find { it.name == "drawableRight" }?.value
