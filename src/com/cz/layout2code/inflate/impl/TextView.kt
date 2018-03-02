@@ -532,7 +532,6 @@ open class TextView : View() {
 	 */
 	override fun inflateAttributes(element: ViewNode){
 		super.inflateAttributes(element)
-		element.attributes.forEach { addAttributeItems(it.name,it.value) }
 		addDrawableAttribute(element)
 		addShadowAttribute(element)
 	}

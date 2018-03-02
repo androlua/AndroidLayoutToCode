@@ -71,6 +71,7 @@ class LayoutConvertAction : BaseGenerateAction {
                 //当前项目内控件
                 defineWidgetAttrs += ModuleAnalyzer(file).analysis(project)
             }
+            //不做文件字节码判断,因为判断比直接检索更耗时,己测试,性能相差近30倍,直接操作500毫秒,判断操作time:14842
             if(file !is PsiJavaFile && file !is KtFile){
                 //不是kt/java源码文件,转换无意义
                 MessageDelegate.showMessage("Not a Kotlin or Java source file!")

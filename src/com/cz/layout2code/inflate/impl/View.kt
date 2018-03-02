@@ -84,12 +84,13 @@ import com.cz.layout2code.inflate.prefs.AttributeStyle
  *
  */
 open class View : IView {
-	val viewStyleItems = mutableMapOf<String,MutableList<AttributeStyle>>()
+	val viewStyleItems = mutableMapOf<String,AttributeStyle>()
 	val attributes= mutableListOf<ElementConvert>()
 	//是否为compat v7包内控件
 	var isCompatView=false
 
 	init {
+		//当前对象
 		attribute{
 			field = "accessibilityLiveRegion"
 			attrType = arrayOf(AttrType.ENUM)
@@ -668,33 +669,27 @@ open class View : IView {
 	/**
 	 * 常规属性
 	 */
-	protected fun attribute(action: AttributeStyle.()->Unit){
-		val simpleClassName=getSimpleClassName()
-		val items=viewStyleItems.getOrPut(simpleClassName) { mutableListOf<AttributeStyle>()}
-		items.add(AttributeStyle().apply(action))
+	protected inline fun attribute(action: AttributeStyle.()->Unit){
+		val item = AttributeStyle().apply(action)
+		viewStyleItems.put(item.field,item)
 	}
 
 	/**
 	 * 无用属性,不可转换,指类内部并没有暴露实现方法出来的属性
 	 */
 	protected fun uselessAttribute(field:String){
-		val simpleClassName=getSimpleClassName()
-		val items=viewStyleItems.getOrPut(simpleClassName) { mutableListOf<AttributeStyle>()}
 		val attributeStyle=AttributeStyle()
 		attributeStyle.field=field
 		//不可转换属性
 		attributeStyle.convert=false
-		items.add(attributeStyle)
+		viewStyleItems.put(field,attributeStyle)
 	}
-
 
 	/**
 	 * 根据系统配置属性,添加到属性集
 	 */
 	protected fun addAttributeItems(name:String,value:String){
-		val simpleClassName = getSimpleClassName()
-		val items= viewStyleItems[simpleClassName]
-		val findItem=items?.find { it.field==name }
+		val findItem= viewStyleItems[name]
 		if(null!=findItem){
 			//添加控件配置属性
 			attributes.add(ViewAttributeItem(findItem,value))

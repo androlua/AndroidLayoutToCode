@@ -115,13 +115,6 @@ open class ViewGroup : View() {
 	 * 获得控件带样式映射名称
 	 */
 	override fun getThemeViewName()="themedViewGroup"
-	/**
-	 * 解析ViewGroup属性集,并返回解析后的anko代码
-	 */
-	override fun inflateAttributes(element: ViewNode){
-		super.inflateAttributes(element)
-		element.attributes.forEach {addAttributeItems(it.name,it.value)}
-	}
 
 	open fun getLayoutParams()=LayoutParams()
 

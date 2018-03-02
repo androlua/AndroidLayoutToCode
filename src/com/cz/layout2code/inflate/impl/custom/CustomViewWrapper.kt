@@ -1,6 +1,5 @@
 package com.cz.layout2code.inflate.impl.custom
 
-import com.cz.layout2code.inflate.impl.IView
 import com.cz.layout2code.inflate.impl.View
 import com.cz.layout2code.inflate.item.ViewNode
 import com.intellij.openapi.project.Project
@@ -11,13 +10,14 @@ import java.util.*
 /**
  * Created by cz on 2018/2/27.
  * 标记自定义控件包装器对象,用于动态化的控件解析
+ * 自定义控件,在包装系统控件时,还要形成一个自定义控件继承自定义控件的继承层级解析过程.所以,还会有一个调用链,一直链到系统控件
  */
-class CustomViewWrapper(val view:View,val node: ViewNode) :View(){
+class CustomViewWrapper(val parent:ParentNode,val node: ViewNode) :View(){
     companion object{
         //检测控件包名
         val PACKAGE_NAME="com.cz.layout2code.inflate.impl"
         val ANDROID_PACKAGE="android.widget"
-        //当前控件树根节点
+        //当前系统控件树根节点
         var root= ClassNode("View")
         //当前缓存所有节点
         val viewNodes = mutableListOf(root)
@@ -70,9 +70,10 @@ class CustomViewWrapper(val view:View,val node: ViewNode) :View(){
         }
 
         /**
-         * 查找到系统基类view
+         * 查找到父级节点链
          */
-        private fun findSystemParentView(project: Project, node: ViewNode):View? {
+        private fun getParentNode(project: Project, node: ViewNode):ParentNode? {
+
             var findClass = JavaPsiFacade.getInstance(project).findClass(node.name, GlobalSearchScope.everythingScope(project))
             while (null != findClass) {
                 val qualifiedName = findClass.qualifiedName
@@ -80,10 +81,12 @@ class CustomViewWrapper(val view:View,val node: ViewNode) :View(){
                     val index = qualifiedName.lastIndexOf(".")
                     val packageName = qualifiedName.substring(0, index)
                     val className = qualifiedName.substring(index + 1)
-                    //代表为系统控件
-                    if (ANDROID_PACKAGE == packageName) {
+                    if (ANDROID_PACKAGE != packageName) {
+
+                    } else {
+                        //代表为系统控件,中间整个继承链
                         val classNode = viewNodes.find { className == it.className }
-                        return if(null!=classNode){
+                        if(null!=classNode){
                             try{
                                 Class.forName(PACKAGE_NAME+"."+classNode.className).newInstance() as? View
                             } catch (e:Exception){
@@ -104,7 +107,7 @@ class CustomViewWrapper(val view:View,val node: ViewNode) :View(){
             //查找此类是否存在,并一直追查到类的继承到父级
             var result: CustomViewWrapper?=null
             //设定代理view
-            val findParentView = findSystemParentView(project, node)
+            val findParentView = getParentNode(project, node)
             if(null!=findParentView) {
                 //父级对象,增加自定义控件属性
                 result=CustomViewWrapper(findParentView,node)
@@ -120,13 +123,13 @@ class CustomViewWrapper(val view:View,val node: ViewNode) :View(){
         val tab="".padEnd(viewNode.level+1,'\t')
         inflateAttributes(viewNode)
         //系统控件属性
-        view.attributes.forEach {
-            if(toJava){
-                out.append("$tab${it.toJavaString()}\n")
-            } else {
-                out.append("$tab${it.toKotlinString()}\n")
-            }
-        }
+//        view.attributes.forEach {
+//            if(toJava){
+//                out.append("$tab${it.toJavaString()}\n")
+//            } else {
+//                out.append("$tab${it.toKotlinString()}\n")
+//            }
+//        }
         //自定义控件属性
         attributes.forEach {
             if(toJava){
@@ -140,8 +143,15 @@ class CustomViewWrapper(val view:View,val node: ViewNode) :View(){
 
     override fun inflateAttributes(viewNode: ViewNode) {
         //先装载被包装父属性
-        view.inflateAttributes(viewNode)
+//        view.inflateAttributes(viewNode)
         //包装自定义属性
         viewNode.attributes.forEach { addAttributeItems(it.name,it.value) }
+    }
+
+    /**
+     * 自定义控件父级链
+     */
+    class ParentNode(val view:View){
+        var parent:ParentNode?=null
     }
 }

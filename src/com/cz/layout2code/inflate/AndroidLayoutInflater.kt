@@ -4,7 +4,6 @@ import com.cz.layout2code.config.WidgetConfiguration
 import com.cz.layout2code.delegate.MessageDelegate
 import com.cz.layout2code.form.UnknownWidgetForm
 import com.cz.layout2code.inflate.impl.View
-import com.cz.layout2code.inflate.impl.ViewGroup
 import com.cz.layout2code.inflate.impl.IView
 import com.cz.layout2code.inflate.impl.custom.CustomViewWrapper
 import com.cz.layout2code.inflate.item.AttributeNode
@@ -31,9 +30,9 @@ import java.io.File
  */
 object AndroidLayoutInflater {
     val PACKAGE_NAME="com.cz.layout2code.inflate.impl"
-    val APPCOMPAT_PACKAGE="APPCOMPAT_PACKAGE"
+    val ANDROID_PACKAGE="android.widget"
     //当前己声明的自定义控件属性列
-    val customWidgetAttrs = mutableListOf<DefineViewNode>()
+    val allCustomWidgetAttrs = mutableListOf<DefineViewNode>()
 
     /**
      * 开始装载布局体
@@ -48,25 +47,26 @@ object AndroidLayoutInflater {
             val builder = SAXBuilder()//实例JDOM解析器
             val document = builder.build(layoutFile)//读取xml文件
             //1:递归解析所有节点,收集所有自定义控件
-            val customWidgetAttrs= customWidgetAttrs
             val parent= ViewNode("root",0)
             val customNodes= mutableListOf<ViewNode>()
             parseElement(parent,document.rootElement,customNodes)
             //2:检测自定义控件模板是否记录此控件属性.不存在则检索项目内values.xml
-            processCustomWidget(project,customNodes,defineWidgetAttrs)
+            val customWidgetAttrs = getCustomWidgetAttrItems(project, customNodes, defineWidgetAttrs)
             //解析出当前项目己有的自定义控件配置项
-            if(customWidgetAttrs.isNotEmpty()){
-                ensuredWidgetAttrs(project, customWidgetAttrs)
+            val allCustomWidgetAttrs= allCustomWidgetAttrs
+            if(allCustomWidgetAttrs.isNotEmpty()){
+                ensuredWidgetAttrs(project, allCustomWidgetAttrs)
             }
             if(customWidgetAttrs.isNotEmpty()){
-                showUnKnowWidgetForm(customWidgetAttrs, project){
+                //将未声明的属性,添加到总集中
+                showUnKnowWidgetForm(allCustomWidgetAttrs, project){
                     println("生成代码!")
                     processLayoutWidget(project,customWidgetAttrs,parent,isJava)
                 }
             } else {
                 //直接生成代码
                 println("生成代码!")
-//                processLayoutWidget(project,customWidgetAttrs,parent,isJava,0)
+                processLayoutWidget(project,customWidgetAttrs,parent,isJava)
             }
         }
     }
@@ -100,17 +100,22 @@ object AndroidLayoutInflater {
      * @param defineWidgetAttrs 当前项目所有引用声明的自定义控件引用信息列
      *
      */
-    private fun processCustomWidget(project: Project, customNodes: MutableList<ViewNode>,
-                                    defineWidgetAttrs:MutableList<DefineViewNode>) {
+    private fun getCustomWidgetAttrItems(project: Project, customNodes: MutableList<ViewNode>,
+                                         defineWidgetAttrs:MutableList<DefineViewNode>):MutableList<DefineViewNode> {
         val st = System.currentTimeMillis()
+        val customAttrItems = mutableListOf<DefineViewNode>()
         customNodes.forEach {
             val name = it.name
             val findClass = JavaPsiFacade.getInstance(project).findClass(name, GlobalSearchScope.everythingScope(project))
-            if (null != findClass) {
+            while (null != findClass) {
                 val widgetAttr = defineWidgetAttrs.find { name == it.qualifiedName }
                 //记录属性
                 it.widgetAttr=widgetAttr
-                if(null!=widgetAttr){
+                if(name.startsWith(ANDROID_PACKAGE)){
+                    //系统控件
+                } else if(null!=widgetAttr){
+                    //记录定义对象
+                    customAttrItems.add(widgetAttr)
                     val methods = findClass.methods.filter { !it.isConstructor }
                     //2.4:检测每个属性,与所有方法的文字匹配度,取最高的前5个方法
                     val MAX_SIZE = 5
@@ -133,6 +138,7 @@ object AndroidLayoutInflater {
             }
         }
         MessageDelegate.logEventMessage("Process custom widget:${System.currentTimeMillis() - st}")
+        return customAttrItems
     }
 
     /**

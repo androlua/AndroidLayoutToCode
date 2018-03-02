@@ -33,12 +33,4 @@ open class SlidingDrawer : ViewGroup() {
 	override fun getViewName()="slidingDrawer"
 
 	override fun getThemeViewName()="themedSlidingDrawer"
-
-	/**
-	 * 解析LayoutParams属性集
-	 */
-	override fun inflateAttributes(element: ViewNode){
-		super.inflateAttributes(element)
-		element.attributes.forEach { addAttributeItems(it.name,it.value) }
-	}
 }

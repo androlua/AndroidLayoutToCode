@@ -6,7 +6,9 @@ import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiFile
+import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.input.SAXBuilder
 import org.jetbrains.kotlin.idea.configuration.externalProjectPath
 import java.io.File
@@ -22,6 +24,7 @@ class ExplodedAarAnalyzer(val file:PsiFile?):Analyzer<MutableList<DefineViewNode
     override fun analysis(project: Project):MutableList<DefineViewNode> {
         val defineNodes = mutableListOf<DefineViewNode>()
         val virtualFile = file?.virtualFile
+        val st=System.currentTimeMillis()
         if(null!=virtualFile){
             val module = ModuleUtil.findModuleForFile(virtualFile,project)
             val externalProjectPath = module?.externalProjectPath
@@ -40,6 +43,7 @@ class ExplodedAarAnalyzer(val file:PsiFile?):Analyzer<MutableList<DefineViewNode
                 }
             }
         }
+        println("time:${System.currentTimeMillis()-st}")
         return defineNodes
     }
 
@@ -104,7 +108,8 @@ class ExplodedAarAnalyzer(val file:PsiFile?):Analyzer<MutableList<DefineViewNode
         if(!file.isDirectory&&file.name.none { it=='$' }){
             val start=if(root.path.endsWith("/")) root.path.length else root.path.length+1
             val filePackage = file.path.substring(start,file.path.lastIndexOf("."))
-            classItems.add(filePackage.replace("/","."))
+            val className = filePackage.replace("/", ".")
+            classItems.add(className)
         } else if(file.isDirectory){
             //获取包名
             file.children.forEach { collectClassFile(project,classItems,root,it) }

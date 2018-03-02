@@ -28,14 +28,6 @@ open class TableRow : LinearLayout() {
 			uselessAttribute("layout_column")
 			uselessAttribute("layout_span")
 		}
-		
-		/**
-		 * 解析LayoutParams属性集
-		 */
-		override fun inflateAttributes(element: Element){
-			super.inflateAttributes(element)
-			element.attributes.forEach { addAttributeItems(it.name,it.value) }
-		}
 	}
 	
 }

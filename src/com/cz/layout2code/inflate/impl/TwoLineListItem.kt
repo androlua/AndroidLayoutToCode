@@ -18,12 +18,4 @@ open class TwoLineListItem : RelativeLayout() {
 	override fun getViewName()="twoLineListItem"
 
 	override fun getThemeViewName()="themedTwoLineListItem"
-
-	/**
-	 * 解析LayoutParams属性集
-	 */
-	override fun inflateAttributes(element: ViewNode){
-		super.inflateAttributes(element)
-		element.attributes.forEach { addAttributeItems(it.name,it.value) }
-	}
 }

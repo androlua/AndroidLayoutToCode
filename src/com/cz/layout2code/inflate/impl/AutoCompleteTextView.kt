@@ -77,13 +77,4 @@ open class AutoCompleteTextView : EditText() {
 	 * 获得控件带样式映射名称
 	 */
 	override fun getThemeViewName()="themedAutoCompleteTextView"
-
-	/**
-	 * 解析AutoCompleteTextView属性集,并返回解析后的anko代码
-	 */
-	override fun inflateAttributes(element: ViewNode){
-		super.inflateAttributes(element)
-		//添加自定义属性
-		element.attributes.forEach { addAttributeItems(it.name,it.value) }
-	}
 }

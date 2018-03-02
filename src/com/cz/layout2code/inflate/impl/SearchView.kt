@@ -65,12 +65,5 @@ open class SearchView : LinearLayout() {
 
 	override fun getThemeViewName()="themedSearchView"
 
-	/**
-	 * 解析LayoutParams属性集
-	 */
-	override fun inflateAttributes(element: ViewNode){
-		super.inflateAttributes(element)
-		element.attributes.forEach { addAttributeItems(it.name,it.value) }
-	}
 
 }
