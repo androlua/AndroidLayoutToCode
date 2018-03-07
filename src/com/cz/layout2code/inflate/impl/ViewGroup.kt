@@ -2,6 +2,7 @@ package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
 import com.cz.layout2code.inflate.element.*
+import com.cz.layout2code.inflate.item.AttributeNode
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.prefs.AttributeStyle
@@ -127,8 +128,7 @@ open class ViewGroup : View() {
 	 *
 	 */
 	open class LayoutParams {
-		val viewStyleItems = mutableMapOf<String,MutableList<AttributeStyle>>()
-		val attributes= mutableListOf<ElementConvert>()
+		val viewStyleItems = mutableMapOf<String,AttributeStyle>()
 
 		init {
 			//直接合并处理
@@ -146,55 +146,62 @@ open class ViewGroup : View() {
 //			}
 		}
 
-		private fun getSimpleClassName(): String {
-			val className = this::class.java.name
-			val simpleClassName = className.substring(className.lastIndexOf(".") + 1)
-			return simpleClassName
-		}
-
 		protected fun attribute(action: AttributeStyle.()->Unit){
-			val className=this::class.java.name
-			val simpleClassName=className.substring(className.lastIndexOf(".")+1)
-			val items=viewStyleItems.getOrPut(simpleClassName) { mutableListOf<AttributeStyle>()}
-			items.add(AttributeStyle().apply(action))
+			val attributeStyle = AttributeStyle().apply(action)
+			viewStyleItems.put(attributeStyle.field,attributeStyle)
 		}
 
 		/**
 		 * 无用属性,不可转换,指类内部并没有暴露实现方法出来的属性
 		 */
 		protected fun uselessAttribute(field:String){
-			val simpleClassName=getSimpleClassName()
-			val items=viewStyleItems.getOrPut(simpleClassName) { mutableListOf<AttributeStyle>()}
 			val attributeStyle=AttributeStyle()
 			attributeStyle.field=field
 			//不可转换属性
 			attributeStyle.convert=false
-			items.add(attributeStyle)
+			viewStyleItems.put(field,attributeStyle)
 		}
 
 		/**
 		 * 根据系统配置属性,添加到属性集
 		 */
-		protected fun addAttributeItems(name:String,value:String){
-			val simpleClassName = getSimpleClassName()
-			val items= viewStyleItems[simpleClassName]
-			val findItem=items?.find { it.field==name }
+		protected fun addAttributeItems(converterItems:MutableList<ElementConvert>,attribute:AttributeNode){
+			val findItem= viewStyleItems[attribute.name]
 			if(null!=findItem){
 				//添加控件配置属性
-				attributes.add(ViewAttributeItem(findItem,value))
+				applyAttributes(attribute)
+				converterItems.add(ViewAttributeItem(findItem,attribute.value))
 			}
 		}
 
 		/**
-		 * 解析LayoutParams属性集,并返回解析后的anko代码
+		 * 解析布局尺寸元素
 		 */
-		open fun inflateAttributes(element:Element){
-			val width=element.attributes.find { it.name=="layout_width" }?.value
-			val height=element.attributes.find { it.name=="layout_height" }?.value
-			val widthDimension=layoutDimension(width)?:"ViewGroup.LayoutParams.WRAP_CONTENT"
-			val heightDimension=layoutDimension(height)?:"ViewGroup.LayoutParams.WRAP_CONTENT"
-			attributes.add(LayoutParamsConvertItem(widthDimension,heightDimension))
+		open fun inflateLayoutDimension(element:ViewNode,convertToJava:Boolean=true):LayoutParamsConvertItem{
+			val widthElement=element.attributes.find { it.name=="layout_width" }
+			val heightElement=element.attributes.find { it.name=="layout_height" }
+			val widthDimension=layoutDimension(widthElement?.value,convertToJava)?:"ViewGroup.LayoutParams.WRAP_CONTENT"
+			val heightDimension=layoutDimension(heightElement?.value,convertToJava)?:"ViewGroup.LayoutParams.WRAP_CONTENT"
+			applyAttributes(widthElement,heightElement)
+			//添加布局基本配置集
+			return LayoutParamsConvertItem(widthDimension,heightDimension)
 		}
+
+		/**
+		 * 解析LayoutParams属性集,并返回解析后的转换对象
+		 */
+		open fun inflateLayoutAttributes(element:ViewNode):MutableList<ElementConvert>{
+			//检索到layout系统属性
+			val converterItems = mutableListOf<ElementConvert>()
+			//添加其他属性集
+			element.attributes.forEach{ addAttributeItems(converterItems,it) }
+			return converterItems
+		}
+
+		/**
+		 * 应用一个属性
+		 */
+		inline fun applyAttributes(vararg attributes: AttributeNode?)=attributes?.forEach { it?.isApply=true }
 
 	}
 	
@@ -281,13 +288,6 @@ open class ViewGroup : View() {
 				kotlinMethod { "endMargin=${dimen(it)}" }
 				javaMethod{ "layoutParams.endMargin=${dimen(it)}" }
 			}
-		}
-		/**
-		 * 解析MarginLayoutParams属性集,并返回解析后的anko代码
-		 */
-		override fun inflateAttributes(element:Element){
-			super.inflateAttributes(element)
-			element.attributes.forEach { addAttributeItems(it.name,it.value) }
 		}
 
 	}

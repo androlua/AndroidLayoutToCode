@@ -537,30 +537,36 @@ open class TextView : View() {
 	}
 
 	private fun addShadowAttribute(element: ViewNode) {
-		var shadowRadius = element.attributes.find { it.name == "shadowRadius" }?.value
-		var shadowColor = element.attributes.find { it.name == "shadowColor" }?.value
-		var shadowDx = element.attributes.find { it.name == "shadowDx" }?.value
-		var shadowDy = element.attributes.find { it.name == "shadowDy" }?.value
+		var shadowRadius = element.attributes.find { it.name == "shadowRadius" }
+		var shadowColor = element.attributes.find { it.name == "shadowColor" }
+		var shadowDx = element.attributes.find { it.name == "shadowDx" }
+		var shadowDy = element.attributes.find { it.name == "shadowDy" }
+		//应用属性集
+		applyAttributes(shadowRadius,shadowColor,shadowDx,shadowDy)
+
 		if (null != shadowColor || null != shadowDx || null != shadowDy || null != shadowRadius) {
 			addMultiAttributeItems("setShadowLayer",
-					if (null == shadowRadius) "0f" else float(shadowRadius),
-					if (null == shadowDx) "0f" else float(shadowDx),
-					if (null == shadowDy) "0f" else float(shadowDy),
-					if (null == shadowColor) "0" else int(shadowColor))
+					if (null == shadowRadius) "0f" else float(shadowRadius.value),
+					if (null == shadowDx) "0f" else float(shadowDx.value),
+					if (null == shadowDy) "0f" else float(shadowDy.value),
+					if (null == shadowColor) "0" else int(shadowColor.value))
 		}
 	}
 
 	private fun addDrawableAttribute(element: ViewNode) {
-		val drawableLeft = element.attributes.find { it.name == "drawableLeft" }?.value
-		var drawableTop = element.attributes.find { it.name == "drawableTop" }?.value
-		var drawableRight = element.attributes.find { it.name == "drawableRight" }?.value
-		var drawableBottom = element.attributes.find { it.name == "drawableBottom" }?.value
+		val drawableLeft = element.attributes.find { it.name == "drawableLeft" }
+		var drawableTop = element.attributes.find { it.name == "drawableTop" }
+		var drawableRight = element.attributes.find { it.name == "drawableRight" }
+		var drawableBottom = element.attributes.find { it.name == "drawableBottom" }
+		//应用属性集
+		applyAttributes(drawableLeft,drawableTop,drawableRight,drawableBottom)
+		//添加属性
 		if (null != drawableLeft || null != drawableTop || null != drawableRight || null != drawableBottom) {
 			addMultiAttributeItems("setCompoundDrawablesWithIntrinsicBounds",
-					if (null == drawableLeft) "0" else resourceRef(drawableLeft),
-					if (null == drawableTop) "0" else resourceRef(drawableTop),
-					if (null == drawableRight) "0" else resourceRef(drawableRight),
-					if (null == drawableBottom) "0" else resourceRef(drawableBottom))
+					if (null == drawableLeft) "0" else resourceRef(drawableLeft.value),
+					if (null == drawableTop) "0" else resourceRef(drawableTop.value),
+					if (null == drawableRight) "0" else resourceRef(drawableRight.value),
+					if (null == drawableBottom) "0" else resourceRef(drawableBottom.value))
 		}
 	}
 

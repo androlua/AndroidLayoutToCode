@@ -45,5 +45,7 @@ class ViewNode(val name:String,val level:Int){
  * 属性节点
  */
 class AttributeNode(val nameSpace:String,val name:String,val value:String){
+    //属性是否应用
+    var isApply=false
     override fun toString()=name
 }

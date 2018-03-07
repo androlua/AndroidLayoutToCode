@@ -189,7 +189,7 @@ open class Toolbar : ViewGroup() {
 	 */
 	override fun inflateAttributes(element: ViewNode){
 		super.inflateAttributes(element)
-		element.attributes.forEach { addAttributeItems(it.name,it.value) }
+		element.attributes.forEach { addAttributeItems(it) }
 	}
 	override fun getLayoutParams()=LayoutParams()
 

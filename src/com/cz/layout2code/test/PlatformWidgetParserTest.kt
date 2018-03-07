@@ -90,9 +90,9 @@ class PlatformWidgetParserTest {
 
         var modifier=if(classRefItem.superClass==null) "open" else "override"
         //根据属性生成引用判断列
-        out.append("\t$modifier fun inflateAttributes(element:Element){\n")
+        out.append("\t$modifier fun inflateLayoutAttributes(element:Element){\n")
         if(null!=classRefItem.superClass){
-            out.append("\t\tsuper.inflateAttributes(element)\n")
+            out.append("\t\tsuper.inflateLayoutAttributes(element)\n")
         }
 
         if(classRefItem.attributes.isNotEmpty()){
@@ -151,9 +151,9 @@ class PlatformWidgetParserTest {
         out.append("\t\t * 解析${classRefItem.className}属性集,并返回解析后的anko代码\n")
         out.append("\t\t */\n")
         val modifier=if(classRefItem.superClass==null) "open" else "override"
-        out.append("\t\t$modifier fun inflateAttributes(element:Element){\n")
+        out.append("\t\t$modifier fun inflateLayoutAttributes(element:Element){\n")
         if(null!=classRefItem.superClass){
-            out.append("\t\t\tsuper.inflateAttributes(element)\n")
+            out.append("\t\t\tsuper.inflateLayoutAttributes(element)\n")
         }
         //根据属性生成引用判断列
         if(classRefItem.attributes.isNotEmpty()){

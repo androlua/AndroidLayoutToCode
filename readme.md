@@ -96,7 +96,7 @@ sourceSets {
 * action 为事件源
 * delegate 为工具定义,如弹出消息,刷新项目结构
 * exception 为自定义异常
-* inflateAttributes 为xml解析以及生成anko的控件映射类
+* inflateLayoutAttributes 为xml解析以及生成anko的控件映射类
 * model涉及部分对象体
 * prefs为配置项
 * util为一个扩展工具类

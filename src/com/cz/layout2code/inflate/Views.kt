@@ -56,7 +56,7 @@ fun ViewGroup.LayoutParams.resourceRef(value:String):String=resourceRefInner(val
  * LayoutParams的布局属性
  * 兼容 wrap_content/fill_parent or (数值sp/dp/dip) or 引用 @dimen/actionBarSize 以及?actionBarSize/?attrs/actionBarSize/?android:attrs/actionBarSize
  */
-fun ViewGroup.LayoutParams.layoutDimension(value:String?)= layoutDimensionInner(value)
+fun ViewGroup.LayoutParams.layoutDimension(value:String?,convertToJava:Boolean)= layoutDimensionInner(value,convertToJava)
 
 fun AttributeStyle.dimen(value:String):String=dimenInner(value)
 fun AttributeStyle.string(value:String):String=stringInner(value)
@@ -81,11 +81,6 @@ fun AttributeStyle.ellipsize(ellipsize:String)=ellipsizeInner(ellipsize)
 fun AttributeStyle.layoutMode(layoutMode:String)=layoutModeInner(layoutMode)
 fun AttributeStyle.scaleType(gravity:String)= scaleTypeInner(gravity)
 fun AttributeStyle.relativeRule(gravity:String)= rule(gravity)
-/**
- * LayoutParams的布局属性
- * 兼容 wrap_content/fill_parent or (数值sp/dp/dip) or 引用 @dimen/actionBarSize 以及?actionBarSize/?attrs/actionBarSize/?android:attrs/actionBarSize
- */
-fun AttributeStyle.layoutDimension(value:String?)= layoutDimensionInner(value)
 
 fun AttributeStyle.inputType(type:String)=inputTypeFlag(type)
 fun AttributeStyle.bufferType(bufferType:String)= bufferTypeInner(bufferType)
@@ -123,18 +118,22 @@ private fun stringInner(value:String):String{
     if(value.startsWith("@")){
         return resourceInner(value)
     } else {
-        return value
+        return "\"$value\""
     }
 }
 
 
 private fun layoutInner(value: String)=when(value){
-    "match_parent"->"ViewGroup.LayoutParams.MATCH_PARENT"
-    "fill_parent"->"ViewGroup.LayoutParams.FILL_PARENT"
+    "match_parent","fill_parent"->"ViewGroup.LayoutParams.MATCH_PARENT"
     else->"ViewGroup.LayoutParams.WRAP_CONTENT"
 }
 
-private fun layoutDimensionInner(value:String?):String?{
+private fun kotlinLayoutInner(value: String)=when(value){
+    "match_parent","fill_parent"->"matchParent"
+    else->"wrapContent"
+}
+
+private fun layoutDimensionInner(value:String?,convertToJava:Boolean):String?{
     val value=value?:return null
     if(value.startsWith("@")){
         //引用
@@ -142,9 +141,12 @@ private fun layoutDimensionInner(value:String?):String?{
     } else if(DIMEN_PATTERN.matcher(value).matches()){
         //数值
         return dimensionValueInner(value)
-    } else {
+    } else if(convertToJava){
         //布局数值
         return layoutInner(value)
+    } else {
+        //kotlin引用
+        return kotlinLayoutInner(value)
     }
 }
 

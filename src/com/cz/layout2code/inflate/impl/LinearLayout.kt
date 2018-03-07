@@ -22,8 +22,8 @@ open class LinearLayout : ViewGroup() {
 		attribute{
 			field = "orientation"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "orientation = ${orientation(this::class.java.simpleName,it)}" }
-			javaMethod{ "setOrientation(${orientation(this::class.java.simpleName,it)})" }
+			kotlinMethod { "orientation = ${orientation(LinearLayout::class.java.simpleName,it)}" }
+			javaMethod{ "setOrientation(${orientation(LinearLayout::class.java.simpleName,it)})" }
 		}
 		attribute{
 			field = "gravity"
@@ -103,14 +103,6 @@ open class LinearLayout : ViewGroup() {
 				kotlinMethod { "gravity = ${gravity(it)}" }
 				javaMethod{ "layoutParams.gravity = (${gravity(it)})" }
 			}
-		}
-		
-		/**
-		 * 解析LayoutParams属性集
-		 */
-		override fun inflateAttributes(element: Element){
-			super.inflateAttributes(element)
-			element.attributes.forEach { addAttributeItems(it.name,it.value) }
 		}
 	}
 	

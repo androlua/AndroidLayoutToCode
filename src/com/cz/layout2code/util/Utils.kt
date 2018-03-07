@@ -62,14 +62,6 @@ object Utils {
         if (element == null) {
             return null // nothing to be used
         }
-        if (element !is PsiIdentifier) {
-            return null // nothing to be used
-        }
-
-        val layout = element.parent.firstChild ?: return null // no file to process
-        if ("R.layout" != layout.text) {
-            return null // not layout file
-        }
 
         val project = element.project
         val name = String.format("%s.xml", element.text)

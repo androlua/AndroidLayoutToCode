@@ -6,7 +6,7 @@ package com.cz.layout2code.inflate.element
 class LayoutParamsConvertItem(val width:String,val height:String): ElementConvert {
 
     override fun toKotlinString():String{
-        return "width=$width, height=$height"
+        return "lparams(width=$width, height=$height)"
     }
     override fun toJavaString():String{
         val out=StringBuilder()

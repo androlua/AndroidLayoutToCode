@@ -15,6 +15,7 @@ import com.cz.layout2code.util.Utils
 import com.intellij.codeInsight.CodeInsightActionHandler
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction
 import com.intellij.compiler.ant.taskdefs.Jar
+import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -45,16 +46,12 @@ import org.jetbrains.kotlin.psi.moduleInfo
  * Created by cz on 2017/12/14.
  * 布局转换代码的事件执行体
  */
-class LayoutConvertAction : BaseGenerateAction {
+class LayoutConvertAction : AnAction() {
     val defineWidgetAttrs= mutableListOf<DefineViewNode>()
-    constructor() : super(null)
 
-    constructor(handler: CodeInsightActionHandler) : super(handler)
-
-    override fun isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean {
-        return super.isValidForFile(project, editor, file) &&null!=Utils.getLayoutFileFromCaret(editor, file)
-    }
-
+//    override fun isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean {
+//        return super.isValidForFile(project, editor, file) &&null!=Utils.getLayoutFileFromCaret(editor, file)
+//    }
 
     override fun actionPerformed(event: AnActionEvent) {
         val dataContext = event.dataContext
@@ -72,20 +69,20 @@ class LayoutConvertAction : BaseGenerateAction {
                 defineWidgetAttrs += ModuleAnalyzer(file).analysis(project)
             }
             //不做文件字节码判断,因为判断比直接检索更耗时,己测试,性能相差近30倍,直接操作500毫秒,判断操作time:14842
-            if(file !is PsiJavaFile && file !is KtFile){
-                //不是kt/java源码文件,转换无意义
-                MessageDelegate.showMessage("Not a Kotlin or Java source file!")
-            } else {
+//            if(file !is PsiJavaFile && file !is KtFile){
+//                //不是kt/java源码文件,转换无意义
+//                MessageDelegate.showMessage("Not a Kotlin or Java source file!")
+//            } else {
                 if (layout == null) {
                     MessageDelegate.showMessage("No layout found")
                 } else {
-                    MessageDelegate.logEventMessage("Layout found:${file.name}")
+                    MessageDelegate.logEventMessage("Layout found:${file?.name}")
                     val virtualFile = layout.virtualFile
                     if(null!=virtualFile){
                         AndroidLayoutInflater.inflater(project,virtualFile,defineWidgetAttrs,file is PsiJavaFile)
                     }
                 }
-            }
+//            }
 
         }
     }

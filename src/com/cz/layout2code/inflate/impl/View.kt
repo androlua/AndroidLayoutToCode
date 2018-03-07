@@ -2,6 +2,7 @@ package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
 import com.cz.layout2code.inflate.element.*
+import com.cz.layout2code.inflate.item.AttributeNode
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.prefs.AttributeStyle
@@ -83,11 +84,22 @@ import com.cz.layout2code.inflate.prefs.AttributeStyle
  * @attr ref android.R.styleable#View_theme
  *
  */
-open class View : IView {
+open class View {
+	//控件引用样式集
 	val viewStyleItems = mutableMapOf<String,AttributeStyle>()
+	//常规元素转换对象
 	val attributes= mutableListOf<ElementConvert>()
+	//父容器属性转换对象
+	var layoutParamsConvert:LayoutParamsConvertItem?=null
 	//是否为compat v7包内控件
 	var isCompatView=false
+//		set(value) {
+//			if(value){
+//				importItems.add(ImportItem("org.jetbrains.anko.${getThemeViewName()}"))//v7
+//			} else {
+//				importItems.add(ImportItem("android.widget.${getViewName()}"))//系统控件
+//			}
+//		}
 
 	init {
 		//当前对象
@@ -688,11 +700,12 @@ open class View : IView {
 	/**
 	 * 根据系统配置属性,添加到属性集
 	 */
-	protected fun addAttributeItems(name:String,value:String){
-		val findItem= viewStyleItems[name]
+	protected fun addAttributeItems(attribute: AttributeNode){
+		val findItem= viewStyleItems[attribute.name]
 		if(null!=findItem){
 			//添加控件配置属性
-			attributes.add(ViewAttributeItem(findItem,value))
+			applyAttributes(attribute)
+			attributes.add(ViewAttributeItem(findItem,attribute.value))
 		}
 	}
 
@@ -702,20 +715,6 @@ open class View : IView {
 	protected fun addMultiAttributeItems(name:String,vararg value:String){
 		//添加多个控件配置属性
 		attributes.add(MultiAttributeItem(name,*value))
-	}
-
-	override fun convert(viewNode:ViewNode, toJava:Boolean):String{
-		val out=StringBuilder()
-		val tab="".padEnd(viewNode.level+1,'\t')
-		inflateAttributes(viewNode)
-		attributes.forEach {
-			if(toJava){
-				out.append("$tab${it.toJavaString()}\n")
-			} else {
-				out.append("$tab${it.toKotlinString()}\n")
-			}
-		}
-		return out.toString()
 	}
 
 	/**
@@ -728,35 +727,65 @@ open class View : IView {
 	 */
 	open fun getThemeViewName()="themeView"
 
-	override fun getClassName(): String =if(!isCompatView) getViewName() else getThemeViewName()
+	/**
+	 * class的声明对象
+	 */
+	open fun getClassName(): String=if (!isCompatView) getViewName() else getThemeViewName()
+
+	/**
+	 * 获得android控件的classPath
+	 */
+	open fun getClassPath():String{
+		val simpleName=this::class.java.simpleName
+		return "android.widget.$simpleName"
+	}
+
 	/**
 	 * 解析View属性集,并返回解析后的anko代码
 	 */
-	override fun inflateAttributes(viewNode:ViewNode){
-		viewNode.attributes.forEach { addAttributeItems(it.name,it.value) }
+	open fun inflateAttributes(viewNode:ViewNode){
+		viewNode.attributes.forEach(this::addAttributeItems)
 		//添加内边距属性
 		addPaddingAttribute(viewNode)
+	}
+
+	/**
+	 * 获取控件节点内,未使用的属性
+	 */
+	fun getUnknownAttributes(viewNode:ViewNode):MutableList<UnknownViewAttributeItem>{
+		//未应用属性
+		val unknownAttributes = mutableListOf<UnknownViewAttributeItem>()
+		val uselessAttributes = viewNode.attributes.filter { !it.isApply }
+		uselessAttributes.forEach {
+			//添加未知属性转换器
+			unknownAttributes.add(UnknownViewAttributeItem(it.name,it.value))
+		}
+		return unknownAttributes
 	}
 
 	/**
 	 * 添加内边距属性
 	 */
 	private fun addPaddingAttribute(element:ViewNode) {
-		val padding = element.attributes.find { it.name == "padding" }?.value
-		var paddingLeft = element.attributes.find { it.name == "paddingLeft" }?.value
-		var paddingTop = element.attributes.find { it.name == "paddingTop" }?.value
-		var paddingRight = element.attributes.find { it.name == "paddingRight" }?.value
-		var paddingBottom = element.attributes.find { it.name == "paddingBottom" }?.value
-		val paddingStart = element.attributes.find { it.name == "paddingStart" }?.value
-		val paddingEnd = element.attributes.find { it.name == "paddingEnd" }?.value
-		val paddingHorizontal = element.attributes.find { it.name == "paddingHorizontal" }?.value
-		val paddingVertical = element.attributes.find { it.name == "paddingVertical" }?.value
-
+		val padding = element.attributes.find { it.name == "padding" }
+		var paddingLeft = element.attributes.find { it.name == "paddingLeft" }
+		var paddingTop = element.attributes.find { it.name == "paddingTop" }
+		var paddingRight = element.attributes.find { it.name == "paddingRight" }
+		var paddingBottom = element.attributes.find { it.name == "paddingBottom" }
+		val paddingStart = element.attributes.find { it.name == "paddingStart" }
+		val paddingEnd = element.attributes.find { it.name == "paddingEnd" }
+		val paddingHorizontal = element.attributes.find { it.name == "paddingHorizontal" }
+		val paddingVertical = element.attributes.find { it.name == "paddingVertical" }
+		//应用属性集
+		applyAttributes(padding,paddingLeft,paddingTop,
+				paddingRight,paddingBottom,paddingStart,
+				paddingEnd,paddingHorizontal,paddingVertical)
+		//添加属性表达式
 		if (null != padding) {
-			addMultiAttributeItems("setPadding", dimenPadding(padding),
-					dimenPadding(padding),
-					dimenPadding(padding),
-					dimenPadding(padding))
+			addMultiAttributeItems("setPadding", dimenPadding(padding.value),
+					dimenPadding(padding.value),
+					dimenPadding(padding.value),
+					dimenPadding(padding.value))
 		} else {
 			if (null != paddingHorizontal) {
 				paddingLeft = paddingHorizontal
@@ -768,19 +797,25 @@ open class View : IView {
 			}
 			if (null != paddingLeft || null != paddingTop
 					|| null != paddingRight || null != paddingRight) {
-				addMultiAttributeItems("setPadding", dimenPadding(paddingLeft),
-						dimenPadding(paddingTop),
-						dimenPadding(paddingRight),
-						dimenPadding(paddingBottom))
+				addMultiAttributeItems("setPadding", dimenPadding(paddingLeft?.value),
+						dimenPadding(paddingTop?.value),
+						dimenPadding(paddingRight?.value),
+						dimenPadding(paddingBottom?.value))
 			} else if (null != paddingStart || null != paddingEnd) {
-				addMultiAttributeItems("setPaddingRelative", dimenPadding(paddingStart),
+				addMultiAttributeItems("setPaddingRelative", dimenPadding(paddingStart?.value),
 						dimenPadding(paddingTop),
-						dimenPadding(paddingEnd),
-						dimenPadding(paddingBottom))
+						dimenPadding(paddingEnd?.value),
+						dimenPadding(paddingBottom?.value))
 			}
 		}
 	}
 
 	private inline fun dimenPadding(value:String?)=if(null==value) "0" else dimen(value)
+
+	/**
+	 * 应用一个属性
+	 */
+	inline fun applyAttributes(vararg attributes: AttributeNode?)=attributes?.forEach { it?.isApply=true }
+
 
 }

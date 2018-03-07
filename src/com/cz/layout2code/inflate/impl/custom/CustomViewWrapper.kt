@@ -1,5 +1,6 @@
 package com.cz.layout2code.inflate.impl.custom
 
+import com.cz.layout2code.inflate.element.CustomViewAttributeItem
 import com.cz.layout2code.inflate.impl.View
 import com.cz.layout2code.inflate.item.ViewNode
 import com.intellij.openapi.project.Project
@@ -12,11 +13,11 @@ import java.util.*
  * 标记自定义控件包装器对象,用于动态化的控件解析
  * 自定义控件,在包装系统控件时,还要形成一个自定义控件继承自定义控件的继承层级解析过程.所以,还会有一个调用链,一直链到系统控件
  */
-class CustomViewWrapper(val parent:ParentNode,val node: ViewNode) :View(){
+class CustomViewWrapper(val parent:View,val node: ViewNode) :View(){
     companion object{
         //检测控件包名
         val PACKAGE_NAME="com.cz.layout2code.inflate.impl"
-        val ANDROID_PACKAGE="android.widget"
+        val androidPackages= mutableListOf("android.widget","android.view")
         //当前系统控件树根节点
         var root= ClassNode("View")
         //当前缓存所有节点
@@ -70,10 +71,9 @@ class CustomViewWrapper(val parent:ParentNode,val node: ViewNode) :View(){
         }
 
         /**
-         * 查找到父级节点链
+         * 查找到系统基类view
          */
-        private fun getParentNode(project: Project, node: ViewNode):ParentNode? {
-
+        private fun getParentView(project: Project, node: ViewNode):View? {
             var findClass = JavaPsiFacade.getInstance(project).findClass(node.name, GlobalSearchScope.everythingScope(project))
             while (null != findClass) {
                 val qualifiedName = findClass.qualifiedName
@@ -81,12 +81,10 @@ class CustomViewWrapper(val parent:ParentNode,val node: ViewNode) :View(){
                     val index = qualifiedName.lastIndexOf(".")
                     val packageName = qualifiedName.substring(0, index)
                     val className = qualifiedName.substring(index + 1)
-                    if (ANDROID_PACKAGE != packageName) {
-
-                    } else {
-                        //代表为系统控件,中间整个继承链
+                    //代表为系统控件
+                    if (androidPackages.any{it==packageName}) {
                         val classNode = viewNodes.find { className == it.className }
-                        if(null!=classNode){
+                        return if(null!=classNode){
                             try{
                                 Class.forName(PACKAGE_NAME+"."+classNode.className).newInstance() as? View
                             } catch (e:Exception){
@@ -107,51 +105,26 @@ class CustomViewWrapper(val parent:ParentNode,val node: ViewNode) :View(){
             //查找此类是否存在,并一直追查到类的继承到父级
             var result: CustomViewWrapper?=null
             //设定代理view
-            val findParentView = getParentNode(project, node)
-            if(null!=findParentView) {
+            val parentView = getParentView(project, node)
+            if(null!=parentView) {
                 //父级对象,增加自定义控件属性
-                result=CustomViewWrapper(findParentView,node)
+                result=CustomViewWrapper(parentView,node)
             }
             return result
         }
     }
 
-    override fun getClassName(): String =node.name
-
-    override fun convert(viewNode: ViewNode, toJava: Boolean): String {
-        val out=StringBuilder()
-        val tab="".padEnd(viewNode.level+1,'\t')
-        inflateAttributes(viewNode)
-        //系统控件属性
-//        view.attributes.forEach {
-//            if(toJava){
-//                out.append("$tab${it.toJavaString()}\n")
-//            } else {
-//                out.append("$tab${it.toKotlinString()}\n")
-//            }
-//        }
-        //自定义控件属性
-        attributes.forEach {
-            if(toJava){
-                out.append("$tab${it.toJavaString()}\n")
-            } else {
-                out.append("$tab${it.toKotlinString()}\n")
-            }
-        }
-        return out.toString()
-    }
+    override fun getViewName(): String=node.name
 
     override fun inflateAttributes(viewNode: ViewNode) {
         //先装载被包装父属性
-//        view.inflateAttributes(viewNode)
+        parent.inflateAttributes(viewNode)
+        //自定义属性
+        val customAttributes = node.attributes.filter { "android" != it.nameSpace }
         //包装自定义属性
-        viewNode.attributes.forEach { addAttributeItems(it.name,it.value) }
-    }
-
-    /**
-     * 自定义控件父级链
-     */
-    class ParentNode(val view:View){
-        var parent:ParentNode?=null
+        customAttributes.forEach {
+            applyAttributes(it)
+            attributes.add(CustomViewAttributeItem(it.name,it.value))
+        }
     }
 }

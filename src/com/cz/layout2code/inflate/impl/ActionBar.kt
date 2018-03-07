@@ -25,12 +25,5 @@ class ActionBar {
                 javaMethod{ "setGravity(${gravity(it)});" }
             }
         }
-        /**
-         * 解析LayoutParams属性集,并返回解析后的anko代码
-         */
-        override fun inflateAttributes(element: Element){
-            super.inflateAttributes(element)
-            element.attributes.forEach { addAttributeItems(it.name,it.value) }
-        }
     }
 }
