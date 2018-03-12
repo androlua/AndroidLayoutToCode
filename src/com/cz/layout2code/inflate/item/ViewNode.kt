@@ -6,7 +6,7 @@ package com.cz.layout2code.inflate.item
  */
 class ViewNode(val name:String,val level:Int){
     //类简称
-    var simpleName:String?=null
+    var simpleName:String=name.substringAfterLast(".")
     var parent:ViewNode?=null
     var children= mutableListOf<ViewNode>()
     val attributes= mutableListOf<AttributeNode>()
@@ -25,7 +25,6 @@ class ViewNode(val name:String,val level:Int){
         } else {
             isSystemView=false
             //记录类简称
-            simpleName=name.substring(index+1)
             val packageName=name.substring(0,index)
             if("android.support.v7.widget"==packageName){
                 isCompatView=true

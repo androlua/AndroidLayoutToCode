@@ -184,13 +184,6 @@ open class Toolbar : ViewGroup() {
 
 	override fun getThemeViewName()="themedToolbar"
 
-	/**
-	 * 解析LayoutParams属性集
-	 */
-	override fun inflateAttributes(element: ViewNode){
-		super.inflateAttributes(element)
-		element.attributes.forEach { addAttributeItems(it) }
-	}
 	override fun getLayoutParams()=LayoutParams()
 
 	/**

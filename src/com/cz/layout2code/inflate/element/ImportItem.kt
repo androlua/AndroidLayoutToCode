@@ -10,4 +10,11 @@ class ImportItem(val import:String): ElementConvert,Comparable<ImportItem>{
 
     override fun compareTo(other: ImportItem)=import.compareTo(other.import)
 
+    override fun equals(other: Any?): Boolean {
+        if(null==other||other !is ImportItem) return false
+        return import.equals(other.import)
+    }
+
+    override fun toString(): String=toJavaString()
+
 }

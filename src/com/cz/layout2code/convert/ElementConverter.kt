@@ -1,6 +1,8 @@
 package com.cz.layout2code.convert
 
 import com.cz.layout2code.inflate.AndroidLayoutInflater
+import com.cz.layout2code.inflate.RESOURCE_PATTERN
+import com.cz.layout2code.inflate.id
 import com.cz.layout2code.inflate.impl.View
 import com.cz.layout2code.inflate.impl.ViewGroup
 import com.cz.layout2code.inflate.impl.custom.CustomViewWrapper
@@ -33,5 +35,23 @@ abstract class ElementConverter {
                }
           }
           return view
+     }
+
+     inline fun idName(id:String):String{
+          return id(id).split("_").mapIndexed { index, s -> if(0==index) s else firstUpperCharacter(s) }.reduce { acc, s -> acc+s }
+     }
+
+     inline fun firstUpperCharacter(value:String)=value[0].toUpperCase()+value.substring(1)
+
+     inline fun firstLowerCharacter(value:String)=value[0].toLowerCase()+value.substring(1)
+
+     fun id(value:String):String{
+          //资源引用
+          var result=value
+          val matcher= RESOURCE_PATTERN.matcher(value)
+          if(matcher.find()) {
+               result = matcher.group("ref")
+          }
+          return result
      }
 }

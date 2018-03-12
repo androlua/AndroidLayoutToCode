@@ -1,5 +1,7 @@
 package com.cz.layout2code.inflate
 
+import com.cz.layout2code.convert.ElementConverter
+import com.cz.layout2code.inflate.element.ElementConvert
 import com.cz.layout2code.inflate.impl.*
 import com.cz.layout2code.inflate.prefs.AttributeStyle
 
@@ -57,7 +59,6 @@ fun ViewGroup.LayoutParams.resourceRef(value:String):String=resourceRefInner(val
  * 兼容 wrap_content/fill_parent or (数值sp/dp/dip) or 引用 @dimen/actionBarSize 以及?actionBarSize/?attrs/actionBarSize/?android:attrs/actionBarSize
  */
 fun ViewGroup.LayoutParams.layoutDimension(value:String?,convertToJava:Boolean)= layoutDimensionInner(value,convertToJava)
-
 fun AttributeStyle.dimen(value:String):String=dimenInner(value)
 fun AttributeStyle.string(value:String):String=stringInner(value)
 fun AttributeStyle.int(value:String):String=intInner(value)
@@ -166,10 +167,10 @@ private fun dimensionValueInner(value: String): String {
         if (null == unit) {
             result = number
         } else {
-            when (unit) {
-                "sp" -> result = "sp($number)"
-                "dip", "dp" -> result = "dp($number)"
-                else ->result = number
+            result = when (unit) {
+                "sp" -> "sp($number)"
+                "dip", "dp" -> "dp($number)"
+                else ->number
             }
         }
     }

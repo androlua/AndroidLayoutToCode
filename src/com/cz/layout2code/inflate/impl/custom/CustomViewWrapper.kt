@@ -1,6 +1,7 @@
 package com.cz.layout2code.inflate.impl.custom
 
 import com.cz.layout2code.inflate.element.CustomViewAttributeItem
+import com.cz.layout2code.inflate.element.ImportItem
 import com.cz.layout2code.inflate.impl.View
 import com.cz.layout2code.inflate.item.ViewNode
 import com.intellij.openapi.project.Project
@@ -116,6 +117,8 @@ class CustomViewWrapper(val parent:View,val node: ViewNode) :View(){
 
     override fun getViewName(): String=node.name
 
+    override fun getClassPath(): String =node.name
+
     override fun inflateAttributes(viewNode: ViewNode) {
         //先装载被包装父属性
         parent.inflateAttributes(viewNode)
@@ -126,5 +129,7 @@ class CustomViewWrapper(val parent:View,val node: ViewNode) :View(){
             applyAttributes(it)
             attributes.add(CustomViewAttributeItem(it.name,it.value))
         }
+        //加入自定义控件路径
+        importItems.add(ImportItem(node.name))
     }
 }

@@ -85,6 +85,8 @@ import com.cz.layout2code.inflate.prefs.AttributeStyle
  *
  */
 open class View {
+	//导包列
+	val importItems= mutableSetOf<ImportItem>()
 	//控件引用样式集
 	val viewStyleItems = mutableMapOf<String,AttributeStyle>()
 	//常规元素转换对象
@@ -93,13 +95,7 @@ open class View {
 	var layoutParamsConvert:LayoutParamsConvertItem?=null
 	//是否为compat v7包内控件
 	var isCompatView=false
-//		set(value) {
-//			if(value){
-//				importItems.add(ImportItem("org.jetbrains.anko.${getThemeViewName()}"))//v7
-//			} else {
-//				importItems.add(ImportItem("android.widget.${getViewName()}"))//系统控件
-//			}
-//		}
+
 
 	init {
 		//当前对象
@@ -697,17 +693,6 @@ open class View {
 		viewStyleItems.put(field,attributeStyle)
 	}
 
-	/**
-	 * 根据系统配置属性,添加到属性集
-	 */
-	protected fun addAttributeItems(attribute: AttributeNode){
-		val findItem= viewStyleItems[attribute.name]
-		if(null!=findItem){
-			//添加控件配置属性
-			applyAttributes(attribute)
-			attributes.add(ViewAttributeItem(findItem,attribute.value))
-		}
-	}
 
 	/**
 	 * 根据系统配置属性,添加到属性集
@@ -744,7 +729,22 @@ open class View {
 	 * 解析View属性集,并返回解析后的anko代码
 	 */
 	open fun inflateAttributes(viewNode:ViewNode){
-		viewNode.attributes.forEach(this::addAttributeItems)
+		viewNode.attributes.forEach{ attribute->
+			val findItem= viewStyleItems[attribute.name]
+			if(null!=findItem){
+				//添加控件配置属性
+				applyAttributes(attribute)
+				//添加引入包
+				findItem.importList?.forEach { importItems.add(ImportItem(it)) }
+				attributes.add(ViewAttributeItem(findItem,attribute.value))
+			}
+		}
+		//检测导包
+		if(isCompatView){
+			importItems.add(ImportItem("org.jetbrains.anko.${getThemeViewName()}"))//v7
+		} else {
+			importItems.add(ImportItem("android.widget.${this::class.java.simpleName}"))//系统控件
+		}
 		//添加内边距属性
 		addPaddingAttribute(viewNode)
 	}

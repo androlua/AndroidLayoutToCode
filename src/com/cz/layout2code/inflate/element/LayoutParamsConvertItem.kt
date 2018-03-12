@@ -10,7 +10,7 @@ class LayoutParamsConvertItem(val width:String,val height:String): ElementConver
     }
     override fun toJavaString():String{
         val out=StringBuilder()
-        out.append("ViewGroup.LayoutParams($width,$height)\n")
+        out.append("ViewGroup.LayoutParams($width,$height)")
         return out.toString()
     }
 }

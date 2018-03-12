@@ -62,12 +62,9 @@ object Utils {
         if (element == null) {
             return null // nothing to be used
         }
-
         val project = element.project
         val name = String.format("%s.xml", element.text)
         return resolveLayoutResourceFile(element, project, name)
-
-
     }
 
 

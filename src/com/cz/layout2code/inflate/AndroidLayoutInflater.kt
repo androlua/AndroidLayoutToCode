@@ -14,6 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiDirectory
+import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.Element
@@ -39,7 +40,7 @@ object AndroidLayoutInflater {
      * @param virtualFile 当前布局文件
      * @param isJava 是否为java文件
      */
-    fun inflater(project: Project, virtualFile: VirtualFile,defineWidgetAttrs:MutableList<DefineViewNode>,isJava:Boolean){
+    fun inflater(project: Project, file: PsiFile, virtualFile: VirtualFile, defineWidgetAttrs:MutableList<DefineViewNode>, isJava:Boolean){
         //开始解析xml信息
         if(virtualFile.exists()){
             val layoutFile= File(virtualFile.path)
@@ -64,7 +65,7 @@ object AndroidLayoutInflater {
 //                }
 //            } else {
                 //直接生成代码
-                processLayoutWidget(project,parent.children.first(),isJava)
+                processLayoutWidget(project,file,parent.children.first(),isJava)
 //            }
         }
     }
@@ -214,10 +215,12 @@ object AndroidLayoutInflater {
     /**
      * 处理布局控件
      */
-    private fun processLayoutWidget(project: Project, viewNode: ViewNode, convertToJava: Boolean) {
+    private fun processLayoutWidget(project: Project,file: PsiFile, viewNode: ViewNode, convertToJava: Boolean) {
         if(convertToJava){
             //java源码输出
-            println(JavaConverter().convert(project,viewNode))
+            val javaConverter = JavaConverter()
+            println(javaConverter.convert(project,viewNode))
+            javaConverter.importItems.forEach { println(it) }
         } else {
             //kotlin anko输出
             println(KotlinConverter().convert(project,viewNode))
