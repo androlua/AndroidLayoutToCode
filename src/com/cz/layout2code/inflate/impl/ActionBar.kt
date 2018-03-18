@@ -2,6 +2,7 @@ package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.gravity
 import com.cz.layout2code.inflate.prefs.AttrType
+import com.cz.layout2code.inflate.tintMode
 import org.jdom.Element
 
 /**
@@ -11,7 +12,7 @@ class ActionBar {
     /**
      * Created by cz on 2017/12/19.
      *
-     * ---------------LayoutParams all attributes---------------
+     * ---------------LayoutParams all expressions---------------
      * @attr ref android.R.styleable#Toolbar_LayoutParams_layout_gravity
      *
      */
@@ -19,10 +20,8 @@ class ActionBar {
         init {
             attribute {
                 field="layout_gravity"
-                importList= arrayOf("android.view.Gravity")
                 attrType= arrayOf(AttrType.FLAG)
-                kotlinMethod{ "gravity = ${gravity(it)}" }
-                javaMethod{ "setGravity(${gravity(it)});" }
+                allProperty("gravity"){ gravity(it) }
             }
         }
     }

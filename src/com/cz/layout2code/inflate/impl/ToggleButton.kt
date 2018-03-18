@@ -9,7 +9,7 @@ import com.cz.layout2code.inflate.item.ViewNode
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------ToggleButton all attributes---------------
+ * ---------------ToggleButton all expressions---------------
  * @attr ref android.R.styleable#ToggleButton_textOn
  * @attr ref android.R.styleable#ToggleButton_textOff
  * @attr ref android.R.styleable#ToggleButton_disabledAlpha
@@ -20,14 +20,12 @@ open class ToggleButton : CompoundButton() {
 		attribute{
 			field = "textOn"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "textOn = ${string(it)}" }
-			javaMethod{ "setTextOn(${string(it)})" }
+			property("textOn"){ string(it) }
 		}
 		attribute{
 			field = "textOff"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "textOff = ${string(it)}" }
-			javaMethod{ "setTextOff(${string(it)})" }
+			property("textOff"){ string(it) }
 		}
 		uselessAttribute("disabledAlpha")
 	}

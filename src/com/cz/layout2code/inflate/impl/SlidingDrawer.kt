@@ -9,7 +9,7 @@ import com.cz.layout2code.inflate.resource
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------SlidingDrawer all attributes---------------
+ * ---------------SlidingDrawer all expressions---------------
  * @attr ref android.R.styleable#SlidingDrawer_content
  * @attr ref android.R.styleable#SlidingDrawer_handle
  * @attr ref android.R.styleable#SlidingDrawer_topOffset
@@ -22,7 +22,7 @@ import com.cz.layout2code.inflate.resource
 open class SlidingDrawer : ViewGroup() {
 	init {
 		uselessAttribute("handle")
-		uselessAttribute("content")
+		uselessAttribute("expression")
 		uselessAttribute("orientation")
 		uselessAttribute("bottomOffset")
 		uselessAttribute("topOffset")

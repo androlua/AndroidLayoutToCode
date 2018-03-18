@@ -8,7 +8,7 @@ import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------ViewStub all attributes---------------
+ * ---------------ViewStub all expressions---------------
  * @attr ref android.R.styleable#ViewStub_inflatedId
  * @attr ref android.R.styleable#ViewStub_layout
  *
@@ -18,20 +18,17 @@ open class ViewStub : View() {
 		attribute{
 			field = "id"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "id = ${id(it)}" }
-			javaMethod{ "setId(${id(it)})" }
+			property("id"){id(it)}
 		}
 		attribute{
 			field = "layout"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "layoutResource = ${resourceRef(it)}" }
-			javaMethod{ "setLayoutResource(${resourceRef(it)})" }
+			property("layoutResource"){resourceRef(it)}
 		}
 		attribute{
 			field = "inflatedId"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "inflatedId = ${id(it)}" }
-			javaMethod{ "setInflatedId(${id(it)})" }
+			property("inflatedId"){id(it)}
 		}
 	}
 	/**

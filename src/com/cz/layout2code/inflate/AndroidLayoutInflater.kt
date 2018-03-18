@@ -1,8 +1,9 @@
 package com.cz.layout2code.inflate
 
 import com.cz.layout2code.config.WidgetConfiguration
-import com.cz.layout2code.convert.JavaConverter
-import com.cz.layout2code.convert.KotlinConverter
+import com.cz.layout2code.convert.BaseCodeConverter
+import com.cz.layout2code.convert.JavaCodeConverter
+import com.cz.layout2code.convert.KotlinCodeConverter
 import com.cz.layout2code.delegate.MessageDelegate
 import com.cz.layout2code.form.UnknownWidgetForm
 import com.cz.layout2code.inflate.item.AttributeNode
@@ -12,10 +13,7 @@ import com.cz.layout2code.util.TextCalculation
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiDirectory
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiManager
+import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.Element
 import org.jdom.input.SAXBuilder
@@ -26,7 +24,9 @@ import java.io.File
  * android xml布局解析对象
  * 解析分两个步骤
  * 1:解出 xml 内引用信息
- * 2:
+ *
+ *
+ * 此类待第二版,统一自定义控件时,分离逻辑使用,第一版暂且不用
  */
 object AndroidLayoutInflater {
     val packageName ="com.cz.layout2code.inflate.impl"
@@ -40,7 +40,7 @@ object AndroidLayoutInflater {
      * @param virtualFile 当前布局文件
      * @param isJava 是否为java文件
      */
-    fun inflater(project: Project, file: PsiFile, virtualFile: VirtualFile, defineWidgetAttrs:MutableList<DefineViewNode>, isJava:Boolean){
+    fun inflater(project: Project, file:PsiFile,clazz: PsiClass, virtualFile: VirtualFile, defineWidgetAttrs:MutableList<DefineViewNode>, convertToJava:Boolean) {
         //开始解析xml信息
         if(virtualFile.exists()){
             val layoutFile= File(virtualFile.path)
@@ -65,8 +65,17 @@ object AndroidLayoutInflater {
 //                }
 //            } else {
                 //直接生成代码
-                processLayoutWidget(project,file,parent.children.first(),isJava)
+//                processLayoutWidget(project,file,clazz,parent.children.first(),isJava)
 //            }
+            var converter: BaseCodeConverter
+            val root=parent.children.first()
+            if(convertToJava){
+                //java源码输出
+                converter = JavaCodeConverter()
+            } else {
+                //kotlin anko输出
+                println(KotlinCodeConverter().convert(project,root))
+            }
         }
     }
 
@@ -87,7 +96,7 @@ object AndroidLayoutInflater {
                 val findFile = File(subDirectory.virtualFile.path, "widget.xml")
                 //更新节点
                 WidgetConfiguration(findFile).createOrUpdate(project, allWidgetAttrs)
-                MessageDelegate.logEventMessage("Update widget attributes complete!")
+                MessageDelegate.logEventMessage("Update widget expressions complete!")
                 //回调事件
                 callback.invoke()
             }
@@ -212,19 +221,5 @@ object AndroidLayoutInflater {
         }
     }
 
-    /**
-     * 处理布局控件
-     */
-    private fun processLayoutWidget(project: Project,file: PsiFile, viewNode: ViewNode, convertToJava: Boolean) {
-        if(convertToJava){
-            //java源码输出
-            val javaConverter = JavaConverter()
-            println(javaConverter.convert(project,viewNode))
-            javaConverter.importItems.forEach { println(it) }
-        } else {
-            //kotlin anko输出
-            println(KotlinConverter().convert(project,viewNode))
-        }
-    }
 
 }

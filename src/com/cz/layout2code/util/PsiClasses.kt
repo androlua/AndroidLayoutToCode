@@ -1,6 +1,13 @@
 package com.cz.convert
 
+import com.cz.layout2code.util.getKtClassForElement
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.kotlin.idea.internal.Location
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtFile
 
 /**
  * Created by cz on 2017/6/16.

@@ -67,7 +67,7 @@ class PlatformWidgetParserTest {
         out.append("/**\n")
         out.append(" * Created by cz on 2017/12/19.\n")
         out.append(" * \n")
-        out.append(" * ---------------${classRefItem.className} all attributes---------------\n")
+        out.append(" * ---------------${classRefItem.className} all expressions---------------\n")
         classRefItem.refItems.forEach { out.append(" * $it\n") }
         out.append(" *\n")
         out.append(" */\n")
@@ -80,7 +80,7 @@ class PlatformWidgetParserTest {
         }
         //声明属性
         if(null==classRefItem.superClass){
-            out.append("\n\tval attributes= mutableListOf<String>()\n\n")
+            out.append("\n\tval expressions= mutableListOf<String>()\n\n")
         }
 
         out.append("\t\n")
@@ -96,7 +96,7 @@ class PlatformWidgetParserTest {
         }
 
         if(classRefItem.attributes.isNotEmpty()){
-            out.append("\t\telement.attributes.forEach {\n")
+            out.append("\t\telement.expressions.forEach {\n")
             out.append("\t\t\tval name=it.name\n")
             out.append("\t\t\twhen(name){\n")
             //生成属性集
@@ -132,7 +132,7 @@ class PlatformWidgetParserTest {
         out.append("\t/**\n")
         out.append("\t * Created by cz on 2017/12/19.\n")
         out.append("\t * \n")
-        out.append("\t * ---------------${classRefItem.className} all attributes---------------\n")
+        out.append("\t * ---------------${classRefItem.className} all expressions---------------\n")
         classRefItem.refItems.forEach { out.append("\t * $it\n") }
         out.append("\t *\n")
         out.append("\t */\n")
@@ -144,7 +144,7 @@ class PlatformWidgetParserTest {
             out.append("\topen class ${classRefItem.className} {\n")
         }
         if(null==classRefItem.superClass){
-            out.append("\n\t\tval attributes= mutableListOf<String>()\n")
+            out.append("\n\t\tval expressions= mutableListOf<String>()\n")
         }
         out.append("\t\t\n")
         out.append("\t\t/**\n")
@@ -157,7 +157,7 @@ class PlatformWidgetParserTest {
         }
         //根据属性生成引用判断列
         if(classRefItem.attributes.isNotEmpty()){
-            out.append("\t\t\telement.attributes.forEach {\n")
+            out.append("\t\t\telement.expressions.forEach {\n")
             out.append("\t\t\t\tval name=it.name\n")
             out.append("\t\t\t\twhen(name){\n")
 
@@ -217,7 +217,7 @@ class PlatformWidgetParserTest {
         for(folder in folders){
             classItems+=folder.listFiles().
                     filter { it.name.endsWith(".java") }.
-                    map(this::parseSourceFile).
+                    map{parseSourceFile(it)}.
                     filter { it.classDef.isNotEmpty()&&it.document.isNotEmpty() }//过滤掉没有检索出来信息,如interface
         }
         return classItems

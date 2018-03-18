@@ -11,14 +11,12 @@ open class ActivityChooserView : ViewGroup() {
 		attribute{
 			field = "initialActivityCount"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "setInitialActivityCount(${string(it)})" }
-			javaMethod{ "setInitialActivityCount(${string(it)})" }
+			method("setInitialActivityCount"){ string(it) }
 		}
 		attribute{
 			field = "expandActivityOverflowButtonDrawable"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "setExpandActivityOverflowButtonDrawable(${resource(it)})" }
-			javaMethod{ "setExpandActivityOverflowButtonDrawable(${resource(it)})" }
+			method("setExpandActivityOverflowButtonDrawable"){ resource(it) }
 		}
 	}
 

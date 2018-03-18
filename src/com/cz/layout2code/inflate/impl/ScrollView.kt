@@ -7,7 +7,7 @@ import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------ScrollView all attributes---------------
+ * ---------------ScrollView all expressions---------------
  * @attr ref android.R.styleable#ScrollView_fillViewport
  *
  */
@@ -16,8 +16,11 @@ open class ScrollView : FrameLayout() {
 		attribute{
 			field = "fillViewport"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isFillViewport = ${bool(it)}" }
-			javaMethod{ "setFillViewport(${bool(it)})" }
+			property {
+				java="setFillViewport"
+				kotlin="isFillViewport"
+				value { bool(it) }
+			}
 		}
 	}
 	/**

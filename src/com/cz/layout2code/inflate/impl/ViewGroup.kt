@@ -1,8 +1,12 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
-import com.cz.layout2code.inflate.element.*
+import com.cz.layout2code.inflate.expression.value.ClassFieldExpression
+import com.cz.layout2code.inflate.expression.value.DefineLayoutParamsExpression
+import com.cz.layout2code.inflate.expression.value.ElementExpression
+import com.cz.layout2code.inflate.expression.value.StringValueExpression
 import com.cz.layout2code.inflate.item.AttributeNode
+import com.cz.layout2code.inflate.item.ImportItem
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.prefs.AttributeStyle
@@ -10,7 +14,7 @@ import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------ViewGroup all attributes---------------
+ * ---------------ViewGroup all expressions---------------
  * @attr ref android.R.styleable#ViewGroup_clipChildren
  * @attr ref android.R.styleable#ViewGroup_clipToPadding
  * @attr ref android.R.styleable#ViewGroup_layoutAnimation
@@ -29,82 +33,92 @@ open class ViewGroup : View() {
 		attribute{
 			field = "animateLayoutChanges"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			importList= arrayOf("android.animation.LayoutTransition")
-			kotlinMethod { if("true"!=it) "" else  "layoutTransition = LayoutTransition()" }
-			javaMethod{ if("true"!=it) "" else  "setLayoutTransition(LayoutTransition())"  }
+			expression {
+				import { mutableListOf(ImportItem("android.animation.LayoutTransition")) }
+				javaExpression { _,value->
+					if(value.toBoolean()) "" else  "setLayoutTransition(new LayoutTransition())"
+				}
+				kotlinExpression { _,value->
+					if(value.toBoolean()) "" else  "layoutTransition = LayoutTransition()"
+				}
+			}
 		}
 		attribute{
 			field = "clipChildren"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "clipChildren = ${bool(it)}" }
-			javaMethod{ "setClipChildren(${bool(it)})" }
+			property("clipChildren"){bool(it)}
 		}
 		attribute{
 			field = "clipToPadding"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "clipToPadding = ${bool(it)}" }
-			javaMethod{ "setClipToPadding(${bool(it)})" }
+			property("clipToPadding"){bool(it)}
 		}
 		attribute{
 			field = "layoutAnimation"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "layoutAnimation = ${resource(it)}" }
-			javaMethod{ "setLayoutAnimation(${resource(it)})" }
+			property("layoutAnimation"){resource(it)}
 		}
 		attribute{
 			field = "animationCache"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isAnimationCacheEnabled = ${bool(it)}" }
-			javaMethod{ "setAnimationCacheEnabled(${bool(it)})" }
+			property {
+				java="setAnimationCacheEnabled"
+				kotlin="isAnimationCacheEnabled"
+				value { bool(it) }
+			}
 		}
 		attribute{
 			field = "persistentDrawingCache"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "persistentDrawingCache = ${persistentDrawingCache(it)}" }
-			javaMethod{ "setPersistentDrawingCache(${persistentDrawingCache(it)})" }
+			property("persistentDrawingCache"){ persistentDrawingCache(it) }
 		}
 		attribute{
 			field = "alwaysDrawnWithCache"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isAlwaysDrawnWithCacheEnabled = ${bool(it)}" }
-			javaMethod{ "setAlwaysDrawnWithCacheEnabled(${bool(it)})" }
+			property {
+				java="setAlwaysDrawnWithCacheEnabled"
+				kotlin="isAlwaysDrawnWithCacheEnabled"
+				value { bool(it) }
+			}
 		}
 		attribute{
 			field = "addStatesFromChildren"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "setAddStatesFromChildren(${bool(it)})" }
-			javaMethod{ "setAddStatesFromChildren(${bool(it)})" }
+			method("setAddStatesFromChildren"){bool(it)}
 		}
 		attribute{
 			field = "descendantFocusability"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "descendantFocusability = ${descendantFocusability(it)}" }
-			javaMethod{ "setDescendantFocusability(${descendantFocusability(it)})" }
+			property("descendantFocusability"){descendantFocusability(it)}
 		}
 		attribute{
 			field = "touchscreenBlocksFocus"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			sdk=21
-			kotlinMethod { "touchscreenBlocksFocus = ${bool(it)}" }
-			javaMethod{ "setTouchscreenBlocksFocus(${bool(it)})" }
+			property("touchscreenBlocksFocus"){bool(it)}
 		}
 		attribute{
 			field = "splitMotionEvents"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isMotionEventSplittingEnabled = ${bool(it)}" }
-			javaMethod{ "setMotionEventSplittingEnabled(${bool(it)})" }
+			property {
+				java="setMotionEventSplittingEnabled"
+				kotlin="isMotionEventSplittingEnabled"
+				value { bool(it) }
+			}
 		}
 		attribute{
 			field = "layoutMode"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "layoutMode = ${layoutMode(it)}" }
-			javaMethod{ "setLayoutMode(${layoutMode(it)})" }
+			property("layoutMode"){layoutMode(it)}
 		}
 		attribute{
 			field = "transitionGroup"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isTransitionGroup = ${bool(it)}" }
-			javaMethod{ "setTransitionGroup(${bool(it)})" }
+			property {
+				java="setTransitionGroup"
+				kotlin="isTransitionGroup"
+				value { bool(it) }
+			}
 		}
 	}
 	/**
@@ -122,12 +136,13 @@ open class ViewGroup : View() {
 	/**
 	 * Created by cz on 2017/12/19.
 	 * 
-	 * ---------------LayoutParams all attributes---------------
+	 * ---------------LayoutParams all expressions---------------
 	 * @attr ref android.R.styleable#ViewGroup_Layout_layout_height
 	 * @attr ref android.R.styleable#ViewGroup_Layout_layout_width
 	 *
 	 */
 	open class LayoutParams {
+		val expressions= mutableListOf<ElementExpression>()
 		val viewStyleItems = mutableMapOf<String,AttributeStyle>()
 
 		init {
@@ -163,52 +178,49 @@ open class ViewGroup : View() {
 		}
 
 		/**
-		 * 根据系统配置属性,添加到属性集
-		 */
-		protected fun addAttributeItems(converterItems:MutableList<ElementConvert>,attribute:AttributeNode){
-			val findItem= viewStyleItems[attribute.name]
-			if(null!=findItem){
-				//添加控件配置属性
-				applyAttributes(attribute)
-				converterItems.add(ViewAttributeItem(findItem,attribute.value))
-			}
-		}
-
-		/**
 		 * 解析布局尺寸元素
 		 */
-		open fun inflateLayoutDimension(element:ViewNode,convertToJava:Boolean=true):LayoutParamsConvertItem{
+		open fun inflateLayoutDimension(element:ViewNode,convertToJava:Boolean=true): DefineLayoutParamsExpression {
 			val widthElement=element.attributes.find { it.name=="layout_width" }
 			val heightElement=element.attributes.find { it.name=="layout_height" }
-			val widthDimension=layoutDimension(widthElement?.value,convertToJava)?:"ViewGroup.LayoutParams.WRAP_CONTENT"
-			val heightDimension=layoutDimension(heightElement?.value,convertToJava)?:"ViewGroup.LayoutParams.WRAP_CONTENT"
+			val widthDimension=layoutDimension(widthElement?.value)
+			val heightDimension=layoutDimension(heightElement?.value)
 			applyAttributes(widthElement,heightElement)
 			//添加布局基本配置集
-			return LayoutParamsConvertItem(widthDimension,heightDimension)
+			return DefineLayoutParamsExpression(widthDimension,heightDimension)
 		}
 
 		/**
 		 * 解析LayoutParams属性集,并返回解析后的转换对象
 		 */
-		open fun inflateLayoutAttributes(element:ViewNode):MutableList<ElementConvert>{
+		open fun inflateLayoutAttributes(element:ViewNode):MutableList<ElementExpression>{
 			//检索到layout系统属性
-			val converterItems = mutableListOf<ElementConvert>()
+			val converterItems = mutableListOf<ElementExpression>()
 			//添加其他属性集
-			element.attributes.forEach{ addAttributeItems(converterItems,it) }
+			element.attributes.forEach{
+				val findItem= viewStyleItems[it.name]
+				if(null!=findItem){
+					//添加控件配置属性
+					applyAttributes(it)
+					//回调对象取值
+					val newExpression=findItem.expression.callback(it.value)
+					expressions.add(newExpression)
+				}
+			}
 			return converterItems
 		}
 
 		/**
 		 * 应用一个属性
 		 */
-		inline fun applyAttributes(vararg attributes: AttributeNode?)=attributes?.forEach { it?.isApply=true }
+		private inline fun applyAttributes(vararg attributes: AttributeNode?)=attributes?.forEach { it?.isApply=true }
 
 	}
 	
 	/**
 	 * Created by cz on 2017/12/19.
 	 * 
-	 * ---------------MarginLayoutParams all attributes---------------
+	 * ---------------MarginLayoutParams all expressions---------------
 	 * @attr ref android.R.styleable#ViewGroup_MarginLayout_layout_margin
 	 * @attr ref android.R.styleable#ViewGroup_MarginLayout_layout_marginHorizontal
 	 * @attr ref android.R.styleable#ViewGroup_MarginLayout_layout_marginVertical
@@ -225,68 +237,65 @@ open class ViewGroup : View() {
 			attribute{
 				field = "layout_margin"
 				attrType = arrayOf(AttrType.DIMENSION)
-				kotlinMethod { "margin=${dimen(it)}" }
-				javaMethod{ "layoutParams.margin=${dimen(it)}" }
+				allProperty("margin"){dimen(it)}
 			}
 			attribute{
 				field = "layout_marginHorizontal"
 				attrType = arrayOf(AttrType.DIMENSION)
-				kotlinMethod {
-					"leftMargin=${dimen(it)}"
-					"rightMargin=${dimen(it)}"
-				}
-				javaMethod{
-					"layoutParams.leftMargin=${dimen(it)}"
-					"layoutParams.rightMargin=${dimen(it)}"
+				expression {
+					javaExpression {matcher,value->
+						"leftMargin=${dimen(value).getJavaExpression(matcher)}\n"+
+						"rightMargin=${dimen(value).getJavaExpression(matcher)}"
+					}
+					kotlinExpression {matcher,value->
+						"leftMargin=${dimen(value).getKotlinExpression(matcher)}\n"+
+						"rightMargin=${dimen(value).getKotlinExpression(matcher)}"
+					}
 				}
 			}
 			attribute{
 				field = "layout_marginVertical"
 				attrType = arrayOf(AttrType.DIMENSION)
-				kotlinMethod {
-					"topMargin=${dimen(it)}"
-					"bottomMargin=${dimen(it)}"
-				}
-				javaMethod{
-					"layoutParams.topMargin=${dimen(it)}"
-					"layoutParams.bottomMargin=${dimen(it)}"
+				expression {
+					javaExpression { matcher,value->
+						"topMargin=${dimen(value).getJavaExpression(matcher)}"
+						"bottomMargin=${dimen(value).getJavaExpression(matcher)}"
+					}
+					kotlinExpression {matcher,value->
+						"topMargin=${dimen(value).getKotlinExpression(matcher)}"
+						"bottomMargin=${dimen(value).getKotlinExpression(matcher)}"
+					}
 				}
 			}
 			attribute{
 				field = "layout_marginLeft"
 				attrType = arrayOf(AttrType.DIMENSION)
-				kotlinMethod { "leftMargin=${dimen(it)}" }
-				javaMethod{ "layoutParams.leftMargin=${dimen(it)}" }
+				allProperty("leftMargin"){dimen(it)}
 			}
 			attribute{
 				field = "layout_marginTop"
 				attrType = arrayOf(AttrType.DIMENSION)
-				kotlinMethod { "topMargin=${dimen(it)}" }
-				javaMethod{ "layoutParams.topMargin=${dimen(it)}" }
+				allProperty("topMargin"){dimen(it)}
 			}
 			attribute{
 				field = "layout_marginRight"
 				attrType = arrayOf(AttrType.DIMENSION)
-				kotlinMethod { "rightMargin=${dimen(it)}" }
-				javaMethod{ "layoutParams.rightMargin=${dimen(it)}" }
+				allProperty("rightMargin"){dimen(it)}
 			}
 			attribute{
 				field = "layout_marginBottom"
 				attrType = arrayOf(AttrType.DIMENSION)
-				kotlinMethod { "bottomMargin=${dimen(it)}" }
-				javaMethod{ "layoutParams.bottomMargin=${dimen(it)}" }
+				allProperty("bottomMargin"){dimen(it)}
 			}
 			attribute{
 				field = "layout_marginStart"
 				attrType = arrayOf(AttrType.DIMENSION)
-				kotlinMethod { "startMargin=${dimen(it)}" }
-				javaMethod{ "layoutParams.startMargin=${dimen(it)}" }
+				allProperty("startMargin"){dimen(it)}
 			}
 			attribute{
 				field = "layout_marginEnd"
 				attrType = arrayOf(AttrType.DIMENSION)
-				kotlinMethod { "endMargin=${dimen(it)}" }
-				javaMethod{ "layoutParams.endMargin=${dimen(it)}" }
+				allProperty("endMargin"){dimen(it)}
 			}
 		}
 

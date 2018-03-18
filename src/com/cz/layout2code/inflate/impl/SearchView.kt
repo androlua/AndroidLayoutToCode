@@ -7,7 +7,7 @@ import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------SearchView all attributes---------------
+ * ---------------SearchView all expressions---------------
  * @attr ref android.R.styleable#SearchView_iconifiedByDefault
  * @attr ref android.R.styleable#SearchView_imeOptions
  * @attr ref android.R.styleable#SearchView_inputType
@@ -21,33 +21,28 @@ open class SearchView : LinearLayout() {
 		attribute{
 			field = "iconifiedByDefault"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "setIconifiedByDefault(${bool(it)})" }
-			javaMethod{ "setIconifiedByDefault(${bool(it)})" }
+			method("setIconifiedByDefault"){bool(it)}
 		}
 		attribute{
 			field = "maxWidth"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "maxWidth = ${dimen(it)}" }
-			javaMethod{ "setMaxWidth(${dimen(it)})" }
+			property("maxWidth"){dimen(it)}
 		}
 		attribute{
 			field = "queryHint"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "queryHint = ${string(it)}" }
-			javaMethod{ "setQueryHint(${string(it)})" }
+			property("queryHint"){string(it)}
 		}
 		uselessAttribute("defaultQueryHint")
 		attribute{
 			field = "imeOptions"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "imeOptions = ${imeOptions(it)}" }
-			javaMethod{ "setImeOptions(${imeOptions(it)})" }
+			property("imeOptions"){imeOptions(it)}
 		}
 		attribute{
 			field = "inputType"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "inputType = ${inputType(it)}" }
-			javaMethod{ "setInputType(${inputType(it)})" }
+			property("inputType"){inputType(it)}
 		}
 		uselessAttribute("closeIcon")
 		uselessAttribute("goIcon")

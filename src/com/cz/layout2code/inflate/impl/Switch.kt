@@ -1,13 +1,14 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
+import com.cz.layout2code.inflate.expression.value.ClassFieldExpression
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------Switch all attributes---------------
+ * ---------------Switch all expressions---------------
  * @attr ref android.R.styleable#Switch_textOn
  * @attr ref android.R.styleable#Switch_textOff
  * @attr ref android.R.styleable#Switch_switchMinWidth
@@ -24,97 +25,83 @@ open class Switch : CompoundButton() {
 			field = "thumb"
 			attrType = arrayOf(AttrType.REFERENCE)
 			sdk=16
-			kotlinMethod { "setThumbResource(${resourceRef(it)})" }
-			javaMethod{ "setThumbResource(${resourceRef(it)})" }
+			method("setThumbResource"){ resourceRef(it) }
 		}
 		attribute{
 			field = "thumbTint"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "setThumbTintList(${colorStateList(it)})" }
-			javaMethod{ "setThumbTintList(${colorStateList(it)})" }
+			method("setThumbTintList"){ colorStateList(it) }
 		}
 		attribute{
 			field = "thumbTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=23
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "thumbTintMode = ${tintMode(it)}" }
-			javaMethod{ "setThumbTintMode(${tintMode(it)})" }
+			property("thumbTintMode"){ tintMode(it) }
 		}
 		attribute{
 			field = "track"
 			attrType = arrayOf(AttrType.REFERENCE)
 			sdk=16
-			kotlinMethod { "setTrackResource(${resourceRef(it)})" }
-			javaMethod{ "setTrackResource(${resourceRef(it)})" }
+			method("setTrackResource"){ resourceRef(it) }
 		}
 		attribute{
 			field = "trackTint"
 			attrType = arrayOf(AttrType.COLOR)
 			sdk=23
-			kotlinMethod { "trackTintList = ${colorStateList(it)}" }
-			javaMethod{ "setTrackTintList(${colorStateList(it)})" }
+			property("trackTintList"){ colorStateList(it) }
 		}
 		attribute{
 			field = "trackTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=23
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "trackTintMode = ${tintMode(it)}" }
-			javaMethod{ "setTrackTintMode(${tintMode(it)})" }
+			property("trackTintMode"){ tintMode(it) }
 		}
 		attribute{
 			field = "textOn"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "textOn = ${string(it)}" }
-			javaMethod{ "setTextOn(${string(it)})" }
+			property("textOn"){ string(it) }
 		}
 		attribute{
 			field = "textOff"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "textOff = ${string(it)}" }
-			javaMethod{ "setTextOff(${string(it)})" }
+			property("textOff"){ string(it) }
 		}
 		attribute{
 			field = "thumbTextPadding"
 			attrType = arrayOf(AttrType.DIMENSION)
 			sdk=16
-			kotlinMethod { "thumbTextPadding = ${dimen(it)}" }
-			javaMethod{ "setThumbTextPadding(${dimen(it)})" }
+			property("thumbTextPadding"){ dimen(it) }
 		}
 		attribute{
 			field = "switchTextAppearance"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "setSwitchTextAppearance(context,${resourceRef(it)}" }
-			javaMethod{ "setSwitchTextAppearance(context,${resourceRef(it)}" }
+			methods("setSwitchTextAppearance"){
+				mutableListOf(ClassFieldExpression("context"),resourceRef(it))
+			}
 		}
 		attribute{
 			field = "switchMinWidth"
 			attrType = arrayOf(AttrType.DIMENSION)
 			sdk=16
-			kotlinMethod { "switchMinWidth = ${dimen(it)}" }
-			javaMethod{ "setSwitchMinWidth(${dimen(it)})" }
+			property("switchMinWidth"){dimen(it)}
 		}
 		attribute{
 			field = "switchPadding"
 			attrType = arrayOf(AttrType.DIMENSION)
 			sdk=16
-			kotlinMethod { "switchPadding = ${dimen(it)}" }
-			javaMethod{ "setSwitchPadding(${dimen(it)})" }
+			property("switchPadding"){dimen(it)}
 		}
 		attribute{
 			field = "splitTrack"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			sdk=21
-			kotlinMethod { "splitTrack = ${bool(it)}" }
-			javaMethod{ "setSplitTrack(${bool(it)})" }
+			property("splitTrack"){bool(it)}
 		}
 		attribute{
 			field = "showText"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			sdk=21
-			kotlinMethod { "showText = ${bool(it)}" }
-			javaMethod{ "setShowText(${bool(it)})" }
+			property("showText"){bool(it)}
 		}
 	}
 	/**

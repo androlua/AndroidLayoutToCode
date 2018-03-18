@@ -3,13 +3,14 @@ package com.cz.layout2code.inflate.impl
 import org.jdom.Element
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.bool
+import com.cz.layout2code.inflate.gravity
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.resource
 
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------FrameLayout all attributes---------------
+ * ---------------FrameLayout all expressions---------------
  * @attr ref android.R.styleable#FrameLayout_measureAllChildren
  *
  */
@@ -18,8 +19,7 @@ open class FrameLayout : ViewGroup() {
 		attribute{
 			field = "measureAllChildren"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "measureAllChildren = ${bool(it)}" }
-			javaMethod{ "setMeasureAllChildren(${bool(it)})" }
+			property("measureAllChildren") { bool(it) }
 		}
 	}
 
@@ -32,7 +32,7 @@ open class FrameLayout : ViewGroup() {
 	/**
 	 * Created by cz on 2017/12/19.
 	 * 
-	 * ---------------LayoutParams all attributes---------------
+	 * ---------------LayoutParams all expressions---------------
 	 * @attr ref android.R.styleable#FrameLayout_Layout_layout_gravity
 	 *
 	 */
@@ -41,8 +41,7 @@ open class FrameLayout : ViewGroup() {
 			attribute{
 				field = "layout_gravity"
 				attrType = arrayOf(AttrType.REFERENCE)
-				kotlinMethod { "gravity = ${resource(it)}" }
-				javaMethod{ "layoutParams.gravity=${resource(it)}" }
+				allProperty("gravity"){ gravity(it) }
 			}
 		}
 	}

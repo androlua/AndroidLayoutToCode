@@ -1,8 +1,12 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
-import com.cz.layout2code.inflate.element.*
+import com.cz.layout2code.inflate.expression.AttributeMethodMultiParamsExpression
+import com.cz.layout2code.inflate.expression.value.ElementExpression
+import com.cz.layout2code.inflate.expression.value.CastIntFieldExpression
+import com.cz.layout2code.inflate.expression.value.StringValueExpression
 import com.cz.layout2code.inflate.item.AttributeNode
+import com.cz.layout2code.inflate.item.ImportItem
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.prefs.AttributeStyle
@@ -10,7 +14,7 @@ import com.cz.layout2code.inflate.prefs.AttributeStyle
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------View all attributes---------------
+ * ---------------View all expressions---------------
  * @attr ref android.R.styleable#View_alpha
  * @attr ref android.R.styleable#View_background
  * @attr ref android.R.styleable#View_clickable
@@ -89,10 +93,8 @@ open class View {
 	val importItems= mutableSetOf<ImportItem>()
 	//控件引用样式集
 	val viewStyleItems = mutableMapOf<String,AttributeStyle>()
-	//常规元素转换对象
-	val attributes= mutableListOf<ElementConvert>()
-	//父容器属性转换对象
-	var layoutParamsConvert:LayoutParamsConvertItem?=null
+	//常规元素表达式对象
+	val expressions= mutableListOf<ElementExpression>()
 	//是否为compat v7包内控件
 	var isCompatView=false
 
@@ -103,223 +105,205 @@ open class View {
 			field = "accessibilityLiveRegion"
 			attrType = arrayOf(AttrType.ENUM)
 			sdk=19
-			kotlinMethod { "accessibilityLiveRegion = ${accessibilityLiveRegion(it)}" }
-			javaMethod{ "setAccessibilityLiveRegion(${accessibilityLiveRegion(it)})" }
+			property("accessibilityLiveRegion") { accessibilityLiveRegion(it) }
 		}
 		attribute{
 			field = "accessibilityTraversalAfter"
 			attrType = arrayOf(AttrType.ENUM)
 			sdk=22
-			kotlinMethod { "accessibilityTraversalAfter = ${int(it)}" }
-			javaMethod{ "setAccessibilityTraversalAfter(${int(it)})" }
+			property("accessibilityTraversalAfter") { int(it) }
 		}
 		attribute{
 			field = "accessibilityTraversalBefore"
 			attrType = arrayOf(AttrType.INTEGER)
 			sdk=22
-			kotlinMethod { "accessibilityTraversalBefore = ${int(it)}" }
-			javaMethod{ "setAccessibilityTraversalBefore(${int(it)})" }
+			property("accessibilityTraversalBefore") { int(it) }
 		}
 		attribute{
 			field = "alpha"
 			attrType = arrayOf(AttrType.FLOAT)
-			kotlinMethod { "alpha = ${float(it)}" }
-			javaMethod{ "setAlpha(${float(it)})" }
+			property("alpha") { float(it) }
 		}
 
-		attribute{
-			field = "autofillHints"
-			attrType = arrayOf(AttrType.STRING, AttrType.REFERENCE)
-			kotlinMethod {
-				"//#View.setAutofillHints"+
-				"//setAutofillHints(${string(it)})"
-			}
-			javaMethod{
-				"//#View.setAutofillHints"+
-				"//setAutofillHints(${string(it)})"
-			}
-		}
+		uselessAttribute("autofillHints")
 		attribute{
 			field = "background"
 			attrType = arrayOf(AttrType.REFERENCE, AttrType.COLOR)
-			kotlinMethod { "backgroundResource = ${resourceRef(it)}" }
-			javaMethod{ "setBackgroundResource(${resourceRef(it)})" }
+			property("backgroundResource") { resourceRef(it) }
 		}
 		attribute{
 			field = "backgroundTint"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "backgroundTintList = ${colorStateList(it)}" }
-			javaMethod{ "setBackgroundTintList(${colorStateList(it)})" }
+			property("backgroundTintList") { colorStateList(it) }
 		}
 		attribute{
 			field = "backgroundTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=23
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "backgroundTintMode = ${tintMode(it)}" }
-			javaMethod{ "setBackgroundTintMode(${tintMode(it)})" }
+			property("backgroundTintMode") { colorStateList(it) }
 		}
 		attribute{
 			field = "clickable"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isClickable = ${bool(it)}" }
-			javaMethod{ "setClickable(${bool(it)})" }
+			property{
+				java="setClickable"
+				kotlin="isClickable"
+				value { bool(it) }
+			}
 		}
 		attribute{
 			field = "contentDescription"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "contentDescription = ${string(it)}" }
-			javaMethod{ "setContentDescription(${string(it)})" }
+			property("contentDescription") { string(it) }
 		}
 		attribute{
 			field = "contextClickable"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			sdk=23
-			kotlinMethod { "isContextClickable = ${bool(it)}" }
-			javaMethod{ "setContextClickable(${bool(it)})" }
+			property{
+				java="setContextClickable"
+				kotlin="isContextClickable"
+				value { bool(it) }
+			}
 		}
-
-
 		attribute{
 			field = "defaultFocusHighlightEnabled"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			sdk=26
-			kotlinMethod { "defaultFocusHighlightEnabled = ${bool(it)}" }
-			javaMethod{ "setDefaultFocusHighlightEnabled(${bool(it)})" }
+			property("defaultFocusHighlightEnabled") { bool(it) }
 		}
 		attribute{
 			field = "drawingCacheQuality"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.view.View")
-			kotlinMethod { "drawingCacheQuality = ${drawingCacheQuality(it)}" }
-			javaMethod{ "setDrawingCacheQuality(${drawingCacheQuality(it)})" }
+			property("drawingCacheQuality") { drawingCacheQuality(it) }
 		}
 		attribute{
 			field = "duplicateParentState"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isDuplicateParentStateEnabled = ${bool(it)}" }
-			javaMethod{ "setDuplicateParentStateEnabled(${bool(it)})" }
+			property{
+				java="setDuplicateParentStateEnabled"
+				kotlin="isDuplicateParentStateEnabled"
+				value { bool(it) }
+			}
 		}
 		attribute{
 			field = "elevation"
 			attrType = arrayOf(AttrType.DIMENSION)
 			sdk=21
-			kotlinMethod { "elevation = ${dimen(it)}" }
-			javaMethod{ "setElevation(${dimen(it)})" }
+			property("elevation") { dimen(it) }
 		}
 		attribute{
 			field = "fadeScrollbars"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isScrollbarFadingEnabled = ${bool(it)}" }
-			javaMethod{ "setScrollbarFadingEnabled(${bool(it)})" }
+			property{
+				java="setScrollbarFadingEnabled"
+				kotlin="isScrollbarFadingEnabled"
+				value { bool(it) }
+			}
 		}
 		uselessAttribute("fadingEdge")
 		attribute{
 			field = "fadingEdgeLength"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "setFadingEdgeLength(${dimen(it)})" }
-			javaMethod{ "setFadingEdgeLength(${dimen(it)})" }
+			method("setFadingEdgeLength") { dimen(it) }
 		}
-
-
-
 		attribute{
 			field = "filterTouchesWhenObscured"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "filterTouchesWhenObscured = ${bool(it)}" }
-			javaMethod{ "setFilterTouchesWhenObscured(${bool(it)})" }
+			property("filterTouchesWhenObscured") { bool(it) }
 		}
 		attribute{
 			field = "fitsSystemWindows"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "fitsSystemWindows = ${bool(it)}" }
-			javaMethod{ "setFitsSystemWindows(${bool(it)})" }
+			property("fitsSystemWindows") { bool(it) }
 		}
 		attribute{
 			field = "focusable"
 			attrType = arrayOf(AttrType.BOOLEAN, AttrType.ENUM)
-			kotlinMethod { "isFocusable = ${bool(it)}" }
-			javaMethod{ "setFocusable(${bool(it)})" }
+			property {
+				java="setFocusable"
+				kotlin="isFocusable"
+				value{ bool(it) }
+			}
 		}
 		attribute{
 			field = "focusableInTouchMode"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isFocusableInTouchMode = ${bool(it)}" }
-			javaMethod{ "setFocusableInTouchMode(${bool(it)})" }
+			property {
+				java="setFocusableInTouchMode"
+				kotlin="isFocusableInTouchMode"
+				value{ bool(it) }
+			}
 		}
 		uselessAttribute("focusedByDefault")
 		attribute{
 			field = "forceHasOverlappingRendering"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			sdk=24
-			kotlinMethod { "forceHasOverlappingRendering(${bool(it)})" }
-			javaMethod{ "forceHasOverlappingRendering(${bool(it)})" }
+			method("forceHasOverlappingRendering"){ bool(it) }
 		}
 		attribute{
 			field = "foreground"
 			attrType = arrayOf(AttrType.REFERENCE, AttrType.COLOR)
 			sdk=23
-			kotlinMethod { "foreground = ${resource(it)}" }
-			javaMethod{ "setForeground(${resource(it)})" }
+			property ("foreground"){ resource(it) }
 		}
 		attribute{
 			field = "foregroundGravity"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "foregroundGravity = ${foregroundGravity(it)}" }
-			javaMethod{ "setForegroundGravity(${foregroundGravity(it)})" }
+			property ("foregroundGravity"){ foregroundGravity(it) }
 		}
 		uselessAttribute("foregroundInsidePadding")
 		attribute{
 			field = "foregroundTint"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "foregroundTint = ${color(it)}" }
-			javaMethod{ "setForegroundTint(${color(it)})" }
+			property ("foregroundTint"){ color(it) }
 		}
 		attribute{
 			field = "foregroundTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=23
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "foregroundTintMode = ${tintMode(it)}" }
-			javaMethod{ "setForegroundTintMode(${tintMode(it)})" }
+			property ("foregroundTintMode"){ tintMode(it) }
 		}
 		attribute{
 			field = "hapticFeedbackEnabled"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isHapticFeedbackEnabled = ${bool(it)}" }
-			javaMethod{ "setHapticFeedbackEnabled(${bool(it)})" }
+			property {
+				java="setHapticFeedbackEnabled"
+				kotlin="isHapticFeedbackEnabled"
+				value{ bool(it) }
+			}
 		}
 		attribute{
 			field = "id"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "id = ${resource(it)}" }
-			javaMethod{ "setId(${resource(it)})" }
+			property ("id"){ resource(it) }
 		}
 		attribute{
 			field = "importantForAccessibility"
 			attrType = arrayOf(AttrType.ENUM)
 			sdk=16
-			kotlinMethod { "importantForAccessibility = ${importantForAccessibility(it)}" }
-			javaMethod{ "setImportantForAccessibility(${importantForAccessibility(it)})" }
+			property ("importantForAccessibility"){ importantForAccessibility(it) }
 		}
 		attribute{
 			field = "importantForAutofill"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=26
-			kotlinMethod { "importantForAutofill = ${importantForAutofill(it)}" }
-			javaMethod{ "setImportantForAutofill(${importantForAutofill(it)})" }
+			property ("importantForAutofill"){ importantForAutofill(it) }
 		}
 		attribute{
 			field = "isScrollContainer"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isScrollContainer = ${bool(it)}" }
-			javaMethod{ "setIsScrollContainer(${bool(it)})" }
+			property {
+				java="setIsScrollContainer"
+				kotlin="isScrollContainer"
+				value{ bool(it) }
+			}
 		}
 		attribute{
 			field = "keepScreenOn"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "keepScreenOn = ${bool(it)}" }
-			javaMethod{ "setKeepScreenOn(${bool(it)})" }
+			property("keepScreenOn"){ bool(it) }
 		}
 		uselessAttribute("keyboardNavigationCluster")
 
@@ -327,92 +311,100 @@ open class View {
 			field = "labelFor"
 			attrType = arrayOf(AttrType.REFERENCE)
 			sdk=17
-			kotlinMethod { "labelFor = ${id(it)}" }
-			javaMethod{ "setLabelFor(${id(it)})" }
+			property("labelFor"){ id(it) }
 		}
 		attribute{
 			field = "layerType"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "setLayerType(${layerType(it)}, null)" }
-			javaMethod{ "setLayerType(${layerType(it)}, null)" }
+			methods("setLayerType"){ mutableListOf(layerType(it),StringValueExpression("null")) }
 		}
 
 		attribute{
 			field = "layoutDirection"
-			importList= arrayOf("android.view.View")
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=17
-			kotlinMethod { "layoutDirection = ${layoutDirection(it)}" }
-			javaMethod{ "setLayoutDirection(${layoutDirection(it)})" }
+			property("layoutDirection"){ layoutDirection(it) }
 		}
 		attribute{
 			field = "longClickable"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isLongClickable = ${bool(it)}" }
-			javaMethod{ "setLongClickable(${bool(it)})" }
+			property {
+				java="setLongClickable"
+				kotlin="isLongClickable"
+				value{ bool(it) }
+			}
 		}
 		attribute{
 			field = "minHeight"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "minimumHeight = ${dimen(it)}" }
-			javaMethod{ "setMinimumHeight(${dimen(it)})" }
+			property("minimumHeight"){ dimen(it) }
 		}
 		attribute{
 			field = "minWidth"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "minimumWidth = ${dimen(it)}" }
-			javaMethod{ "setMinimumWidth(${dimen(it)})" }
+			property("minimumWidth"){ dimen(it) }
 		}
 		attribute{
 			field = "nestedScrollingEnabled"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			sdk=21
-			kotlinMethod { "isNestedScrollingEnabled = ${bool(it)}" }
-			javaMethod{ "setNestedScrollingEnabled(${bool(it)})" }
+			property {
+				java="setNestedScrollingEnabled"
+				kotlin="isNestedScrollingEnabled"
+				value{ bool(it) }
+			}
 		}
 		uselessAttribute("nextClusterForward")
 		attribute{
 			field = "nextFocusDown"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "nextFocusDownId = ${resourceRef(it)}" }
-			javaMethod{ "setNextFocusDownId(${resourceRef(it)})" }
+			property("nextFocusDownId"){ resourceRef(it) }
 		}
 		attribute{
 			field = "nextFocusForward"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "nextFocusForwardId = ${resourceRef(it)}" }
-			javaMethod{ "setNextFocusForwardId(${resourceRef(it)})" }
+			property("nextFocusForwardId"){ resourceRef(it) }
 		}
 		attribute{
 			field = "nextFocusLeft"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "nextFocusLeftId = ${resourceRef(it)}" }
-			javaMethod{ "setNextFocusLeftId(${resourceRef(it)})" }
+			property("nextFocusLeftId"){ resourceRef(it) }
 		}
 		attribute{
 			field = "nextFocusRight"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "nextFocusRightId = ${resourceRef(it)}" }
-			javaMethod{ "setNextFocusRightId(${resourceRef(it)})" }
+			property("nextFocusRightId"){ resourceRef(it) }
 		}
 		attribute{
 			field = "nextFocusUp"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "nextFocusUpId = ${resourceRef(it)}" }
-			javaMethod{ "setNextFocusUpId(${resourceRef(it)})" }
+			property("nextFocusUpId"){ resourceRef(it) }
 		}
+		//onClick的方法调用映射,无法做到此类复杂的方法声明表达式直接兼容,此处以一个自定义的语句形式直接拼写
 		attribute{
 			field = "onClick"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "setOnClickListener{\n\t$it(this)\n}" }
-			javaMethod{ "setOnClickListener{\n\t$it(this)\n}" }
+			expression {
+				import { mutableListOf(ImportItem("android.view.View")) }
+				javaExpression { _,value->
+					"setOnClickListener(new View.OnClickListener() {\n" +
+							"\t@Override\n" +
+							"\tpublic void onClick(View v) {\n" +
+							"\t\tthis.$value(v)\n" +
+							"\t}\n" +
+							"\t});"
+				}
+				kotlinExpression { _,value->
+					"setOnClickListener{ $value(it) }"
+				}
+			}
+			property("nextFocusUpId"){ resourceRef(it) }
 		}
 		uselessAttribute("outlineProvider")
 		attribute{
 			field = "overScrollMode"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "overScrollMode = ${overScrollMode(it)}" }
-			javaMethod{ "setOverScrollMode(${overScrollMode(it)})" }
+			property("overScrollMode"){ overScrollMode(it) }
 		}
 
 		//-------------------------------------------------
@@ -480,65 +472,58 @@ open class View {
 		attribute{
 			field = "pointerIcon"
 			sdk=24
-			importList= arrayOf("android.view.PointerIcon")
 			attrType = arrayOf(AttrType.ENUM)
-			kotlinMethod { "pointerIcon = ${pointerIcon(it)}" }
-			javaMethod{ "setPointerIcon(${pointerIcon(it)})" }
+			property("pointerIcon"){ pointerIcon(it) }
 		}
 		uselessAttribute("requiresFadingEdge")
 		attribute{
 			field = "rotation"
 			attrType = arrayOf(AttrType.FLOAT)
-			kotlinMethod { "rotation = ${float(it)}" }
-			javaMethod{ "setRotation(${float(it)})" }
+			property("rotation"){ float(it) }
 		}
 		attribute{
 			field = "rotationX"
 			attrType = arrayOf(AttrType.FLOAT)
-			kotlinMethod { "rotationX = ${float(it)}" }
-			javaMethod{ "setRotationX(${float(it)})" }
+			property("rotationX"){ float(it) }
 		}
 		attribute{
 			field = "rotationY"
 			attrType = arrayOf(AttrType.FLOAT)
-			kotlinMethod { "rotationY = ${float(it)}" }
-			javaMethod{ "setRotationY(${float(it)})" }
+			property("rotationY"){ float(it) }
 		}
 		attribute{
 			field = "saveEnabled"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isSaveEnabled = ${bool(it)}" }
-			javaMethod{ "setSaveEnabled(${bool(it)})" }
+			property {
+				java="setSaveEnabled"
+				kotlin="isSaveEnabled"
+				value{ bool(it) }
+			}
 		}
 		attribute{
 			field = "scaleX"
 			attrType = arrayOf(AttrType.FLOAT)
-			kotlinMethod { "scaleX = ${float(it)}" }
-			javaMethod{ "setScaleX(${float(it)})" }
+			property("scaleX"){ float(it) }
 		}
 		attribute{
 			field = "scaleY"
 			attrType = arrayOf(AttrType.FLOAT)
-			kotlinMethod { "scaleY = ${float(it)}" }
-			javaMethod{ "setScaleY(${float(it)})" }
+			property("scaleY"){ float(it) }
 		}
 		attribute{
 			field = "scrollIndicators"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "scrollIndicators = ${scrollIndicators(it)}" }
-			javaMethod{ "setScrollIndicators(${scrollIndicators(it)})" }
+			property("scrollIndicators"){ scrollIndicators(it) }
 		}
 		attribute{
 			field = "scrollX"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "scrollX = ${dimen(it)}" }
-			javaMethod{ "setScrollX(${dimen(it)})" }
+			property("scrollX"){ dimen(it) }
 		}
 		attribute{
 			field = "scrollY"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "scrollY = ${dimen(it)}" }
-			javaMethod{ "setScrollY(${dimen(it)})" }
+			property("scrollY"){ dimen(it) }
 		}
 		uselessAttribute("scrollbarTrackHorizontal")
 		uselessAttribute("scrollbarTrackVertical")
@@ -552,125 +537,110 @@ open class View {
 			field = "scrollbarDefaultDelayBeforeFade"
 			attrType = arrayOf(AttrType.INTEGER)
 			sdk=16
-			kotlinMethod { "scrollBarDefaultDelayBeforeFade = ${int(it)}" }
-			javaMethod{ "setScrollbarDefaultDelayBeforeFade(${int(it)})" }
+			property("scrollBarDefaultDelayBeforeFade"){ int(it) }
 		}
 		attribute{
 			field = "scrollbarFadeDuration"
 			attrType = arrayOf(AttrType.INTEGER)
 			sdk=16
-			kotlinMethod { "scrollbarFadeDuration = ${int(it)}" }
-			javaMethod{ "setScrollbarFadeDuration(${int(it)})" }
+			property("scrollbarFadeDuration"){ int(it) }
 		}
 		uselessAttribute("scrollbarSize")
 		attribute{
 			field = "scrollbarStyle"
 			sdk=16
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "scrollbarStyle = ${scrollBarStyle(it)}" }
-			javaMethod{ "setScrollbarStyle(${scrollBarStyle(it)})" }
+			property("scrollbarStyle"){ scrollBarStyle(it) }
 		}
 		uselessAttribute("scrollbars")
 
 		attribute{
 			field = "soundEffectsEnabled"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isSoundEffectsEnabled = ${bool(it)}" }
-			javaMethod{ "setSoundEffectsEnabled(${bool(it)})" }
+			property {
+				java="setSoundEffectsEnabled"
+				kotlin="isSoundEffectsEnabled"
+				value{ bool(it) }
+			}
 		}
 
 		attribute{
 			field = "stateListAnimator"
 			attrType = arrayOf(AttrType.REFERENCE)
 			sdk=21
-			kotlinMethod { "stateListAnimator = ${resource(it)}" }
-			javaMethod{ "setStateListAnimator(${resource(it)})" }
+			property("stateListAnimator"){ resource(it) }
 		}
 		attribute{
 			field = "tag"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "tag = ${string(it)}" }
-			javaMethod{ "setTag(${string(it)})" }
+			property("tag"){ string(it) }
 		}
 		attribute{
 			field = "textAlignment"
 			attrType = arrayOf(AttrType.INTEGER)
-			importList= arrayOf("android.view.View")
 			sdk=17
-			kotlinMethod { "textAlignment = ${textAlignment(it)}" }
-			javaMethod{ "setTextAlignment(${textAlignment(it)})" }
+			property("textAlignment"){ textAlignment(it) }
 		}
 		attribute{
 			field = "textDirection"
 			attrType = arrayOf(AttrType.ENUM)
-			kotlinMethod { "textDirection = ${textDirection(it)}" }
-			javaMethod{ "setTextDirection(${textDirection(it)})" }
+			property("textDirection"){ textDirection(it) }
 		}
 
 		attribute{
 			field = "theme"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "theme = ${resourceRef(it)}" }
-			javaMethod{ "setTheme(${resourceRef(it)})" }
+			property("theme"){ resourceRef(it) }
 		}
 
 		attribute{
 			field = "tooltipText"
 			attrType = arrayOf(AttrType.STRING)
 			sdk=26
-			kotlinMethod { "tooltipText = ${string(it)}" }
-			javaMethod{ "setTooltipText(${string(it)})" }
+			property("tooltipText"){ string(it) }
 		}
 
 		attribute{
 			field = "transformPivotX"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "transformPivotX = ${dimen(it)}" }
-			javaMethod{ "setTransformPivotX(${dimen(it)})" }
+			property("transformPivotX"){ dimen(it) }
 		}
 		attribute{
 			field = "transformPivotY"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "transformPivotY = ${dimen(it)}" }
-			javaMethod{ "setTransformPivotY(${dimen(it)})" }
+			property("transformPivotY"){ dimen(it) }
 		}
 		attribute{
 			field = "transitionName"
 			attrType = arrayOf(AttrType.STRING)
 			sdk=21
-			kotlinMethod { "transitionName = ${string(it)}" }
-			javaMethod{ "setTransitionName(${string(it)})" }
+			property("transitionName"){ dimen(it) }
 		}
 		attribute{
 			field = "translationX"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "translationX = ${dimen(it)}" }
-			javaMethod{ "setTranslationX(${dimen(it)})" }
+			property("translationX"){ dimen(it) }
 		}
 		attribute{
 			field = "translationY"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "translationY = ${dimen(it)}" }
-			javaMethod{ "setTranslationY(${dimen(it)})" }
+			property("translationY"){ dimen(it) }
 		}
 		attribute{
 			field = "translationZ"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "translationZ = ${dimen(it)}" }
-			javaMethod{ "setTranslationZ(${dimen(it)})" }
+			property("translationZ"){ dimen(it) }
 		}
 		uselessAttribute("verticalScrollbarPosition")
 		attribute{
 			field = "visibility"
 			attrType = arrayOf(AttrType.ENUM)
-			importList= arrayOf("android.view.View")
-			kotlinMethod { "visibility = ${visibility(it)}" }
-			javaMethod{ "setVisibility(${visibility(it)})" }
+			property("visibility"){ visibility(it) }
 		}
 	}
 
 	private fun getSimpleClassName(): String {
-		val className = this::class.java.name
+		val className = this.javaClass.simpleName
 		return className.substring(className.lastIndexOf(".") + 1)
 	}
 
@@ -693,15 +663,6 @@ open class View {
 		viewStyleItems.put(field,attributeStyle)
 	}
 
-
-	/**
-	 * 根据系统配置属性,添加到属性集
-	 */
-	protected fun addMultiAttributeItems(name:String,vararg value:String){
-		//添加多个控件配置属性
-		attributes.add(MultiAttributeItem(name,*value))
-	}
-
 	/**
 	 * 获得控件映射名称
 	 */
@@ -721,12 +682,12 @@ open class View {
 	 * 获得android控件的classPath
 	 */
 	open fun getClassPath():String{
-		val simpleName=this::class.java.simpleName
+		val simpleName=this.javaClass.simpleName
 		return "android.widget.$simpleName"
 	}
 
 	/**
-	 * 解析View属性集,并返回解析后的anko代码
+	 * 解析View属性集
 	 */
 	open fun inflateAttributes(viewNode:ViewNode){
 		viewNode.attributes.forEach{ attribute->
@@ -734,33 +695,19 @@ open class View {
 			if(null!=findItem){
 				//添加控件配置属性
 				applyAttributes(attribute)
-				//添加引入包
-				findItem.importList?.forEach { importItems.add(ImportItem(it)) }
-				attributes.add(ViewAttributeItem(findItem,attribute.value))
+				//回调对象取值
+				val newExpression=findItem.expression.callback(attribute.value)
+				expressions.add(newExpression)
 			}
 		}
 		//检测导包
 		if(isCompatView){
 			importItems.add(ImportItem("org.jetbrains.anko.${getThemeViewName()}"))//v7
 		} else {
-			importItems.add(ImportItem("android.widget.${this::class.java.simpleName}"))//系统控件
+			importItems.add(ImportItem("android.widget.${this.javaClass.simpleName}"))//系统控件
 		}
 		//添加内边距属性
 		addPaddingAttribute(viewNode)
-	}
-
-	/**
-	 * 获取控件节点内,未使用的属性
-	 */
-	fun getUnknownAttributes(viewNode:ViewNode):MutableList<UnknownViewAttributeItem>{
-		//未应用属性
-		val unknownAttributes = mutableListOf<UnknownViewAttributeItem>()
-		val uselessAttributes = viewNode.attributes.filter { !it.isApply }
-		uselessAttributes.forEach {
-			//添加未知属性转换器
-			unknownAttributes.add(UnknownViewAttributeItem(it.name,it.value))
-		}
-		return unknownAttributes
 	}
 
 	/**
@@ -782,10 +729,13 @@ open class View {
 				paddingEnd,paddingHorizontal,paddingVertical)
 		//添加属性表达式
 		if (null != padding) {
-			addMultiAttributeItems("setPadding", dimenPadding(padding.value),
-					dimenPadding(padding.value),
-					dimenPadding(padding.value),
-					dimenPadding(padding.value))
+			val expression=AttributeMethodMultiParamsExpression("setPadding"){
+				mutableListOf(dimenPadding(padding.value),
+						dimenPadding(padding.value),
+						dimenPadding(padding.value),
+						dimenPadding(padding.value))
+			}
+			expressions.add(expression)
 		} else {
 			if (null != paddingHorizontal) {
 				paddingLeft = paddingHorizontal
@@ -797,20 +747,29 @@ open class View {
 			}
 			if (null != paddingLeft || null != paddingTop
 					|| null != paddingRight || null != paddingRight) {
-				addMultiAttributeItems("setPadding", dimenPadding(paddingLeft?.value),
-						dimenPadding(paddingTop?.value),
-						dimenPadding(paddingRight?.value),
-						dimenPadding(paddingBottom?.value))
+				val expression=AttributeMethodMultiParamsExpression("setPadding"){
+					mutableListOf(dimenPadding(paddingLeft?.value),
+					dimenPadding(paddingTop?.value),
+					dimenPadding(paddingRight?.value),
+					dimenPadding(paddingBottom?.value))
+				}
+				expressions.add(expression)
 			} else if (null != paddingStart || null != paddingEnd) {
-				addMultiAttributeItems("setPaddingRelative", dimenPadding(paddingStart?.value),
-						dimenPadding(paddingTop),
-						dimenPadding(paddingEnd?.value),
-						dimenPadding(paddingBottom?.value))
+				val expression=AttributeMethodMultiParamsExpression("setPadding"){
+					mutableListOf(dimenPadding(paddingStart?.value),
+							dimenPadding(paddingTop),
+							dimenPadding(paddingEnd?.value),
+							dimenPadding(paddingBottom?.value))
+				}
+				expressions.add(expression)
 			}
 		}
 	}
 
-	private inline fun dimenPadding(value:String?)=if(null==value) "0" else dimen(value)
+	private inline fun dimenPadding(value:String?):CastIntFieldExpression{
+		val expression=if(null==value) StringValueExpression("0") else dimen(value)
+		return CastIntFieldExpression(expression)
+	}
 
 	/**
 	 * 应用一个属性

@@ -5,7 +5,7 @@ import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------AnalogClock all attributes---------------
+ * ---------------AnalogClock all expressions---------------
  * @attr ref android.R.styleable#AnalogClock_dial
  * @attr ref android.R.styleable#AnalogClock_hand_hour
  * @attr ref android.R.styleable#AnalogClock_hand_minute

@@ -18,7 +18,7 @@ open class TableRow : LinearLayout() {
 	/**
 	 * Created by cz on 2017/12/19.
 	 * 
-	 * ---------------LayoutParams all attributes---------------
+	 * ---------------LayoutParams all expressions---------------
 	 * @attr ref android.R.styleable#TableRow_Cell_layout_column
 	 * @attr ref android.R.styleable#TableRow_Cell_layout_span
 	 *

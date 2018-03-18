@@ -6,7 +6,7 @@ import com.cz.layout2code.inflate.prefs.AttrType
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------TwoLineListItem all attributes---------------
+ * ---------------TwoLineListItem all expressions---------------
  * @attr ref android.R.styleable#TwoLineListItem_mode
  *
  */

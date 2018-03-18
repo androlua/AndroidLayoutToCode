@@ -8,7 +8,7 @@ import com.cz.layout2code.inflate.item.ViewNode
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------HorizontalScrollView all attributes---------------
+ * ---------------HorizontalScrollView all expressions---------------
  * @attr ref android.R.styleable#HorizontalScrollView_fillViewport
  *
  */
@@ -17,8 +17,11 @@ open class HorizontalScrollView : FrameLayout() {
 		attribute{
 			field = "fillViewport"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isFillViewport = ${bool(it)}" }
-			javaMethod{ "setFillViewport(${bool(it)})" }
+			property {
+				java="setFillViewport"
+				kotlin="isFillViewport"
+				value { bool(it) }
+			}
 		}
 	}
 

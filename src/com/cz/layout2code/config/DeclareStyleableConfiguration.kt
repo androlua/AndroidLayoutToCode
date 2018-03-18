@@ -38,7 +38,7 @@ class DeclareStyleableConfiguration(val packageName:String?,file: File) : XmlCon
                                 attributeNode.format=it.name
                             }
                             val itemName=it.getAttributeValue("name")
-                            val itemValue=it.getAttributeValue("value")
+                            val itemValue=it.getAttributeValue("expression")
                             val intValue=if(itemValue.startsWith("0x")||itemValue.startsWith("0X")){
                                 itemValue.substring(2).toInt(16)
                             } else {

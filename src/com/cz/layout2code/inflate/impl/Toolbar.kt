@@ -1,6 +1,7 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
+import com.cz.layout2code.inflate.expression.value.ClassFieldExpression
 import com.cz.layout2code.inflate.item.ViewNode
 import org.jdom.Element
 import com.cz.layout2code.inflate.prefs.AttrType
@@ -8,7 +9,7 @@ import com.cz.layout2code.inflate.prefs.AttrType
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------Toolbar all attributes---------------
+ * ---------------Toolbar all expressions---------------
  * @attr ref android.R.styleable#Toolbar_buttonGravity
  * @attr ref android.R.styleable#Toolbar_collapseContentDescription
  * @attr ref android.R.styleable#Toolbar_collapseIcon
@@ -43,93 +44,82 @@ open class Toolbar : ViewGroup() {
 		attribute{
 			field = "titleTextAppearance"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "setTitleTextAppearance(context,${resource(it)})" }
-			javaMethod{ "setTitleTextAppearance(context,${resource(it)})" }
+			methods("setTitleTextAppearance"){
+				mutableListOf(ClassFieldExpression("context"),resource(it))
+			}
 		}
 		attribute{
 			field = "subtitleTextAppearance"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "setSubtitleTextAppearance(context,${resource(it)})" }
-			javaMethod{ "setSubtitleTextAppearance(context,${resource(it)})" }
+			methods("setSubtitleTextAppearance"){
+				mutableListOf(ClassFieldExpression("context"),resource(it))
+			}
 		}
 		attribute{
 			field = "title"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "title = ${string(it)}" }
-			javaMethod{ "setTitle(${string(it)})" }
+			property("title"){string(it)}
 		}
 		attribute{
 			field = "subtitle"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "subtitle = ${string(it)}" }
-			javaMethod{ "setSubtitle(${string(it)})" }
+			property("subtitle"){string(it)}
 		}
 		uselessAttribute("gravity")
 		attribute{
 			field = "titleMargin"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "titleMargin = ${dimen(it)}" }
-			javaMethod{ "setTitleMargin(${dimen(it)})" }
+			property("titleMargin"){dimen(it)}
 		}
 		attribute{
 			field = "titleMarginStart"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "titleMarginStart = ${dimen(it)}" }
-			javaMethod{ "setTitleMarginStart(${dimen(it)})" }
+			property("titleMarginStart"){dimen(it)}
 		}
 		attribute{
 			field = "titleMarginEnd"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "titleMarginEnd = ${dimen(it)}" }
-			javaMethod{ "setTitleMarginEnd(${dimen(it)})" }
+			property("titleMarginEnd"){dimen(it)}
 		}
 		attribute{
 			field = "titleMarginTop"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "titleMarginTop = ${dimen(it)}" }
-			javaMethod{ "setTitleMarginTop(${dimen(it)})" }
+			property("titleMarginTop"){dimen(it)}
 		}
 		attribute{
 			field = "titleMarginBottom"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "titleMarginBottom = ${dimen(it)}" }
-			javaMethod{ "setTitleMarginBottom(${dimen(it)})" }
+			property("titleMarginBottom"){dimen(it)}
 		}
 		attribute{
 			field = "contentInsetStart"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "contentInsetStart = ${dimen(it)}" }
-			javaMethod{ "setContentInsetStart(${dimen(it)})" }
+			property("contentInsetStart"){dimen(it)}
 		}
 		attribute{
 			field = "contentInsetEnd"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "contentInsetEnd = ${dimen(it)}" }
-			javaMethod{ "setContentInsetEnd(${dimen(it)})" }
+			property("contentInsetEnd"){dimen(it)}
 		}
 		attribute{
 			field = "contentInsetLeft"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "contentInsetLeft = ${dimen(it)}" }
-			javaMethod{ "setContentInsetLeft(${dimen(it)})" }
+			property("contentInsetLeft"){dimen(it)}
 		}
 		attribute{
 			field = "contentInsetRight"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "contentInsetRight = ${dimen(it)}" }
-			javaMethod{ "setContentInsetRight(${dimen(it)})" }
+			property("contentInsetRight"){dimen(it)}
 		}
 		attribute{
 			field = "contentInsetStartWithNavigation"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "contentInsetStartWithNavigation = ${dimen(it)}" }
-			javaMethod{ "setContentInsetStartWithNavigation(${dimen(it)})" }
+			property("contentInsetStartWithNavigation"){dimen(it)}
 		}
 		attribute{
 			field = "contentInsetEndWithActions"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "contentInsetEndWithActions = ${dimen(it)}" }
-			javaMethod{ "setContentInsetEndWithActions(${dimen(it)})" }
+			property("contentInsetEndWithActions"){dimen(it)}
 		}
 		uselessAttribute("maxButtonHeight")
 		uselessAttribute("navigationButtonStyle")
@@ -139,44 +129,37 @@ open class Toolbar : ViewGroup() {
 		attribute{
 			field = "popupTheme"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "popupTheme = ${resourceRef(it)}" }
-			javaMethod{ "setPopupTheme(${resourceRef(it)})" }
+			property("popupTheme"){resourceRef(it)}
 		}
 		attribute{
 			field = "navigationIcon"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "navigationIcon = ${resource(it)}" }
-			javaMethod{ "setNavigationIcon(${resource(it)})" }
+			property("navigationIcon"){resource(it)}
 		}
 		attribute{
 			field = "navigationContentDescription"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "navigationContentDescription = ${string(it)}" }
-			javaMethod{ "setNavigationContentDescription(${string(it)})" }
+			property("navigationContentDescription"){string(it)}
 		}
 		attribute{
 			field = "logo"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "logo = ${resource(it)}" }
-			javaMethod{ "setLogo(${resource(it)})" }
+			property("logo"){resource(it)}
 		}
 		attribute{
 			field = "logoDescription"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "logoDescription = ${string(it)}" }
-			javaMethod{ "setLogoDescription(${string(it)})" }
+			property("logoDescription"){string(it)}
 		}
 		attribute{
 			field = "titleTextColor"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "setTitleTextColor(${color(it)})" }
-			javaMethod{ "setTitleTextColor(${color(it)})" }
+			method("setTitleTextColor"){color(it)}
 		}
 		attribute{
 			field = "subtitleTextColor"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "setSubtitleTextColor(${color(it)})" }
-			javaMethod{ "setSubtitleTextColor(${color(it)})" }
+			method("setSubtitleTextColor"){color(it)}
 		}
 	}
 
@@ -189,7 +172,7 @@ open class Toolbar : ViewGroup() {
 	/**
 	 * Created by cz on 2017/12/19.
 	 * 
-	 * ---------------LayoutParams all attributes---------------
+	 * ---------------LayoutParams all expressions---------------
 	 * @attr ref android.R.styleable#Toolbar_LayoutParams_layout_gravity
 	 *
 	 */
@@ -198,8 +181,7 @@ open class Toolbar : ViewGroup() {
 			attribute{
 				field = "layout_gravity"
 				attrType = arrayOf(AttrType.REFERENCE)
-				kotlinMethod { "layout_gravity = ${resource(it)}" }
-				javaMethod{ "setLAYOUT_GRAVITYayout_gravity(${resource(it)})" }
+				allProperty("gravity"){ resource(it) }
 			}
 		}
 	}

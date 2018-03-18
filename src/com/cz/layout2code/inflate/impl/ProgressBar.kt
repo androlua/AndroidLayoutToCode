@@ -8,7 +8,7 @@ import com.cz.layout2code.inflate.prefs.AttrType
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------ProgressBar all attributes---------------
+ * ---------------ProgressBar all expressions---------------
  * @attr ref android.R.styleable#ProgressBar_animationResolution
  * @attr ref android.R.styleable#ProgressBar_indeterminate
  * @attr ref android.R.styleable#ProgressBar_indeterminateBehavior
@@ -33,50 +33,50 @@ open class ProgressBar : View() {
 		attribute{
 			field = "min"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "min = ${int(it)}" }
-			javaMethod{ "setMin(${int(it)})" }
+			property("min"){int(it)}
 		}
 		attribute{
 			field = "max"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "max = ${int(it)}" }
-			javaMethod{ "setMax(${int(it)})" }
+			property("max"){int(it)}
 		}
 		attribute{
 			field = "progress"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "progress = ${int(it)}" }
-			javaMethod{ "setProgress(${int(it)})" }
+			property("progress"){int(it)}
 		}
 		attribute{
 			field = "secondaryProgress"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "secondaryProgress = ${int(it)}" }
-			javaMethod{ "setSecondaryProgress(${int(it)})" }
+			property("secondaryProgress"){int(it)}
 		}
 		attribute{
 			field = "indeterminate"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isIndeterminate = ${bool(it)}" }
-			javaMethod{ "setIndeterminate(${bool(it)})" }
+			property {
+				kotlin="isIndeterminate"
+				java="setIndeterminate"
+				value { bool(it) }
+			}
 		}
 		attribute{
 			field = "indeterminateOnly"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isIndeterminate = ${bool(it)}" }
-			javaMethod{ "setIndeterminate(${bool(it)})" }
+			property {
+				kotlin="isIndeterminate"
+				java="setIndeterminate"
+				value { bool(it) }
+			}
 		}
 		attribute{
 			field = "indeterminateDrawable"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "indeterminateDrawable = ${resource(it)}" }
-			javaMethod{ "setIndeterminateDrawable(${resource(it)})" }
+			property("indeterminateDrawable"){resource(it)}
 		}
 		attribute{
 			field = "progressDrawable"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "progressDrawable = ${resource(it)}" }
-			javaMethod{ "setProgressDrawable(${resource(it)})" }
+			property("progressDrawable"){resource(it)}
 		}
 		uselessAttribute("indeterminateDuration")
 		uselessAttribute("indeterminateBehavior")
@@ -88,84 +88,68 @@ open class ProgressBar : View() {
 		attribute{
 			field = "interpolator"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "interpolator = ${resource(it)}" }
-			javaMethod{ "setInterpolator(${resource(it)})" }
+			property("interpolator"){resource(it)}
 		}
 		uselessAttribute("animationResolution")
 		uselessAttribute("mirrorForRtl")
 		attribute{
 			field = "progressTint"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "setProgressTintList(${colorStateList(it)})" }
-			javaMethod{ "setProgressTintList(${colorStateList(it)})" }
+			method("setProgressTintList"){ colorStateList(it) }
 		}
 		attribute{
 			field = "progressTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=21
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "progressTintMode = ${tintMode(it)}" }
-			javaMethod{ "setProgressTintMode(${tintMode(it)})" }
+			property ("progressTintMode"){ tintMode(it) }
 		}
 		attribute{
 			field = "progressBackgroundTint"
 			attrType = arrayOf(AttrType.COLOR)
 			sdk=21
-			kotlinMethod { "progressBackgroundTintList = ${color(it)}" }
-			javaMethod{ "setProgressBackgroundTintList(${color(it)})" }
+			property ("progressBackgroundTintList"){ color(it) }
 		}
 		attribute{
 			field = "progressBackgroundTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=21
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "progressBackgroundTintMode = ${tintMode(it)}" }
-			javaMethod{ "setProgressBackgroundTintMode(${tintMode(it)})" }
+			property ("progressBackgroundTintMode"){ tintMode(it) }
 		}
 		attribute{
 			field = "secondaryProgressTint"
 			attrType = arrayOf(AttrType.COLOR)
 			sdk=21
-			kotlinMethod { "secondaryProgressTintList = ${color(it)}" }
-			javaMethod{ "setSecondaryProgressTintList(${color(it)})" }
+			property ("secondaryProgressTintList"){ color(it) }
 		}
 		attribute{
 			field = "secondaryProgressTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=21
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "secondaryProgressTintMode = ${tintMode(it)}" }
-			javaMethod{ "setSecondaryProgressTintMode(${tintMode(it)})" }
+			property ("secondaryProgressTintMode"){ tintMode(it) }
 		}
 		attribute{
 			field = "indeterminateTint"
 			attrType = arrayOf(AttrType.COLOR)
 			sdk=21
-			kotlinMethod { "indeterminateTintList = ${color(it)}" }
-			javaMethod{ "setIndeterminateTintList(${color(it)})" }
+			property ("indeterminateTintList"){ color(it) }
 		}
 		attribute{
 			field = "indeterminateTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=21
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "indeterminateTintMode = ${tintMode(it)}" }
-			javaMethod{ "setIndeterminateTintMode(${tintMode(it)})" }
+			property ("indeterminateTintMode"){ tintMode(it) }
 		}
 		attribute{
 			field = "backgroundTint"
 			attrType = arrayOf(AttrType.COLOR)
 			sdk=21
-			kotlinMethod { "backgroundTintList = ${color(it)}" }
-			javaMethod{ "setBackgroundTintList(${color(it)})" }
+			property ("backgroundTintList"){ color(it) }
 		}
 		attribute{
 			field = "backgroundTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=21
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "backgroundTintMode = ${tintMode(it)}" }
-			javaMethod{ "setBackgroundTintMode(${tintMode(it)})" }
+			property ("backgroundTintMode"){ tintMode(it) }
 		}
 	}
 

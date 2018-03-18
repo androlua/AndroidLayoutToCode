@@ -9,7 +9,7 @@ import com.cz.layout2code.inflate.resource
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------TimePicker all attributes---------------
+ * ---------------TimePicker all expressions---------------
  * @attr ref android.R.styleable#TimePicker_timePickerMode
  *
  */

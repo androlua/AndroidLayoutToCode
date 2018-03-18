@@ -67,7 +67,7 @@ class ExplodedAarAnalyzer(val file:PsiFile?):Analyzer<MutableList<DefineViewNode
                     if(null!=classesJar&&
                             null!=manifest&&
                             null!=resourceFolder&&
-                            0<resourceFolder.children.size){
+                            resourceFolder.children.isNotEmpty()){
                         //1:获取manifest内配置package
                         var document= SAXBuilder().build(File(manifest.path))
                         val packageName=document.rootElement.getAttributeValue("package")

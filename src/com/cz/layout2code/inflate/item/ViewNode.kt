@@ -1,5 +1,8 @@
 package com.cz.layout2code.inflate.item
 
+import com.cz.layout2code.inflate.expression.value.UnknownAttributeExpression
+import com.cz.layout2code.inflate.expression.value.ElementExpression
+
 /**
  * Created by cz on 2018/2/1.
  * xml节点信息
@@ -36,6 +39,19 @@ class ViewNode(val name:String,val level:Int){
         }
     }
 
+    /**
+     * 获取控件节点内,未使用的属性
+     */
+    fun getUnknownAttributeExpressions():MutableList<ElementExpression>{
+        //未应用属性
+        val unknownExpressions = mutableListOf<ElementExpression>()
+        val uselessAttributes = attributes.filter { !it.isApply }
+        uselessAttributes.forEach {
+            //添加未知属性转换器
+            unknownExpressions.add(UnknownAttributeExpression(it.name, it.value))
+        }
+        return unknownExpressions
+    }
 
     override fun toString()=name
 }

@@ -1,13 +1,17 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
+import com.cz.layout2code.inflate.expression.AttributeMethodExpression
+import com.cz.layout2code.inflate.expression.AttributeMethodMultiParamsExpression
+import com.cz.layout2code.inflate.expression.value.*
+import com.cz.layout2code.inflate.item.ImportItem
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
-import org.jdom.Element
+
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------TextView all attributes---------------
+ * ---------------TextView all expressions---------------
  * @attr ref android.R.styleable#TextView_text
  * @attr ref android.R.styleable#TextView_bufferType
  * @attr ref android.R.styleable#TextView_hint
@@ -92,9 +96,7 @@ open class TextView : View() {
 		attribute{
 			field = "autoLink"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.text.util.Linkify")
-			kotlinMethod { "autoLinkMask = ${autoLink(it)}" }
-			javaMethod{ "setAutoLinkMask(${autoLink(it)})" }
+			property("autoLinkMask"){ autoLink(it)}
 		}
 		uselessAttribute("autoSizeTextType")
 		uselessAttribute("autoSizeMaxTextSize")
@@ -106,18 +108,16 @@ open class TextView : View() {
 		attribute{
 			field = "breakStrategy"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.text.Layout")
 			sdk=23
-			kotlinMethod { "breakStrategy = ${breakStrategy(it)}" }
-			javaMethod{ "setBreakStrategy(${breakStrategy(it)})" }
+			property("breakStrategy"){ breakStrategy(it)}
 		}
 
 		attribute{
 			field = "bufferType"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.widget.TextView.BufferType")
-			kotlinMethod { "setText(text, ${bufferType(it)})" }
-			javaMethod{ "setText(text, ${bufferType(it)})" }
+			methods("setText"){
+				mutableListOf(StringValueExpression("text"),bufferType(it))
+			}
 		}
 		uselessAttribute("capitalize")
 		uselessAttribute("editable")
@@ -125,8 +125,11 @@ open class TextView : View() {
 		attribute{
 			field = "cursorVisible"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isCursorVisible = ${bool(it)}" }
-			javaMethod{ "setCursorVisible(${bool(it)})" }
+			property {
+				java="isCursorVisible"
+				kotlin="isCursorVisible"
+				value { bool(it) }
+			}
 		}
 
 		uselessAttribute("digits")
@@ -135,8 +138,7 @@ open class TextView : View() {
 		attribute{
 			field = "drawablePadding"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "compoundDrawablePadding = ${dimen(it)}" }
-			javaMethod{ "setCompoundDrawablePadding(${dimen(it)})" }
+			property("compoundDrawablePadding"){ dimen(it) }
 		}
 		uselessAttribute("drawableStart")
 		uselessAttribute("drawableEnd")
@@ -200,16 +202,13 @@ open class TextView : View() {
 		attribute{
 			field = "drawableTint"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "setCompoundDrawableTintList(${colorStateList(it)})" }
-			javaMethod{ "setCompoundDrawableTintList(${colorStateList(it)})" }
+			method("setCompoundDrawableTintList"){colorStateList(it)}
 		}
 		attribute{
 			field = "drawableTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=23
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "compoundDrawableTintMode = ${tintMode(it)}" }
-			javaMethod{ "setCompoundDrawableTintMode(${tintMode(it)})" }
+			property("compoundDrawableTintMode"){tintMode(it)}
 		}
 
 		uselessAttribute("editorExtras")
@@ -218,254 +217,222 @@ open class TextView : View() {
 			field = "elegantTextHeight"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			sdk=21
-			kotlinMethod { "setElegantTextHeight${bool(it)}" }
-			javaMethod{ "setElegantTextHeight${bool(it)}" }
+			method("setElegantTextHeight"){bool(it)}
 		}
 		attribute{
 			field = "ellipsize"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.text.TextUtils")
-			kotlinMethod { "ellipsize = ${ellipsize(it)}" }
-			javaMethod{ "setEllipsize(${ellipsize(it)})" }
+			property("ellipsize"){ellipsize(it)}
 		}
 		attribute{
 			field = "ems"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "setEms(${int(it)})" }
-			javaMethod{ "setEms(${int(it)})" }
+			method("setEms"){int(it)}
 		}
 
 		attribute{
 			field = "enabled"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isEnabled = ${bool(it)}" }
-			javaMethod{ "setEnabled(${bool(it)})" }
+			property {
+				java="setEnabled"
+				kotlin="isEnabled"
+				value { bool(it) }
+			}
 		}
 		uselessAttribute("fontFamily")
 		attribute{
 			field = "fontFeatureSettings"
 			attrType = arrayOf(AttrType.STRING)
 			sdk=21
-			kotlinMethod { "fontFeatureSettings = ${string(it)}" }
-			javaMethod{ "setFontFeatureSettings(${string(it)})" }
+			property("fontFeatureSettings"){string(it)}
 		}
 		attribute{
 			field = "freezesText"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "freezesText = ${bool(it)}" }
-			javaMethod{ "setFreezesText(${bool(it)})" }
+			property("freezesText"){bool(it)}
 		}
 		attribute{
 			field = "gravity"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.view.Gravity")
-			kotlinMethod { "gravity = ${gravity(it)}" }
-			javaMethod{ "setGravity(${gravity(it)})" }
+			property("gravity"){gravity(it)}
 		}
 		attribute{
 			field = "height"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "height = ${dimen(it)}" }
-			javaMethod{ "setHeight(${dimen(it)})" }
+			property("height"){dimen(it)}
 		}
 		attribute{
 			field = "hint"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "hint = ${string(it)}" }
-			javaMethod{ "setHint(${string(it)})" }
+			property("hint"){string(it)}
 		}
 		attribute{
 			field = "hyphenationFrequency"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.text.Layout")
 			sdk=23
-			kotlinMethod { "hyphenationFrequency = ${hyphenationFrequency(it)}" }
-			javaMethod{ "setHyphenationFrequency(${hyphenationFrequency(it)})" }
+			property("hyphenationFrequency"){hyphenationFrequency(it)}
 		}
 		uselessAttribute("imeActionId")
 		uselessAttribute("imeActionLabel")
 		attribute{
 			field = "imeOptions"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.view.inputmethod.EditorInfo")
-			kotlinMethod { "imeOptions = ${imeOptions(it)}" }
-			javaMethod{ "setImeOptions(${imeOptions(it)})" }
+			property("imeOptions"){imeOptions(it)}
 		}
 		attribute{
 			field = "includeFontPadding"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "includeFontPadding = ${bool(it)}" }
-			javaMethod{ "setIncludeFontPadding(${bool(it)})" }
+			property("includeFontPadding"){bool(it)}
 		}
 		attribute{
 			field = "inputType"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.text.InputType")
-			kotlinMethod { "inputType = ${inputType(it)}" }
-			javaMethod{ "setInputType(${inputType(it)})" }
+			property("inputType"){inputType(it)}
 		}
 		attribute{
 			field = "justificationMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=26
-			importList= arrayOf("android.text.Layout")
-			kotlinMethod { "justificationMode = ${justificationMode(it)}" }
-			javaMethod{ "setJustificationMode(${justificationMode(it)})" }
+			property("justificationMode"){justificationMode(it)}
 		}
 		attribute{
 			field = "letterSpacing"
 			attrType = arrayOf(AttrType.FLOAT)
 			sdk=21
-			kotlinMethod { "letterSpacing = ${float(it)}" }
-			javaMethod{ "setLetterSpacing(${float(it)})" }
+			property("letterSpacing"){float(it)}
 		}
 		uselessAttribute("lineSpacingExtra")
 		uselessAttribute("lineSpacingMultiplier")
 		attribute{
 			field = "lines"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "lines = ${int(it)}" }
-			javaMethod{ "setLines(${int(it)})" }
+			property("lines"){int(it)}
 		}
 		attribute{
 			field = "linksClickable"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "linksClickable = ${bool(it)}" }
-			javaMethod{ "setLinksClickable(${bool(it)})" }
+			property("linksClickable"){bool(it)}
 		}
 		attribute{
 			field = "marqueeRepeatLimit"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "marqueeRepeatLimit = ${int(it)}" }
-			javaMethod{ "setMarqueeRepeatLimit(${int(it)})" }
+			property("marqueeRepeatLimit"){int(it)}
 		}
 		attribute{
 			field = "maxEms"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "maxEms = ${int(it)}" }
-			javaMethod{ "setMaxEms(${int(it)})" }
+			property("maxEms"){int(it)}
 		}
 
 		attribute{
 			field = "maxHeight"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "maxHeight = ${dimen(it)}" }
-			javaMethod{ "setMaxHeight(${dimen(it)})" }
+			property("maxHeight"){dimen(it)}
 		}
 		attribute{
 			field = "maxLength"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "setFilters(filters = arrayOf<InputFilter>(InputFilter.LengthFilter(${int(it)}))" }
-			javaMethod{ "textView.setFilters(new InputFilter[]{new InputFilter.LengthFilter((${int(it)})})" }
+			expression {
+				import { mutableListOf(ImportItem("android.text.InputFilter")) }
+				javaExpression { matcher,value->
+					"setFilters(new InputFilter[]{new InputFilter.LengthFilter((${int(value).getJavaExpression(matcher)})})"
+				}
+				kotlinExpression { matcher,value->
+					"setFilters(filters = arrayOf<InputFilter>(InputFilter.LengthFilter(${int(value).getKotlinExpression(matcher)}))"
+				}
+			}
 		}
 		attribute{
 			field = "maxLines"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "maxLines = ${int(it)}" }
-			javaMethod{ "setMaxLines(${int(it)})" }
+			property("maxLines"){int(it)}
 		}
 		attribute{
 			field = "maxWidth"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "maxWidth = ${dimen(it)}" }
-			javaMethod{ "setMaxWidth(${dimen(it)})" }
+			property("maxWidth"){dimen(it)}
 		}
 		attribute{
 			field = "minEms"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "minEms = ${int(it)}" }
-			javaMethod{ "setMinEms(${int(it)})" }
+			property("minEms"){int(it)}
 		}
 		attribute{
 			field = "minHeight"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "minHeight = ${dimen(it)}" }
-			javaMethod{ "setMinHeight(${dimen(it)})" }
+			property("minHeight"){dimen(it)}
 		}
 		attribute{
 			field = "minLines"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "minLines = ${int(it)}" }
-			javaMethod{ "setMinLines(${int(it)})" }
+			property("minLines"){int(it)}
 		}
 		attribute{
 			field = "minWidth"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "minWidth = ${dimen(it)}" }
-			javaMethod{ "setMinWidth(${dimen(it)})" }
+			property("minWidth"){dimen(it)}
 		}
 		uselessAttribute("numeric")
 		uselessAttribute("password")
 		attribute{
 			field = "privateImeOptions"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "privateImeOptions = ${string(it)}" }
-			javaMethod{ "setPrivateImeOptions(${string(it)})" }
+			property("privateImeOptions"){string(it)}
 		}
 
 		attribute{
 			field = "scrollHorizontally"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "setHorizontallyScrolling(${bool(it)})" }
-			javaMethod{ "setHorizontallyScrolling(${bool(it)})" }
+			method("setHorizontallyScrolling"){bool(it)}
 		}
 
 		attribute{
 			field = "selectAllOnFocus"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "setSelectAllOnFocus(${bool(it)})" }
-			javaMethod{ "setSelectAllOnFocus(${bool(it)})" }
+			method("setSelectAllOnFocus"){bool(it)}
 		}
 
 		attribute{
 			field = "singleLine"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "singleLine = ${bool(it)}" }
-			javaMethod{ "setSingleLine(${bool(it)})" }
+			property("singleLine"){bool(it)}
 		}
 
 		attribute{
 			field = "text"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod { "text = ${string(it)}" }
-			javaMethod{ "setText(${string(it)})" }
+			property("text"){string(it)}
 		}
 		attribute{
 			field = "textAllCaps"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "setAllCaps(${bool(it)})" }
-			javaMethod{ "setAllCaps(${bool(it)})" }
+			method("setAllCaps"){bool(it)}
 		}
 		attribute{
 			field = "textAppearance"
 			attrType = arrayOf(AttrType.REFERENCE)
 			sdk=23
-			kotlinMethod { "setTextAppearance({resource(it)})" }
-			javaMethod{ "setTextAppearance(${resource(it)})" }
+			method("setTextAppearance"){resource(it)}
 		}
 		attribute{
 			field = "textColor"
 			attrType = arrayOf(AttrType.REFERENCE, AttrType.COLOR)
-			kotlinMethod { "textColor = ${color(it)}" }
-			javaMethod{ "setTextColor(${color(it)}" }
+			property("textColor"){color(it)}
 		}
 		attribute{
 			field = "textColorHighlight"
 			attrType = arrayOf(AttrType.REFERENCE, AttrType.COLOR)
-			kotlinMethod { "highlightColor = ${color(it)}" }
-			javaMethod{ "setHighlightColor(${color(it)})" }
+			property("highlightColor"){color(it)}
 		}
 		attribute{
 			field = "textColorHint"
 			attrType = arrayOf(AttrType.REFERENCE, AttrType.COLOR)
-			kotlinMethod { "setHintTextColor(${color(it)})" }
-			javaMethod{ "setHintTextColor(${color(it)})" }
+			method("setHintTextColor"){color(it)}
 		}
 		attribute{
 			field = "textColorLink"
 			attrType = arrayOf(AttrType.REFERENCE, AttrType.COLOR)
-			kotlinMethod { "setLinkTextColor(${color(it)})" }
-			javaMethod{ "setLinkTextColor(${color(it)})" }
+			method("setLinkTextColor"){color(it)}
 		}
 		uselessAttribute("textCursorDrawable")
 		uselessAttribute("textEditNoPasteWindowLayout")
@@ -479,14 +446,12 @@ open class TextView : View() {
 		attribute{
 			field = "textIsSelectable"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "setTextIsSelectable(${bool(it)})" }
-			javaMethod{ "setTextIsSelectable(${bool(it)})" }
+			method("setTextIsSelectable"){color(it)}
 		}
 		attribute{
 			field = "textScaleX"
 			attrType = arrayOf(AttrType.FLOAT)
-			kotlinMethod { "textScaleX = ${float(it)}" }
-			javaMethod{ "setTextScaleX(${float(it)})" }
+			property("textScaleX"){float(it)}
 		}
 		uselessAttribute("textSelectHandle")
 		uselessAttribute("textSelectHandleLeft")
@@ -494,28 +459,24 @@ open class TextView : View() {
 		attribute{
 			field = "textSize"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "textSize = ${dimen(it)}" }
-			javaMethod{ "setTextSize(${dimen(it)})" }
+			property("textSize"){dimen(it)}
 		}
 		attribute{
 			field = "textStyle"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.graphics.Typeface")
-			kotlinMethod { "setTypeface(typeface, ${textStyle(it)})" }
-			javaMethod{ "setTypeface(typeface, ${textStyle(it)})" }
+			methods("setTypeface"){
+				mutableListOf(ClassFieldExpression("typeface"),textStyle(it))
+			}
 		}
 		attribute{
 			field = "typeface"
 			attrType = arrayOf(AttrType.FLAG)
-			importList= arrayOf("android.graphics.Typeface")
-			kotlinMethod { "typeface = ${typeface(it)}" }
-			javaMethod{ "setTypeface(${typeface(it)})" }
+			property("typeface"){typeface(it)}
 		}
 		attribute{
 			field = "width"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "width = ${dimen(it)}" }
-			javaMethod{ "setWidth(${dimen(it)})" }
+			property("width"){dimen(it)}
 		}
 	}
 	/**
@@ -545,11 +506,14 @@ open class TextView : View() {
 		applyAttributes(shadowRadius,shadowColor,shadowDx,shadowDy)
 
 		if (null != shadowColor || null != shadowDx || null != shadowDy || null != shadowRadius) {
-			addMultiAttributeItems("setShadowLayer",
-					if (null == shadowRadius) "0f" else float(shadowRadius.value),
-					if (null == shadowDx) "0f" else float(shadowDx.value),
-					if (null == shadowDy) "0f" else float(shadowDy.value),
-					if (null == shadowColor) "0" else int(shadowColor.value))
+			val expression= AttributeMethodMultiParamsExpression("setShadowLayer"){
+				mutableListOf(if (null == shadowRadius) StringValueExpression("0f") else float(shadowRadius.value))
+				mutableListOf(expression(shadowRadius?.value, FloatFieldExpression("0")){ float(it) },
+						expression(shadowDx?.value, FloatFieldExpression("0")){ float(it) },
+						expression(shadowDy?.value, FloatFieldExpression("0")){ float(it) },
+						expression(shadowColor?.value, FloatFieldExpression("0")){ float(it) })
+			}
+			expressions.add(expression)
 		}
 	}
 
@@ -562,12 +526,18 @@ open class TextView : View() {
 		applyAttributes(drawableLeft,drawableTop,drawableRight,drawableBottom)
 		//添加属性
 		if (null != drawableLeft || null != drawableTop || null != drawableRight || null != drawableBottom) {
-			addMultiAttributeItems("setCompoundDrawablesWithIntrinsicBounds",
-					if (null == drawableLeft) "0" else resourceRef(drawableLeft.value),
-					if (null == drawableTop) "0" else resourceRef(drawableTop.value),
-					if (null == drawableRight) "0" else resourceRef(drawableRight.value),
-					if (null == drawableBottom) "0" else resourceRef(drawableBottom.value))
+			val expression=AttributeMethodMultiParamsExpression("setCompoundDrawablesWithIntrinsicBounds"){
+				mutableListOf(expression(drawableLeft?.value,IntFieldExpression("0")){ resourceRef(it) },
+						expression(drawableTop?.value,IntFieldExpression("0")){ resourceRef(it) },
+						expression(drawableRight?.value,IntFieldExpression("0")){ resourceRef(it) },
+						expression(drawableBottom?.value,IntFieldExpression("0")){ resourceRef(it) })
+			}
+			expressions.add(expression)
 		}
 	}
+
+	private inline fun expression(value:String?,
+								  default:ElementExpression,
+								  action:(String)->ElementExpression):ElementExpression=if(null!=value) action(value) else default
 
 }

@@ -1,32 +1,84 @@
 package com.cz.layout2code.inflate.prefs
 
+import com.cz.layout2code.inflate.expression.*
+import com.cz.layout2code.inflate.expression.value.ElementExpression
+
 /**
  * Created by cz on 2017/12/25.
  */
 class AttributeStyle {
     //属性字段名称
     lateinit var field:String
-    //需要导入包
-    var importList:Array<String>?=null
     //属性分类
     var attrType=arrayOf(AttrType.REFERENCE)
     //最低版本
     var sdk=0
     //是否要以被转换,有些属性是完全内部封装,无法转换
     var convert=true
-    //取值转换
-    internal var kotlinCallback:((String)->String)?=null
-    internal var javaCallback:((String)->String)?=null
+    //注释信息
+    internal var commentCallback:((String)->String)?=null
+
+    lateinit var expression:AttributeExpression
+
     /**
-     * 转换配置取值
+     * 属性注释信息
      */
-    fun kotlinMethod(callback:(String)->String){
-        this.kotlinCallback=callback
+    fun comment(commentCallback:(String)->String){
+        this.commentCallback=commentCallback
     }
-    /**
-     * 转换配置取值
-     */
-    fun javaMethod(callback:(String)->String){
-        this.javaCallback=callback
+
+    fun allProperty(property:String,value:((String)->ElementExpression)){
+        expression =AttributeAllPropertyExpression(property,value)
+    }
+
+    fun property(action:PropertyItem.()->Unit){
+        //记录自定义表达式
+        val propertyItem = PropertyItem().apply(action)
+        expression =AttributePropertyExpression(propertyItem.property,propertyItem.value)
+    }
+
+    fun property(property:String,value:((String)->ElementExpression)){
+        //记录自定义表达式
+        val propertyItem = PropertyItem()
+        propertyItem.property=property
+        propertyItem.value=value
+        expression =AttributePropertyExpression(propertyItem.property,propertyItem.value)
+    }
+
+    fun method(action:MethodItem.()->Unit){
+        val methodItem = MethodItem().apply(action)
+        expression =AttributeMethodExpression(methodItem.method,methodItem.value)
+    }
+
+    fun method(method:String,value:((String)->ElementExpression)){
+        expression =AttributeMethodExpression(method,value)
+    }
+
+    fun methods(method:String,value:((String)->MutableList<ElementExpression>)){
+        expression =AttributeMethodMultiParamsExpression(method,value)
+    }
+
+    fun expression(item:AttributeContentExpression.()->Unit){
+        expression=AttributeContentExpression().apply(item)
+    }
+
+    class PropertyItem {
+        internal lateinit var property:String
+        internal lateinit var java:String
+        internal lateinit var kotlin:String
+        internal lateinit var value:((String)->ElementExpression)
+
+        fun value(callback:(String)->ElementExpression){
+            this.value=callback
+        }
+    }
+
+    class MethodItem {
+        internal lateinit var method:String
+        internal lateinit var value:((String)->ElementExpression)
+
+        fun value(callback:(String)->ElementExpression){
+            this.value=callback
+        }
     }
 }

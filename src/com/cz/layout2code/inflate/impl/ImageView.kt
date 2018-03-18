@@ -8,7 +8,7 @@ import com.cz.layout2code.inflate.prefs.AttrType
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------ImageView all attributes---------------
+ * ---------------ImageView all expressions---------------
  * @attr ref android.R.styleable#ImageView_adjustViewBounds
  * @attr ref android.R.styleable#ImageView_src
  * @attr ref android.R.styleable#ImageView_maxWidth
@@ -23,71 +23,63 @@ open class ImageView : View() {
 		attribute{
 			field = "src"
 			attrType = arrayOf(AttrType.REFERENCE, AttrType.COLOR)
-			kotlinMethod { "setImageResource(${resourceRef(it)})" }
-			javaMethod{ "setImageResource(${resourceRef(it)})" }
+			method("setImageResource"){ resourceRef(it) }
 		}
 		attribute{
 			field = "scaleType"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "scaleType = ${scaleType(it)}" }
-			javaMethod{ "setScaleType(${scaleType(it)})" }
+			property("scaleType") { scaleType(it) }
 		}
 		attribute{
 			field = "adjustViewBounds"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "adjustViewBounds = ${bool(it)}" }
-			javaMethod{ "setAdjustViewBounds(${bool(it)})" }
+			property("adjustViewBounds") { bool(it) }
 		}
 		attribute{
 			field = "maxWidth"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "maxWidth = ${dimen(it)}" }
-			javaMethod{ "setMaxWidth(${dimen(it)})" }
+			property("maxWidth") { dimen(it) }
 		}
 		attribute{
 			field = "maxHeight"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "maxHeight = ${dimen(it)}" }
-			javaMethod{ "setMaxHeight(${dimen(it)})" }
+			property("maxHeight") { dimen(it) }
 		}
 		attribute{
 			field = "tint"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "setImageTintList(${colorStateList(it)})" }
-			javaMethod{ "setImageTintList(${colorStateList(it)})" }
+			method("setImageTintList") { colorStateList(it) }
 		}
 		attribute{
 			field = "baselineAlignBottom"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "baselineAlignBottom = ${bool(it)}" }
-			javaMethod{ "setBaselineAlignBottom(${bool(it)})" }
+			property("baselineAlignBottom") { bool(it) }
 		}
 		attribute{
 			field = "cropToPadding"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			sdk=16
-			kotlinMethod { "cropToPadding = ${bool(it)}" }
-			javaMethod{ "setCropToPadding(${bool(it)})" }
+			property("cropToPadding") { bool(it) }
 		}
 		attribute{
 			field = "baseline"
 			attrType = arrayOf(AttrType.DIMENSION)
-			kotlinMethod { "baseline = ${dimen(it)}" }
-			javaMethod{ "setBaseline(${dimen(it)})" }
+			property("baseline") { dimen(it) }
 		}
 		attribute{
 			field = "drawableAlpha"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "setImageAlpha(${int(it)})" }
-			javaMethod{ "setImageAlpha(${int(it)})" }
+			method("setImageAlpha") { int(it) }
 		}
 		attribute{
 			field = "tintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=21
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "imageTintMode = ${tintMode(it)}" }
-			javaMethod{ "setTintMode(${tintMode(it)})" }
+			property {
+				java="setTintMode"
+				kotlin="imageTintMode"
+				value { tintMode(it) }
+			}
 		}
 	}
 

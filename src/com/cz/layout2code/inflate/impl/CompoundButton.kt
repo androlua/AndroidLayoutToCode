@@ -11,28 +11,23 @@ open class CompoundButton : Button() {
 		attribute{
 			field = "checked"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "checked = ${bool(it)}" }
-			javaMethod{ "setChecked(${bool(it)})" }
+			property("checked") {bool(it)}
 		}
 		attribute{
 			field = "button"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "setButtonDrawable(${resourceRef(it)})" }
-			javaMethod{ "setButtonDrawable(${resourceRef(it)})" }
+			method("setButtonDrawable"){ resourceRef(it) }
 		}
 		attribute{
 			field = "buttonTint"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "setButtonTintList(${colorStateList(it)})" }
-			javaMethod{ "setButtonTintList(${colorStateList(it)})" }
+			method("setButtonTintList"){ colorStateList(it) }
 		}
 		attribute{
 			field = "buttonTintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=21
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "setButtonTintMode(${tintMode(it)})" }
-			javaMethod{ "setButtonTintMode(${tintMode(it)})" }
+			method("setButtonTintMode"){ tintMode(it) }
 		}
 	}
 

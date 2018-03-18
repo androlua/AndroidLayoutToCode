@@ -4,149 +4,255 @@ import com.cz.convert.isActivity
 import com.cz.convert.isDialog
 import com.cz.convert.isFragment
 import com.cz.convert.isView
-import com.cz.layout2code.analysis.ExplodedAarAnalyzer
-import com.cz.layout2code.analysis.ModuleAnalyzer
-import com.cz.layout2code.config.DeclareStyleableConfiguration
-import com.cz.layout2code.config.WidgetConfiguration
 import com.cz.layout2code.delegate.MessageDelegate
-import com.cz.layout2code.form.UnknownWidgetForm
-import com.cz.layout2code.inflate.AndroidLayoutInflater
 import com.cz.layout2code.inflate.item.AttributeNode
 import com.cz.layout2code.inflate.item.DefineViewNode
 import com.cz.layout2code.inflate.item.ViewNode
-import com.cz.layout2code.util.TextCalculation
+import com.cz.layout2code.matcher.*
 import com.cz.layout2code.util.Utils
 import com.intellij.codeInsight.CodeInsightActionHandler
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction
-import com.intellij.compiler.ant.taskdefs.Jar
-import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.actionSystem.PlatformDataKeys
-import com.intellij.psi.search.FilenameIndex
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiUtilBase
 import org.jdom.Element
-import org.jdom.input.SAXBuilder
-import org.jetbrains.kotlin.psi.KtFile
-import java.io.File
 import com.intellij.openapi.actionSystem.DataKeys
-import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.module.ModuleUtil
-import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.*
-import com.intellij.psi.impl.compiled.ClsClassImpl
-import org.jetbrains.kotlin.idea.caches.JarUserDataManager
-import org.jetbrains.kotlin.idea.caches.resolve.getNullableModuleInfo
-import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.KtLightClassForDecompiledDeclaration
-import org.jetbrains.kotlin.idea.configuration.externalProjectPath
-import org.jetbrains.kotlin.idea.refactoring.getLineNumber
-import org.jetbrains.kotlin.idea.util.projectStructure.allModules
-import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
-import org.jetbrains.kotlin.psi.moduleInfo
-import sun.tools.jconsole.LabeledComponent.layout
-import com.cz.layout2code.inflate.impl.FrameLayout
-import com.cz.layout2code.inflate.impl.RelativeLayout
-import com.intellij.psi.impl.PsiClassImplUtil
-import com.intellij.psi.impl.source.tree.java.PsiReferenceExpressionImpl
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.refactoring.RefactoringFactory
-import com.intellij.util.Query
-import org.jetbrains.kotlin.j2k.getContainingClass
-import java.util.regex.Pattern
+import org.jdom.input.SAXBuilder
+import java.io.File
 
 
 /**
  * Created by cz on 2017/12/14.
  * 布局转换代码的事件执行体
+ *
+ *
+ * 以下问题暂无法解决.kotlin转anko的模块暂停,但原型己出,只是缺少kotlin plugin的api支持
+ *
+ * 以下为kotlin plugin版本异常问题.暂时没找到解决方案
+ * Assertion failed: Duplicate bundled template Gradle Kotlin DSL Build Script.gradle [jar:file:/Applications/IntelliJ%20IDEA.app/Contents/plugins/Kotlin/lib/kotlin-plugin.jar!/fileTemplates/Gradle Kotlin DSL Build Script.gradle.ft, jar:file:/Applications/IntelliJ%20IDEA.app/Contents/lib/kotlin-plugin.jar!/fileTemplates/Gradle Kotlin DSL Build Script.gradle.ft]
+ * java.lang.Throwable: Assertion failed: Duplicate bundled template Gradle Kotlin DSL Build Script.gradle [jar:file:/Applications/IntelliJ%20IDEA.app/Contents/plugins/Kotlin/lib/kotlin-plugin.jar!/fileTemplates/Gradle Kotlin DSL Build Script.gradle.ft, jar:file:/Applications/IntelliJ%20IDEA.app/Contents/lib/kotlin-plugin.jar!/fileTemplates/Gradle Kotlin DSL Build Script.gradle.ft]
+ *
+ *
+ * idea 在开启两个不同的类加载器,导致同样的对象,无法作类型判断,无法强转.
+ * java.lang.ClassCastException: org.jetbrains.kotlin.psi.KtFile cannot be cast to org.jetbrains.kotlin.psi.KtFile
  */
-class LayoutConvertAction(handler: CodeInsightActionHandler?) : BaseGenerateAction(handler) {
+public class LayoutConvertAction : BaseGenerateAction {
     val defineWidgetAttrs= mutableListOf<DefineViewNode>()
 
-//    override fun isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean {
-//        return super.isValidForFile(project, editor, file) &&null!=Utils.getLayoutFileFromCaret(editor, file)
-//    }
+    constructor() : super(null)
+    constructor(handler: CodeInsightActionHandler?) : super(handler)
+
+    override fun update(event: AnActionEvent) {
+        super.update(event)
+        val dataContext = event.dataContext
+        val project = DataKeys.PROJECT.getData(dataContext)
+        val editor = event.getData(PlatformDataKeys.EDITOR)
+        if(null!=project&&null!=editor) {
+            val file = PsiUtilBase.getPsiFileInEditor(editor, project)
+            event.presentation.isEnabled=null!=Utils.getLayoutFileFromCaret(editor, file)
+        }
+    }
 
     override fun actionPerformed(event: AnActionEvent) {
         val dataContext = event.dataContext
         val project = DataKeys.PROJECT.getData(dataContext)
         val editor = event.getData(PlatformDataKeys.EDITOR)
-        if(null!=project&&null!=editor){
+        if(null!=project&&null!=editor) {
             val file = PsiUtilBase.getPsiFileInEditor(editor, project)
+            val offset = editor.caretModel.offset
             val layout = Utils.getLayoutFileFromCaret(editor, file)
+            val virtualFile=layout?.virtualFile
+            val clazz = getTargetClass(editor, file)
+            if(file !is PsiJavaFile) {
+                //不是kt/java源码文件,转换无意义
+                MessageDelegate.showMessage("Not a source file!")
+            } else if(null==clazz){
+                MessageDelegate.showMessage("Class is invalid!")
+            } else if(null!=virtualFile){
+                //开始解析
+                val layoutFile = File(virtualFile.path)
+                val builder = SAXBuilder()//实例JDOM解析器
+                val document = builder.build(layoutFile)//读取xml文件
+                //递归解析所有节点,收集所有自定义控件
+                val parent = ViewNode("root", 0)
+                val customNodes = mutableListOf<ViewNode>()
+                parseElement(parent, document.rootElement, customNodes)
+                //确定场景匹配器,负责上下文,以及其他字段的特例化
+                val classMatcher:BaseClassMatcher
+                if(clazz.isActivity()){
+//                    setContent(contentView)
+                    classMatcher=ActivityClassMatcher()
+                } else if(clazz.isFragment()){
+//                    inflater.inflate()
+                    classMatcher= FragmentClassMatcher()
+                } else if(clazz.isDialog()){
+//                    setContent(contentView)
+                    classMatcher= DialogClassMatcher()
+                } else if(clazz.isView()){
+//                    inflate(context,R.layout.activity_main,this)
+                    classMatcher= ViewClassMatcher()
+                } else {
+                    //其他
+//                    inflate(context,R.layout.activity_main,this)
+                    classMatcher= OtherClassMatcher()
+                }
 
-            //采集所有第三方库,与当前项目内的控件属性声明
-//            val defineWidgetAttrs=defineWidgetAttrs
-//            if (defineWidgetAttrs.isEmpty()) {
-//                //引用库
-//                defineWidgetAttrs += ExplodedAarAnalyzer(file).analysis(project)
-//                //当前项目内控件
-//                defineWidgetAttrs += ModuleAnalyzer(file).analysis(project)
-//            }
-            //不做文件字节码判断,因为判断比直接检索更耗时,己测试,性能相差近30倍,直接操作500毫秒,判断操作time:14842
-//            if(file !is PsiJavaFile && file !is KtFile){
+            }
+        }
+    }
+//    override fun isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean {
+//        return super.isValidForFile(project, editor, file) &&null!=Utils.getLayoutFileFromCaret(editor, file)
+//    }
+
+//    override fun actionPerformed(event: AnActionEvent)  {
+//        val dataContext = event.dataContext
+//        val project = DataKeys.PROJECT.getData(dataContext)
+//        val editor = event.getData(PlatformDataKeys.EDITOR)
+//        if(null!=project&&null!=editor){
+//            val file = PsiUtilBase.getPsiFileInEditor(editor, project)
+//            val offset = editor.caretModel.offset
+//            val element = file?.findElementAt(offset)
+//            val layout = Utils.getLayoutFileFromCaret(editor, file)
+//            //采集所有第三方库,与当前项目内的控件属性声明
+////            val defineWidgetAttrs=defineWidgetAttrs
+////            if (defineWidgetAttrs.isEmpty()) {
+////                //引用库
+////                defineWidgetAttrs += ExplodedAarAnalyzer(file).analysis(project)
+////                //当前项目内控件
+////                defineWidgetAttrs += ModuleAnalyzer(file).analysis(project)
+////            }
+//            //不做文件字节码判断,因为判断比直接检索更耗时,己测试,性能相差近30倍,直接操作500毫秒,判断操作time:14842
+//            val fileName=file?.name
+//            if(null==fileName||(!fileName.endsWith("kt")&&!fileName.endsWith("java"))){
 //                //不是kt/java源码文件,转换无意义
 //                MessageDelegate.showMessage("Not a Kotlin or Java source file!")
 //            } else {
-                if (layout == null) {
-                    MessageDelegate.showMessage("No layout found")
-                } else {
-                    if(null!=file){
-                        val candidate = file.findElementAt(editor.caretModel.offset - 1)
-                        var parent=candidate?.parent
-                        //当当前指针表达式,为一个调用方法时,中断
-                        while(null!=parent&&parent !is PsiMethodCallExpression){
-                            parent=parent?.parent
-                        }
-                        val text=parent?.text
-                        val clazz = getTargetClass(editor, file)
-                        if(null!=text&&null!=clazz){
-                            if(clazz.isActivity()){
-
-                            } else if(clazz.isFragment()){
-
-                            } else if(clazz.isDialog()){
-
-                            } else if(clazz.isView()){
-//                                inflate(context,R.layout.activity_main,this)
-                            } else {
-                                //其他
-                            }
-//                            setContentView(R.layout.activity_main)
-//                            val parentLayout = RelativeLayout(this)
-//                            val inflate1 = View.inflate(this, R.layout.activity_main, parentLayout)
-//                            val parentLayout1 = FrameLayout(this)
-//                            val inflate = LayoutInflater.from(this).inflate(R.layout.activity_main, parentLayout1, false)
-                            val matcher = ("(?<contentLayout>setContentView.+)|" +
-                                    "(inflate\\(\\w+,\\s*[\\w\\.]+,\\s*(?<viewInflate>\\w+)\\))|" +
-                                    "(inflate\\([\\w\\.]+,\\s*(?<inflate>\\w+),\\s*\\w+\\))").toPattern().matcher(text)
-                            var parentLayout:String?=null
-                            if(matcher.find()){
-                                parentLayout=matcher.group("contentLayout")?: matcher.group("viewInflate")?:matcher.group("inflate")
-                            }
-                            val findElement=parent?.children?.flatMap { it.children.toList() }?.find { parentLayout==it.text }
-                            if(null!=findElement){
-                                val reference = findElement.reference
-                                val search: Query<PsiReference> = ReferencesSearch.search(findElement)
-                                if(reference is PsiReferenceExpressionImpl){
-                                    println(reference?.qualifiedName)
-                                }
-                                if(findElement is PsiReferenceExpressionImpl){
-                                    println(findElement)
-                                }
-                            }
-                        }
-                    }
-                    MessageDelegate.logEventMessage("Layout found:${file?.name}")
-                    val virtualFile = layout.virtualFile
-                    if(null!=virtualFile&&null!=file){
-//                        AndroidLayoutInflater.inflater(project,file,virtualFile,defineWidgetAttrs,file is PsiJavaFile)
-                    }
-                }
+//                if (layout == null) {
+//                    MessageDelegate.showMessage("No layout found")
+//                } else {
+//                    val out=StringBuilder()
+//                    MessageDelegate.logEventMessage("Layout found:${file?.name}")
+//                    val virtualFile = layout.virtualFile
+//                    val clazz=file.getContainingClass()
+//                    if(null!=virtualFile&&null!=file){
+//                        //开始解析xml信息
+//                        if(virtualFile.exists()) {
+//                            val layoutFile = File(virtualFile.path)
+//                            val builder = SAXBuilder()//实例JDOM解析器
+//                            val document = builder.build(layoutFile)//读取xml文件
+//                            //1:递归解析所有节点,收集所有自定义控件
+//                            val parent = ViewNode("root", 0)
+//                            val customNodes = mutableListOf<ViewNode>()
+//                            parseElement(parent, document.rootElement, customNodes)
+//                            //2:生成方法体
+//                            if(file is PsiJavaFile){
+//                                out.append("private View getContentView(Context context){\n")
+//                                out.append("\tResources resources = getResources();\n")
+//                                val converter = JavaCodeConverter()
+//                                out.append(converter.convert(project,parent.children.first()))
+//                                out.append("}\n")
+//                            } else {
+////                                out.append("private fun getContentView(context:Context):View{\n")
+////                                out.append("\tval resources = getResources()\n")
+//                                val converter = KotlinCodeConverter()
+////                                out.append(converter.convert(project,parent.children.first()))
+////                                out.append("}\n")
+//                                println(converter.convert(project,parent.children.first()))
+//                            }
+//                        }
+//                    }
+//
+//                    if(null!=file){
+//                        val candidate = file.findElementAt(editor.caretModel.offset - 1)
+//                        val ktClassForElement = file.getKtClassForElement()
+//                        val containingClass = file.getContainingClass();
+//                        val method=candidate?.getContainingMethod()
+//                        var parent=candidate?.parent
+//                        //当当前指针表达式,为一个调用方法时,中断
+//                        while(null!=parent&&parent !is PsiMethodCallExpression&&
+//                                parent::class.java.name!=KtCallExpression::class.java.name){
+//                            parent=parent?.parent
+//                        }
+//                        val text=parent?.text
+//                        val containingMethod = parent?.getContainingMethod()
+//                        if(parent is KtCallExpression){
+//                        }
+//                        if(null!=containingMethod){
+//                            val factory = JavaPsiFacade.getElementFactory(project)
+//                            val generateMethod = factory.createMethodFromText(out.toString(), null)
+//                            WriteCommandAction.runWriteCommandAction(project){
+//                                clazz?.addAfter(generateMethod, containingMethod)
+//                            }
+//                        }
+//
+//                        println(containingMethod?.name)
+//                        if(null!=text&&null!=clazz){
+//                            if(clazz.isActivity()){
+//                                //将parent表达式替换
+//                            } else if(clazz.isFragment()){
+//
+//                            } else if(clazz.isDialog()){
+//
+//                            } else if(clazz.isView()){
+////                                inflate(context,R.layout.activity_main,this)
+//                            } else {
+//                                //其他
+//                            }
+////                            setContentView(R.layout.activity_main)
+////                            val parentLayout = RelativeLayout(this)
+////                            val inflate1 = View.inflate(this, R.layout.activity_main, parentLayout)
+////                            val parentLayout1 = FrameLayout(this)
+////                            val inflate = LayoutInflater.from(this).inflate(R.layout.activity_main, parentLayout1, false)
+//                            val matcher = ("(?<contentLayout>setContentView.+)|" +
+//                                    "(inflate\\(\\w+,\\s*[\\w\\.]+,\\s*(?<viewInflate>\\w+)\\))|" +
+//                                    "(inflate\\([\\w\\.]+,\\s*(?<inflate>\\w+),\\s*\\w+\\))").toPattern().matcher(text)
+//                            var parentLayout:String?=null
+//                            if(matcher.find()){
+//                                if(null!=matcher.group("contentLayout")){
+//
+//                                } else if(null!=matcher.group("viewInflate")||null!=matcher.group("inflate")){
+//
+//                                }
+//                            }
+//                            val findElement=parent?.children?.flatMap { it.children.toList() }?.find { parentLayout==it.text }
+//                            if(null!=findElement){
+//                                val reference = findElement.reference
+//                                val search: Query<PsiReference> = ReferencesSearch.search(findElement)
+//                                if(reference is PsiReferenceExpressionImpl){
+//                                    println(reference?.qualifiedName)
+//                                }
+//                                if(findElement is PsiReferenceExpressionImpl){
+//                                    println(findElement)
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
 //            }
+//
+//        }
+//    }
 
+    /**
+     * 解析子节点
+     */
+    private fun parseElement(parent: ViewNode, element: Element, customNodes:MutableList<ViewNode>){
+        val node= ViewNode(element.name,parent.level+1)
+        //记录父节点
+        node.parent=parent
+        //父节点记录子节点
+        parent.children.add(node)
+        //记录自定义控件
+        if(node.isCustomView){
+            customNodes.add(node)
         }
+        //记录所有引用
+        element.attributes.forEach {
+            node.attributes.add(AttributeNode(it.namespacePrefix,it.name,it.value))
+        }
+        //记录所有子孩子
+        element.children.forEach { parseElement(node,it,customNodes) }
     }
 
 }

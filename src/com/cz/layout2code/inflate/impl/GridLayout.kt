@@ -8,7 +8,7 @@ import com.cz.layout2code.inflate.prefs.AttrType
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------GridLayout all attributes---------------
+ * ---------------GridLayout all expressions---------------
  * @attr ref android.R.styleable#GridLayout_orientation
  * @attr ref android.R.styleable#GridLayout_rowCount
  * @attr ref android.R.styleable#GridLayout_columnCount
@@ -22,44 +22,45 @@ open class GridLayout : ViewGroup() {
 		attribute{
 			field = "orientation"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "orientation = ${orientation(GridLayout::class.java.simpleName,it)}" }
-			javaMethod{ "setOrientation(${orientation(GridLayout::class.java.simpleName,it)})" }
+			property("orientation") { gridLayoutOrientation(it) }
 		}
 		attribute{
 			field = "rowCount"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "rowCount = ${int(it)}" }
-			javaMethod{ "setRowCount(${int(it)})" }
+			property("rowCount") { int(it) }
 		}
 		attribute{
 			field = "columnCount"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "columnCount = ${int(it)}" }
-			javaMethod{ "setColumnCount(${int(it)})" }
+			property("columnCount") { int(it) }
 		}
 		attribute{
 			field = "useDefaultMargins"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "useDefaultMargins = ${bool(it)}" }
-			javaMethod{ "setUseDefaultMargins(${bool(it)})" }
+			property("useDefaultMargins") { bool(it) }
 		}
 		attribute{
 			field = "alignmentMode"
 			attrType = arrayOf(AttrType.FLAG)
-			kotlinMethod { "alignmentMode = ${alignmentMode(it)}" }
-			javaMethod{ "setAlignmentMode(${alignmentMode(it)})" }
+			property("alignmentMode") { alignmentMode(it) }
 		}
 		attribute{
 			field = "rowOrderPreserved"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isRowOrderPreserved = ${bool(it)}" }
-			javaMethod{ "setRowOrderPreserved(${bool(it)})" }
+			property {
+				java="setRowOrderPreserved"
+				kotlin="isRowOrderPreserved"
+				value{ bool(it) }
+			}
 		}
 		attribute{
 			field = "columnOrderPreserved"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isColumnOrderPreserved = ${bool(it)}" }
-			javaMethod{ "setColumnOrderPreserved(${bool(it)})" }
+			property {
+				java="setColumnOrderPreserved"
+				kotlin="isColumnOrderPreserved"
+				value{ bool(it) }
+			}
 		}
 	}
 
@@ -72,7 +73,7 @@ open class GridLayout : ViewGroup() {
 	/**
 	 * Created by cz on 2017/12/19.
 	 * 
-	 * ---------------LayoutParams all attributes---------------
+	 * ---------------LayoutParams all expressions---------------
 	 * @attr ref android.R.styleable#GridLayout_Layout_layout_row
 	 * @attr ref android.R.styleable#GridLayout_Layout_layout_rowSpan
 	 * @attr ref android.R.styleable#GridLayout_Layout_layout_rowWeight
@@ -93,8 +94,7 @@ open class GridLayout : ViewGroup() {
 			attribute{
 				field = "layout_gravity"
 				attrType = arrayOf(AttrType.REFERENCE)
-				kotlinMethod { "gravity = ${gravity(it)}" }
-				javaMethod{ "layoutParams.gravity = ${gravity(it)}" }
+				allProperty("gravity"){ gravity(it) }
 			}
 		}
 	}

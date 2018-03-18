@@ -8,7 +8,7 @@ import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------TabWidget all attributes---------------
+ * ---------------TabWidget all expressions---------------
  * @attr ref android.R.styleable#TabWidget_divider
  * @attr ref android.R.styleable#TabWidget_tabStripEnabled
  * @attr ref android.R.styleable#TabWidget_tabStripLeft
@@ -20,14 +20,16 @@ open class TabWidget : LinearLayout() {
 		attribute{
 			field = "divider"
 			attrType = arrayOf(AttrType.REFERENCE, AttrType.COLOR)
-			kotlinMethod { "setDividerDrawable(${resourceRef(it)})" }
-			javaMethod{ "setDividerDrawable(${resourceRef(it)})" }
+			method("setDividerDrawable") {resourceRef(it)}
 		}
 		attribute{
 			field = "tabStripEnabled"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isStripEnabled = ${bool(it)}" }
-			javaMethod{ "setTabStripEnabled(${bool(it)})" }
+			property {
+				java="setTabStripEnabled"
+				kotlin="isStripEnabled"
+				value { bool(it) }
+			}
 		}
 		uselessAttribute("tabStripLeft")
 		uselessAttribute("tabStripRight")

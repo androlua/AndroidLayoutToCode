@@ -10,7 +10,7 @@ import com.cz.layout2code.inflate.item.ViewNode
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------RatingBar all attributes---------------
+ * ---------------RatingBar all expressions---------------
  * @attr ref android.R.styleable#RatingBar_numStars
  * @attr ref android.R.styleable#RatingBar_rating
  * @attr ref android.R.styleable#RatingBar_stepSize
@@ -22,26 +22,22 @@ open class RatingBar : AbsSeekBar() {
 		attribute{
 			field = "numStars"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "numStars = ${int(it)}" }
-			javaMethod{ "setNumStars(${int(it)})" }
+			property("numStars"){ int(it) }
 		}
 		attribute{
 			field = "rating"
 			attrType = arrayOf(AttrType.FLOAT)
-			kotlinMethod { "rating = ${float(it)}" }
-			javaMethod{ "setRating(${float(it)})" }
+			property("rating"){ float(it) }
 		}
 		attribute{
 			field = "stepSize"
 			attrType = arrayOf(AttrType.FLOAT)
-			kotlinMethod { "stepSize = ${float(it)}" }
-			javaMethod{ "setStepSize(${float(it)})" }
+			property("stepSize"){ float(it) }
 		}
 		attribute{
 			field = "isIndicator"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "setIsIndicator(${bool(it)})" }
-			javaMethod{ "setIsIndicator(${bool(it)})" }
+			method("setIsIndicator"){ bool(it) }
 		}
 	}
 

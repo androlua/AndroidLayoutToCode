@@ -7,7 +7,7 @@ import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------TextClock all attributes---------------
+ * ---------------TextClock all expressions---------------
  * @attr ref android.R.styleable#TextClock_format12Hour
  * @attr ref android.R.styleable#TextClock_format24Hour
  * @attr ref android.R.styleable#TextClock_timeZone
@@ -19,22 +19,19 @@ open class TextClock : TextView() {
 			field = "format12Hour"
 			attrType = arrayOf(AttrType.STRING)
 			sdk=17
-			kotlinMethod { "format12Hour = ${string(it)}" }
-			javaMethod{ "setFormat12Hour(${string(it)})" }
+			property("format12Hour"){ string(it) }
 		}
 		attribute{
 			field = "format24Hour"
 			attrType = arrayOf(AttrType.STRING)
 			sdk=17
-			kotlinMethod { "format24Hour = ${string(it)}" }
-			javaMethod{ "setFormat24Hour(${string(it)})" }
+			property("format24Hour"){ string(it) }
 		}
 		attribute{
 			field = "timeZone"
 			attrType = arrayOf(AttrType.STRING)
 			sdk=17
-			kotlinMethod { "timeZone = ${string(it)}" }
-			javaMethod{ "setTimeZone(${string(it)})" }
+			property("timeZone"){ string(it) }
 		}
 	}
 	/**

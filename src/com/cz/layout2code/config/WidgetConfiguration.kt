@@ -55,7 +55,7 @@ class WidgetConfiguration(file: File) : XmlConfiguration<MutableList<DefineViewN
                                 attributeNode.format=it.name
                             }
                             val itemName=it.getAttributeValue("name")
-                            val itemValue=it.getAttributeValue("value")
+                            val itemValue=it.getAttributeValue("expression")
                             val intValue=if(itemValue.startsWith("0x")||itemValue.startsWith("0X")){
                                 itemValue.substring(2).toInt(16)
                             } else {
@@ -93,7 +93,7 @@ class WidgetConfiguration(file: File) : XmlConfiguration<MutableList<DefineViewN
                         val element = Element("item")
                         itemElement.addContent(element)
                         element.setAttribute("name",name)
-                        element.setAttribute("value",value.toString())
+                        element.setAttribute("expression",value.toString())
                     }
                 }
             }

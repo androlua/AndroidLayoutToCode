@@ -8,7 +8,7 @@ import org.jdom.Element
 /**
  * Created by cz on 2017/12/19.
  * 
- * ---------------ViewFlipper all attributes---------------
+ * ---------------ViewFlipper all expressions---------------
  * @attr ref android.R.styleable#ViewFlipper_flipInterval
  * @attr ref android.R.styleable#ViewFlipper_autoStart
  *
@@ -18,14 +18,16 @@ open class ViewFlipper : ViewAnimator() {
 		attribute{
 			field = "flipInterval"
 			attrType = arrayOf(AttrType.INTEGER)
-			kotlinMethod { "setFlipInterval(${int(it)})" }
-			javaMethod{ "setFlipInterval(${int(it)})" }
+			method("setFlipInterval"){int(it)}
 		}
 		attribute{
 			field = "autoStart"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isAutoStart = ${bool(it)}" }
-			javaMethod{ "setAutoStart(${bool(it)})" }
+			property {
+				java="setAutoStart"
+				kotlin="isAutoStart"
+				value { bool(it) }
+			}
 		}
 	}
 	/**

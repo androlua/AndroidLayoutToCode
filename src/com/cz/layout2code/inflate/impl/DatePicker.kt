@@ -8,7 +8,7 @@ import com.cz.layout2code.inflate.prefs.AttrType
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------DatePicker all attributes---------------
+ * ---------------DatePicker all expressions---------------
  * @attr ref android.R.styleable#DatePicker_startYear
  * @attr ref android.R.styleable#DatePicker_endYear
  * @attr ref android.R.styleable#DatePicker_maxDate
@@ -33,44 +33,29 @@ open class DatePicker : FrameLayout() {
 			field = "firstDayOfWeek"
 			attrType = arrayOf(AttrType.INTEGER)
 			sdk=21
-			kotlinMethod { "firstDayOfWeek = ${int(it)}" }
-			javaMethod{ "setFirstDayOfWeek(${int(it)})" }
+			property ("firstDayOfWeek"){ int(it) }
 		}
 		attribute{
 			field = "minDate"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod {
-				"$it convert to long"+
-				"minDate = ${long(it)}"
-			}
-			javaMethod{
-				"$it convert to long"+
-				"setMinDate(${long(it)})"
-			}
+			comment { "$it convert to long" }
+			property ("minDate"){ long(it) }
 		}
 		attribute{
 			field = "maxDate"
 			attrType = arrayOf(AttrType.STRING)
-			kotlinMethod {
-				"$it convert to long"+
-				"maxDate = ${string(it)}"
-			}
-			javaMethod{
-				"$it convert to long"+
-				"setMaxDate(${string(it)})"
-			}
+			comment { "$it convert to long" }
+			property ("maxDate"){ long(it) }
 		}
 		attribute{
 			field = "spinnersShown"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "spinnersShown = ${bool(it)}" }
-			javaMethod{ "setSpinnersShown(${bool(it)})" }
+			property ("spinnersShown"){ bool(it) }
 		}
 		attribute{
 			field = "calendarViewShown"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "calendarViewShown = ${bool(it)}" }
-			javaMethod{ "setCalendarViewShown(${bool(it)})" }
+			property ("calendarViewShown"){ bool(it) }
 		}
 		uselessAttribute("internalLayout")
 		uselessAttribute("legacyLayout")

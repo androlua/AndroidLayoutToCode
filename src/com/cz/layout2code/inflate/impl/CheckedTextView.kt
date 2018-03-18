@@ -7,7 +7,7 @@ import org.jdom.Element
 /**
  * Created by cz on 2018/1/29.
  * 
- * ---------------CheckedTextView all attributes---------------
+ * ---------------CheckedTextView all expressions---------------
  * @attr ref android.R.styleable#CheckedTextView_checked
  * @attr ref android.R.styleable#CheckedTextView_checkMark
  *
@@ -17,28 +17,31 @@ open class CheckedTextView : TextView() {
 		attribute{
 			field = "checked"
 			attrType = arrayOf(AttrType.BOOLEAN)
-			kotlinMethod { "isChecked = ${bool(it)}" }
-			javaMethod{ "setChecked(${bool(it)})" }
+			property {
+				java="setChecked"
+				kotlin="isChecked"
+				value { bool(it) }
+			}
 		}
 		attribute{
 			field = "checkMark"
 			attrType = arrayOf(AttrType.REFERENCE)
-			kotlinMethod { "setCheckMarkDrawable(${resource(it)})" }
-			javaMethod{ "setCheckMarkDrawable(${resource(it)})" }
+			method("setCheckMarkDrawable"){ resource(it) }
 		}
 		attribute{
 			field = "checkMarkTint"
 			attrType = arrayOf(AttrType.COLOR)
-			kotlinMethod { "setCheckMarkTintList(${colorStateList(it)})" }
-			javaMethod{ "setCheckMarkTintList(${colorStateList(it)})" }
+			method("setCheckMarkTintList"){ colorStateList(it) }
 		}
 		attribute{
 			field = "tintMode"
 			attrType = arrayOf(AttrType.FLAG)
 			sdk=21
-			importList= arrayOf("android.graphics.PorterDuff")
-			kotlinMethod { "tintMode = ${tintMode(it)}" }
-			javaMethod{ "setCheckMarkTintMode(${tintMode(it)})" }
+			property {
+				java="setCheckMarkTintMode"
+				kotlin="tintMode"
+				value { tintMode(it) }
+			}
 		}
 		uselessAttribute("checkMarkGravity")
 	}
