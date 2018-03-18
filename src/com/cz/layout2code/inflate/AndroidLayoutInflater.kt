@@ -67,15 +67,15 @@ object AndroidLayoutInflater {
                 //直接生成代码
 //                processLayoutWidget(project,file,clazz,parent.children.first(),isJava)
 //            }
-            var converter: BaseCodeConverter
-            val root=parent.children.first()
-            if(convertToJava){
-                //java源码输出
-                converter = JavaCodeConverter()
-            } else {
-                //kotlin anko输出
-                println(KotlinCodeConverter().convert(project,root))
-            }
+//            var converter: BaseCodeConverter
+//            val root=parent.children.first()
+//            if(convertToJava){
+//                //java源码输出
+//                converter = JavaCodeConverter()
+//            } else {
+//                //kotlin anko输出
+//                println(KotlinCodeConverter().convert(project,root))
+//            }
         }
     }
 

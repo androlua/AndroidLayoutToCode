@@ -51,8 +51,6 @@ class JavaCodeConverter : BaseCodeConverter() {
             val tab="".padEnd(node.level,'\t')
             //装载属性
             view.inflateAttributes(node)
-            //加入导包列
-            importItems+=view.importItems
             //控件声明
             val viewDefineItem= DefineClassExpression(view,widgetName)
             out.append("$tab${viewDefineItem.getJavaExpression(classMatcher)}\n")

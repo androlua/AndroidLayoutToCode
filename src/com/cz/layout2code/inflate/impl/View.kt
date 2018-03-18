@@ -89,8 +89,6 @@ import com.cz.layout2code.inflate.prefs.AttributeStyle
  *
  */
 open class View {
-	//导包列
-	val importItems= mutableSetOf<ImportItem>()
 	//控件引用样式集
 	val viewStyleItems = mutableMapOf<String,AttributeStyle>()
 	//常规元素表达式对象
@@ -701,11 +699,11 @@ open class View {
 			}
 		}
 		//检测导包
-		if(isCompatView){
-			importItems.add(ImportItem("org.jetbrains.anko.${getThemeViewName()}"))//v7
-		} else {
-			importItems.add(ImportItem("android.widget.${this.javaClass.simpleName}"))//系统控件
-		}
+//		if(isCompatView){
+//			importItems.add(ImportItem("org.jetbrains.anko.${getThemeViewName()}"))//v7
+//		} else {
+//			importItems.add(ImportItem("android.widget.${this.javaClass.simpleName}"))//系统控件
+//		}
 		//添加内边距属性
 		addPaddingAttribute(viewNode)
 	}
