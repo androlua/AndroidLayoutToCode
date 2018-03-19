@@ -6,41 +6,42 @@ import com.cz.layout2code.inflate.item.ClassItem
  * 常用类引用
  */
 object ClassReferences {
-    val references= mutableMapOf<String, ClassItem>()
+    private val references= mutableMapOf<String, ClassItem>()
     init {
-        item{ classPath="android.animation.LayoutTransition"}
-        item{ classPath="android.graphics.Typeface" }
-        item{ classPath="android.graphics.PorterDuff" }
-        item{ classPath="android.view.View" }
-        item{ classPath="android.view.ViewGroup" }
-        item{ classPath="android.view.Gravity" }
-        item{ classPath="android.view.PointerIcon"}
-        item{ classPath="android.text.InputFilter"}
-        item{ classPath="android.view.inputmethod.EditorInfo"}
-        item{ classPath="android.widget.GridLayout"}
-        item{ classPath="android.widget.LinearLayout"}
-        item{ classPath="android.widget.ImageView" }
-        item{ classPath="android.widget.RelativeLayout"}
-        item{ classPath="android.widget.AbsListView"}
-        item{ classPath="android.widget.GridView"}
-        item{ classPath="android.text.TextUtils"}
-        item{ classPath="android.text.InputType"}
-        item{ classPath="android.text.util.Linkify"}
-        item{ classPath="android.text.Layout"}
+        item{ "android.animation.LayoutTransition"}
+        item{ "android.graphics.Typeface" }
+        item{ "android.graphics.PorterDuff" }
+        item{ "android.view.View" }
+        item{ "android.view.ViewGroup" }
+        item{ "android.view.Gravity" }
+        item{ "android.view.PointerIcon"}
+        item{ "android.text.InputFilter"}
+        item{ "android.view.inputmethod.EditorInfo"}
+        item{ "android.widget.GridLayout"}
+        item{ "android.widget.LinearLayout"}
+        item{ "android.widget.ImageView" }
+        item{ "android.widget.RelativeLayout"}
+        item{ "android.widget.AbsListView"}
+        item{ "android.widget.GridView"}
+        item{ "android.text.TextUtils"}
+        item{ "android.text.InputType"}
+        item{ "android.text.util.Linkify"}
+        item{ "android.text.Layout"}
+        item{ "android.content.res.Resources" }
     }
 
-    inline fun item(action:Item.()->Unit){
-        val item=Item().apply(action)
-        val classPath=item.classPath
-        if(null!=classPath){
-            val classItem= ClassItem(classPath)
-            references.put(classItem.className,classItem)
-        }
+    private inline fun item(action:()->String){
+        val referenceName=action()
+        addClassItem(referenceName)
     }
 
     fun getClassItem(className:String)=references[className]
 
-    class Item{
-        var classPath:String?=null
+    fun addClassItem(referenceName:String){
+        if(null!=referenceName){
+            val classItem= ClassItem(referenceName)
+            references[classItem.className] = classItem
+        }
     }
+
 }

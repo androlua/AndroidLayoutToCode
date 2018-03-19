@@ -1,38 +1,31 @@
 package com.cz.layout2code.inflate.expression.value
 
-import com.cz.layout2code.inflate.impl.View
-import com.cz.layout2code.inflate.impl.custom.CustomViewWrapper
 import com.cz.layout2code.inflate.item.ImportItem
 import com.cz.layout2code.context.BaseContext
+import com.cz.layout2code.inflate.ClassReferences
 
 /**
  * 定义class表达式
  */
-class DefineClassExpression(private val view:View,
-                            private val referenceName:String,
+class DefineClassExpression(private val className:String,
                             private val fieldName:String?=null): ElementExpression() {
 
     override fun getImportList(): MutableList<ImportItem> {
-        return mutableListOf(ImportItem(referenceName))
+        val items = mutableListOf<ImportItem>()
+        val classItem = ClassReferences.getClassItem(className)
+        val importItem = classItem?.importItem
+        if(null!=importItem){
+            items+=importItem
+        }
+        return items
     }
 
     override fun getJavaExpression(baseContext: BaseContext): String {
-        val className=referenceName.substringAfterLast(".")
-        val contextExpression=FieldExpression("context").getJavaExpression(baseContext)
-        return "$className $fieldName = new $className($contextExpression);"
+        return "$className $fieldName = new $className();"
     }
 
     override fun getKotlinExpression(baseContext: BaseContext): String {
-        if(view is CustomViewWrapper){
-            //自定义控件
-            return "${view.getViewName()}{"
-        } else if(view.isCompatView){
-            //v7
-            return "${view.getThemeViewName()}{"
-        } else {
-            //系统控件
-            return "${view.getViewName()}{"
-        }
+        return "val $fieldName = $className()"
     }
 
 }

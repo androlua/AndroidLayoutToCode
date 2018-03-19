@@ -12,6 +12,7 @@ import com.cz.layout2code.inflate.item.DefineViewNode
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.context.*
 import com.cz.layout2code.util.Utils
+import com.cz.layout2code.util.getKtClassForElement
 import com.intellij.codeInsight.CodeInsightActionHandler
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -19,8 +20,12 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.psi.util.PsiUtilBase
 import org.jdom.Element
 import com.intellij.openapi.actionSystem.DataKeys
+import com.intellij.openapi.editor.Editor
 import com.intellij.psi.*
 import org.jdom.input.SAXBuilder
+import org.jetbrains.kotlin.j2k.getContainingClass
+import org.jetbrains.kotlin.j2k.getContainingMethod
+import org.jetbrains.kotlin.psi.KtCallExpression
 import java.io.File
 
 
@@ -64,7 +69,6 @@ class LayoutConvertAction : BaseGenerateAction {
         val editor = event.getData(PlatformDataKeys.EDITOR)
         if(null!=project&&null!=editor) {
             val file = PsiUtilBase.getPsiFileInEditor(editor, project)
-            val offset = editor.caretModel.offset
             val layout = Utils.getLayoutFileFromCaret(editor, file)
             val virtualFile=layout?.virtualFile
             val clazz = getTargetClass(editor, file)
@@ -85,27 +89,38 @@ class LayoutConvertAction : BaseGenerateAction {
                 //确定场景匹配器,负责上下文,以及其他字段的特例化
                 val baseMatcher:BaseContext
                 if(clazz.isActivity()){
-//                    setContent(contentView)
-                    baseMatcher=ActivityContext()
+                    baseMatcher=ActivityContext(project)
                 } else if(clazz.isFragment()){
-//                    inflater.inflate()
-                    baseMatcher= FragmentContext()
+                    baseMatcher= FragmentContext(project)
                 } else if(clazz.isDialog()){
-//                    setContent(contentView)
-                    baseMatcher= DialogContext()
+                    baseMatcher= DialogContext(project)
                 } else if(clazz.isView()){
-//                    inflate(context,R.layout.activity_main,this)
-                    baseMatcher= ViewContext()
+                    baseMatcher= ViewContext(project)
                 } else {
                     //其他
-//                    inflate(context,R.layout.activity_main,this)
-                    baseMatcher= OtherContext()
+                    baseMatcher= OtherContext(project)
                 }
+                //布局执行语句
+                val containingElement = getContainingElement(file, editor)
                 //生成方法
-                val converter=JavaCodeGenerate()
-                converter.generate(project,baseMatcher,rootNode.children.first(),ViewGroup.LayoutParams())
+                val converter=JavaCodeGenerate(project,baseMatcher,clazz)
+                converter.generate(containingElement,layoutFile,rootNode.children.first(),ViewGroup.LayoutParams())
             }
         }
+    }
+
+    /**
+     * 获得执行调用方法处
+     */
+    private fun getContainingElement(file:PsiFile,editor:Editor):PsiElement?{
+        val candidate = file.findElementAt(editor.caretModel.offset - 1)
+        var parent: PsiElement? = candidate?.parent
+        //当当前指针表达式,为一个调用方法时,中断
+        while(null!=parent&&parent !is PsiMethodCallExpression){
+//                &&parent !is KtCallExpression){
+            parent=parent?.parent
+        }
+        return parent
     }
 //    override fun isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean {
 //        return super.isValidForFile(project, editor, file) &&null!=Utils.getLayoutFileFromCaret(editor, file)

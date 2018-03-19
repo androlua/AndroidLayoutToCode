@@ -1,23 +1,32 @@
 package com.cz.layout2code.generate
 
-import com.cz.layout2code.inflate.expression.value.DefineClassExpression
+import com.cz.layout2code.inflate.expression.value.DefineViewClassExpression
 import com.cz.layout2code.inflate.impl.ViewGroup
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.context.BaseContext
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
 import com.intellij.util.containers.isNullOrEmpty
+import java.io.File
 
 /**
  * Created by cz on 2018/3/1.
  */
-class KotlinCodeGenerate : BaseCodeGenerate() {
+class KotlinCodeGenerate(project: Project, baseMatcher: BaseContext, clazz: PsiClass) : BaseCodeGenerate(project, baseMatcher, clazz) {
     private val out=StringBuilder()
     /**
      * 转换代码为kotlin 输入
      * 自定义控件dsl扩展为
      * inline fun ViewManager.newViewPager(theme: Int = 0, init: NewViewPager.() -> Unit) = ankoView({ NewViewPager(it) }, theme, init)
      */
-    override fun generate(project: Project, baseMatcher: BaseContext, node: ViewNode, layoutParams:ViewGroup.LayoutParams?) {
+    override fun generate(containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams:ViewGroup.LayoutParams?) {
+        val out=StringBuilder()
+        val content=generateCode(node,layoutParams,null)
+        val layoutName = layoutName(layoutFile.name.substringBefore("."))
+    }
+
+    private fun generateCode(node: ViewNode, layoutParams: ViewGroup.LayoutParams?, parentName:String?): String {
         var layoutParams=layoutParams
         //从节点获取view
         val view = getViewFromNode(project, node)
@@ -25,13 +34,13 @@ class KotlinCodeGenerate : BaseCodeGenerate() {
             //遍历子孩子节点
             node.children.forEach {
                 //遍历子节点
-                generate(project,baseMatcher,it,layoutParams)
+                generateCode(it,layoutParams,parentName)
             }
         } else {
             //装载属性
             view.inflateAttributes(node)
             //控件声明
-            val viewDefineItem=DefineClassExpression(view,node.name)
+            val viewDefineItem=DefineViewClassExpression(view,node.name)
             out.append("${"".padEnd(node.level,'\t')}${viewDefineItem.getKotlinExpression(baseMatcher)}{\n")
             //父容器
             var layoutDimension = layoutParams?.inflateLayoutDimension(node,false)
@@ -52,7 +61,7 @@ class KotlinCodeGenerate : BaseCodeGenerate() {
             //遍历子孩子节点
             node.children.forEach {
                 //遍历子节点
-                generate(project,baseMatcher,it,layoutParams)
+                generateCode(it,layoutParams,parentName)
             }
             //闭合节点
             out.append("${"".padEnd(node.level,'\t')}}")
@@ -71,5 +80,6 @@ class KotlinCodeGenerate : BaseCodeGenerate() {
                 out.append("${"".padEnd(node.level,'\t')}}\n")
             }
         }
+        return out.toString()
     }
 }

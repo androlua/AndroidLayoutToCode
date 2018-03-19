@@ -1,33 +1,78 @@
 package com.cz.layout2code.generate
 
-import com.cz.layout2code.inflate.expression.value.DefineClassExpression
+import com.cz.layout2code.inflate.expression.value.DefineViewClassExpression
 import com.cz.layout2code.inflate.impl.ViewGroup
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.context.BaseContext
 import com.cz.layout2code.inflate.expression.value.CustomAttributeExpression
-import com.cz.layout2code.inflate.expression.value.UnknownAttributeExpression
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
+import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiElementFactory
 import com.intellij.util.containers.isNullOrEmpty
+import org.jetbrains.kotlin.idea.core.replaced
+import org.jetbrains.kotlin.j2k.getContainingMethod
+import java.io.File
 
 /**
  * Created by cz on 2018/3/1.
  */
-class JavaCodeGenerate : BaseCodeGenerate() {
+class JavaCodeGenerate(project: Project, baseMatcher: BaseContext, clazz: PsiClass) : BaseCodeGenerate(project, baseMatcher, clazz) {
     companion object{
         const val LAYOUT_PARAMS="ViewGroup.LayoutParams"
     }
     private val out=StringBuilder()
+
     //控件名称记录
     private val widgetNameItems= mutableMapOf<String,Int>()
+
     /**
      * 转换代码为java输入
      */
-    override fun generate(project: Project, baseMatcher: BaseContext, rootNode: ViewNode, layoutParams: ViewGroup.LayoutParams?) {
-        val out=convert(project,baseMatcher,rootNode,layoutParams,null)
-        println(out)
+    override fun generate(containingElement:PsiElement?,layoutFile: File, rootNode: ViewNode, layoutParams: ViewGroup.LayoutParams?) {
+        WriteCommandAction.runWriteCommandAction(project){
+            //组织布局方法
+            val out=StringBuilder()
+            val content=generateCode(rootNode,layoutParams,null)
+            val layoutName = layoutName(layoutFile.name.substringBefore("."))
+            out.append("private View get$layoutName(){\n")
+            out.append("$content")
+            out.append("}")
+
+            //插入方法
+            val factory = JavaPsiFacade.getElementFactory(project)
+            //替换当前语句
+            var containingMethod = containingElement?.getContainingMethod()
+            if(null==containingMethod){
+                containingMethod=clazz.methods.last()
+            }
+            if(null!=containingMethod){
+                val generateMethod = factory.createMethodFromText(out.toString(), null)
+                clazz?.addAfter(generateMethod, containingMethod)
+            }
+            if(null!=containingElement){
+                val referenceElement=containingElement.firstChild.lastChild
+                //装载布局方式
+                val methodName=referenceElement?.text
+                var statement:PsiElement?=null
+                if("setContentView"==methodName){
+                    statement = factory.createStatementFromText("$methodName(this.get$layoutName())", clazz)
+                } else if("inflate"==methodName){
+                    statement = factory.createStatementFromText("this.get$layoutName();", clazz)
+                    //删除最后一个;号,这个;号好像因为缺少换行,会导致莫名的报错
+                    containingElement?.parent?.children?.last()?.delete()
+                }
+                //替换表达式
+                if(null!=statement){
+                    containingElement.replaced(statement)
+                }
+            }
+        }
     }
 
-    private fun convert(project: Project, baseMatcher: BaseContext, node: ViewNode, layoutParams: ViewGroup.LayoutParams?, parentName:String?): String {
+    private fun generateCode(node: ViewNode, layoutParams: ViewGroup.LayoutParams?, parentName:String?): String {
         var parentViewName=parentName
         //当前为根节点
         var layoutParams=layoutParams
@@ -38,7 +83,7 @@ class JavaCodeGenerate : BaseCodeGenerate() {
             //装载属性
             view.inflateAttributes(node)
             //控件声明
-            val viewDefineItem= DefineClassExpression(view,node.name,viewName)
+            val viewDefineItem= DefineViewClassExpression(view,node.name,viewName)
             out.append("${viewDefineItem.getJavaExpression(baseMatcher)}\n")
             //添加到父控件
             if(null!=parentViewName){
@@ -71,7 +116,7 @@ class JavaCodeGenerate : BaseCodeGenerate() {
             val layoutParamsName="layoutParams$count"
             if(null!=layoutDimension){
                 if(layoutAttributes.isNullOrEmpty()){
-                    out.append("$viewName.setLayoutParams(${layoutDimension.getJavaExpression(baseMatcher)};\n")
+                    out.append("$viewName.setLayoutParams(${layoutDimension.getJavaExpression(baseMatcher)});\n")
                 } else {
                     out.append("ViewGroup.LayoutParams $layoutParamsName = ${layoutDimension.getJavaExpression(baseMatcher)};\n")
                     out.append("$viewName.setLayoutParams($layoutParamsName);\n")
@@ -89,7 +134,7 @@ class JavaCodeGenerate : BaseCodeGenerate() {
         //遍历子孩子节点
         node.children.forEach {
             //遍历子节点
-            convert(project,baseMatcher,it,layoutParams,parentViewName)
+            generateCode(it,layoutParams,parentViewName)
         }
         if(null==parentName){
             out.append("return $viewName;\n")

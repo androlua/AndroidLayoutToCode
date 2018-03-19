@@ -723,8 +723,7 @@ private fun autoLinkInner(autoLink:String):ElementExpression{
             "email"->"Linkify.EMAIL_ADDRESSES"
             "phone"->"Linkify.PHONE_NUMBERS"
             "map"->"Linkify.MAP_ADDRESSES"
-            "all"->"Linkify.ALL"
-            else ->"0"
+            else->"Linkify.ALL"
         }
     })
 }

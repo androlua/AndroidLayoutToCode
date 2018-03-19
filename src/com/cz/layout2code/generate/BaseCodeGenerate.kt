@@ -8,17 +8,20 @@ import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.context.BaseContext
 import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
+import java.io.File
 
 /**
  * Created by cz on 2018/3/1.
  */
-abstract class BaseCodeGenerate {
-     val PACKAGE_NAME="com.cz.layout2code.inflate.impl"
+abstract class BaseCodeGenerate(val project: Project,val baseMatcher: BaseContext,val clazz:PsiClass) {
+     private val PACKAGE_NAME="com.cz.layout2code.inflate.impl"
      /**
       * 转换对应语言文本
       */
-     abstract fun generate(project: Project, baseMatcher: BaseContext, node: ViewNode, layoutParams: ViewGroup.LayoutParams?=null)
+     abstract fun generate(containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams: ViewGroup.LayoutParams?=null)
      /**
       * 从节点获取到view体
       */
@@ -73,9 +76,12 @@ abstract class BaseCodeGenerate {
           return null
      }
 
-
      inline fun idName(id:String):String{
           return id(id).split("_").mapIndexed { index, s -> if(0==index) s else firstUpperCharacter(s) }.reduce { acc, s -> acc+s }
+     }
+
+     inline fun layoutName(name:String):String{
+          return name.split("_").map { s -> firstUpperCharacter(s) }.reduce { acc, s -> acc+s }
      }
 
      inline fun firstUpperCharacter(value:String)=value[0].toUpperCase()+value.substring(1)
