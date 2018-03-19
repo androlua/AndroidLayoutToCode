@@ -8,7 +8,7 @@ import com.cz.layout2code.context.BaseContext
  */
 class FieldCallMethodExpression(val value: String) : ElementExpression() {
     //调用成员
-    private val classField:ClassFieldExpression
+    private val classField:FieldExpression
     //当前调用方法名称
     private val methodName:String
     //当前方法参数
@@ -18,7 +18,7 @@ class FieldCallMethodExpression(val value: String) : ElementExpression() {
         if (!matcher.find()) {
             throw IllegalArgumentException("Can't generate $value to method expression!")
         }
-        classField= ClassFieldExpression(matcher.group("fieldName"))
+        classField = FieldExpression(matcher.group("fieldName"))
 
         methodName = matcher.group("methodName")
         val params = matcher.group("params")
@@ -48,9 +48,9 @@ class FieldCallMethodExpression(val value: String) : ElementExpression() {
         return items
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext)=value
+    override fun getJavaExpression(baseContext: BaseContext)=value
 
-    override fun getKotlinExpression(baseMatcher: BaseContext)=value
+    override fun getKotlinExpression(baseContext: BaseContext)=value
 
 
 

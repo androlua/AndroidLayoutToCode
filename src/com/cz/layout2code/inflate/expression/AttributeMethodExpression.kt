@@ -21,12 +21,12 @@ class AttributeMethodExpression(private val methodName: String,private val callb
         return expression.getImportList()
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext): String {
-        return "$methodName(${expression.getJavaExpression(baseMatcher)});"
+    override fun getJavaExpression(baseContext: BaseContext): String {
+        return "$methodName(${expression.getJavaExpression(baseContext)});"
     }
 
-    override fun getKotlinExpression(baseMatcher: BaseContext): String {
-        return "$methodName(${expression.getKotlinExpression(baseMatcher)})"
+    override fun getKotlinExpression(baseContext: BaseContext): String {
+        return "$methodName(${expression.getKotlinExpression(baseContext)})"
     }
 
 }

@@ -4,6 +4,8 @@ import com.cz.layout2code.inflate.expression.value.DefineClassExpression
 import com.cz.layout2code.inflate.impl.ViewGroup
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.context.BaseContext
+import com.cz.layout2code.inflate.expression.value.CustomAttributeExpression
+import com.cz.layout2code.inflate.expression.value.UnknownAttributeExpression
 import com.intellij.openapi.project.Project
 import com.intellij.util.containers.isNullOrEmpty
 
@@ -22,7 +24,7 @@ class JavaCodeGenerate : BaseCodeGenerate() {
      */
     override fun generate(project: Project, baseMatcher: BaseContext, rootNode: ViewNode, layoutParams: ViewGroup.LayoutParams?) {
         val out=convert(project,baseMatcher,rootNode,layoutParams,null)
-
+        println(out)
     }
 
     private fun convert(project: Project, baseMatcher: BaseContext, node: ViewNode, layoutParams: ViewGroup.LayoutParams?, parentName:String?): String {
@@ -50,7 +52,12 @@ class JavaCodeGenerate : BaseCodeGenerate() {
             }
             //开始正常属性组合
             view.expressions.forEach {
-                out.append("$viewName.${it.getJavaExpression(baseMatcher)};\n")
+                if(it is CustomAttributeExpression){
+                    //这里提示自定义控件暂不支持
+                    out.append("${it.getJavaExpression(baseMatcher)};\n")
+                } else {
+                    out.append("$viewName.${it.getJavaExpression(baseMatcher)};\n")
+                }
             }
             //未知的属性引用集
             val unknownAttributes = node.getUnknownAttributeExpressions()

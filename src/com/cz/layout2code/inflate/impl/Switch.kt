@@ -2,6 +2,7 @@ package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
 import com.cz.layout2code.inflate.expression.value.ClassFieldExpression
+import com.cz.layout2code.inflate.expression.value.FieldExpression
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import org.jdom.Element
@@ -76,7 +77,7 @@ open class Switch : CompoundButton() {
 			field = "switchTextAppearance"
 			attrType = arrayOf(AttrType.REFERENCE)
 			methods("setSwitchTextAppearance"){
-				mutableListOf(ClassFieldExpression("context"),resourceRef(it))
+				mutableListOf(FieldExpression("context"),resourceRef(it))
 			}
 		}
 		attribute{

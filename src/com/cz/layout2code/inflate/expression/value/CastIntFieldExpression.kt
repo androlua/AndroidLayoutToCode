@@ -14,9 +14,9 @@ class CastIntFieldExpression(val value: ElementExpression) : ElementExpression()
         return mutableListOf()
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext)="(int)${value.getJavaExpression(baseMatcher)}"
+    override fun getJavaExpression(baseContext: BaseContext)="(int)${value.getJavaExpression(baseContext)}"
 
-    override fun getKotlinExpression(baseMatcher: BaseContext)="${value.getKotlinExpression(baseMatcher)}.toInt()"
+    override fun getKotlinExpression(baseContext: BaseContext)="${value.getKotlinExpression(baseContext)}.toInt()"
 
 
 

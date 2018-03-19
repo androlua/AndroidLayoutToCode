@@ -2,6 +2,7 @@ package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
 import com.cz.layout2code.inflate.expression.value.ClassFieldExpression
+import com.cz.layout2code.inflate.expression.value.FieldExpression
 import com.cz.layout2code.inflate.item.ViewNode
 import org.jdom.Element
 import com.cz.layout2code.inflate.prefs.AttrType
@@ -45,14 +46,14 @@ open class Toolbar : ViewGroup() {
 			field = "titleTextAppearance"
 			attrType = arrayOf(AttrType.REFERENCE)
 			methods("setTitleTextAppearance"){
-				mutableListOf(ClassFieldExpression("context"),resource(it))
+				mutableListOf(FieldExpression("context"),resource(it))
 			}
 		}
 		attribute{
 			field = "subtitleTextAppearance"
 			attrType = arrayOf(AttrType.REFERENCE)
 			methods("setSubtitleTextAppearance"){
-				mutableListOf(ClassFieldExpression("context"),resource(it))
+				mutableListOf(FieldExpression("context"),resource(it))
 			}
 		}
 		attribute{

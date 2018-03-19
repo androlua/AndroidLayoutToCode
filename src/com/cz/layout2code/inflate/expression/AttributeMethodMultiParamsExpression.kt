@@ -25,13 +25,13 @@ class AttributeMethodMultiParamsExpression(private val methodName: String,privat
         return importItems
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext): String {
-        val params=expressions.joinToString(", "){ it.getJavaExpression(baseMatcher) }
+    override fun getJavaExpression(baseContext: BaseContext): String {
+        val params=expressions.joinToString(", "){ it.getJavaExpression(baseContext) }
         return "$methodName($params);"
     }
 
-    override fun getKotlinExpression(baseMatcher: BaseContext): String {
-        val params=expressions.joinToString(", "){ it.getKotlinExpression(baseMatcher) }
+    override fun getKotlinExpression(baseContext: BaseContext): String {
+        val params=expressions.joinToString(", "){ it.getKotlinExpression(baseContext) }
         return "$methodName($params)"
     }
 

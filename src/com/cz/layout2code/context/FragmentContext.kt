@@ -4,10 +4,6 @@ import com.cz.layout2code.inflate.item.ClassItem
 
 class FragmentContext: BaseContext() {
 
-    override fun getClassItem(key: String): ClassItem {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun getClassField(key: String): ClassItem {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

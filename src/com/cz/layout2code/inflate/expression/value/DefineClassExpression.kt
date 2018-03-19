@@ -16,12 +16,13 @@ class DefineClassExpression(private val view:View,
         return mutableListOf(ImportItem(referenceName))
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext): String {
+    override fun getJavaExpression(baseContext: BaseContext): String {
         val className=referenceName.substringAfterLast(".")
-        return "$className $fieldName=new $className();"
+        val contextExpression=FieldExpression("context").getJavaExpression(baseContext)
+        return "$className $fieldName = new $className($contextExpression);"
     }
 
-    override fun getKotlinExpression(baseMatcher: BaseContext): String {
+    override fun getKotlinExpression(baseContext: BaseContext): String {
         if(view is CustomViewWrapper){
             //自定义控件
             return "${view.getViewName()}{"

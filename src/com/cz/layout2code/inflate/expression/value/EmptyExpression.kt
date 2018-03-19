@@ -11,7 +11,7 @@ class EmptyExpression:ElementExpression(){
         return mutableListOf()
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext)=String()
+    override fun getJavaExpression(baseContext: BaseContext)=String()
 
-    override fun getKotlinExpression(baseMatcher: BaseContext)=String()
+    override fun getKotlinExpression(baseContext: BaseContext)=String()
 }

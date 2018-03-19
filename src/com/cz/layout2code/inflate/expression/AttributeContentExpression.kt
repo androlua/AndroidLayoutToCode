@@ -39,12 +39,12 @@ class AttributeContentExpression: AttributeExpression() {
         return importCallback?.invoke()?: mutableListOf()
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext): String {
-        return javaCallback(baseMatcher,methodName)
+    override fun getJavaExpression(baseContext: BaseContext): String {
+        return javaCallback(baseContext,methodName)
     }
 
-    override fun getKotlinExpression(baseMatcher: BaseContext): String {
-        return kotlinCallback(baseMatcher,methodName)
+    override fun getKotlinExpression(baseContext: BaseContext): String {
+        return kotlinCallback(baseContext,methodName)
     }
 
 }

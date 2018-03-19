@@ -6,7 +6,7 @@ import com.cz.layout2code.context.BaseContext
 class FlagFieldExpression(paramsArray: List<String>) : ElementExpression() {
     private val expressionItems= mutableListOf<ElementExpression>()
     init {
-        paramsArray.forEach { expressionItems.add(ElementExpression.create(it)) }
+        paramsArray.forEach { expressionItems.add(ClassFieldExpression(it)) }
     }
 
     override fun getImportList(): MutableList<ImportItem> {
@@ -15,12 +15,12 @@ class FlagFieldExpression(paramsArray: List<String>) : ElementExpression() {
         return items
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext): String {
-        return expressionItems.joinToString(" | ") { it.getJavaExpression(baseMatcher) }
+    override fun getJavaExpression(baseContext: BaseContext): String {
+        return expressionItems.joinToString(" | ") { it.getJavaExpression(baseContext) }
     }
 
-    override fun getKotlinExpression(baseMatcher: BaseContext): String {
-        return expressionItems.joinToString(" or ") { it.getKotlinExpression(baseMatcher) }
+    override fun getKotlinExpression(baseContext: BaseContext): String {
+        return expressionItems.joinToString(" or ") { it.getKotlinExpression(baseContext) }
     }
 
 }

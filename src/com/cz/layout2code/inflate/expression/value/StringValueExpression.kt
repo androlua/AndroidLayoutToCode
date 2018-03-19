@@ -14,9 +14,9 @@ class StringValueExpression(val value: String) : ElementExpression() {
         return mutableListOf()
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext)=value
+    override fun getJavaExpression(baseContext: BaseContext)=value
 
-    override fun getKotlinExpression(baseMatcher: BaseContext)=value
+    override fun getKotlinExpression(baseContext: BaseContext)=value
 
 
 

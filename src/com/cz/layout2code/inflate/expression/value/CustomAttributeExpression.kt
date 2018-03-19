@@ -14,11 +14,11 @@ class CustomAttributeExpression(private val name:String, private val value:Strin
         return mutableListOf()
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext): String {
+    override fun getJavaExpression(baseContext: BaseContext): String {
         return "//Custom attribute $name=$value"
     }
 
-    override fun getKotlinExpression(baseMatcher: BaseContext): String {
+    override fun getKotlinExpression(baseContext: BaseContext): String {
         return "//Custom attribute $name=$value"
     }
 

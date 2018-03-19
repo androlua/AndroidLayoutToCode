@@ -12,13 +12,13 @@ class DefineLayoutParamsExpression(val widthDimenExpression:ElementExpression,
         return mutableListOf()
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext): String {
+    override fun getJavaExpression(baseContext: BaseContext): String {
         return "new ViewGroup.LayoutParams(" +
-                "${widthDimenExpression.getJavaExpression(baseMatcher)},"+
-                "${heightDimenExpression.getJavaExpression(baseMatcher)})"
+                "${widthDimenExpression.getJavaExpression(baseContext)},"+
+                "${heightDimenExpression.getJavaExpression(baseContext)})"
     }
 
-    override fun getKotlinExpression(baseMatcher: BaseContext): String {
+    override fun getKotlinExpression(baseContext: BaseContext): String {
         return "lparams()"
     }
 

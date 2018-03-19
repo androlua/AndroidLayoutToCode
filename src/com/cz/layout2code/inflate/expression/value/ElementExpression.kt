@@ -27,6 +27,12 @@ abstract class ElementExpression {
             }
         }
     }
+
+    /**
+     * 当前表达式,前置表达式
+     */
+    open fun getPreExpression(baseContext: BaseContext):ElementExpression?=null
+
     /**
      * 获得元素涉及导入信息
      */
@@ -35,10 +41,10 @@ abstract class ElementExpression {
     /**
      * 获得java取值的字符串形式
      */
-    abstract fun getJavaExpression(baseMatcher: BaseContext):String
+    abstract fun getJavaExpression(baseContext: BaseContext):String
 
     /**
      * 获得kotlin取值的字符串形式
      */
-    abstract fun getKotlinExpression(baseMatcher: BaseContext):String
+    abstract fun getKotlinExpression(baseContext: BaseContext):String
 }

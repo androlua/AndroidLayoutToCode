@@ -2,6 +2,7 @@ package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.bool
 import com.cz.layout2code.inflate.expression.value.ClassFieldExpression
+import com.cz.layout2code.inflate.expression.value.FieldExpression
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.resourceRef
 
@@ -21,14 +22,14 @@ open class AdapterViewAnimator : AdapterView() {
 			field = "inAnimation"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			methods("setInAnimation"){
-				mutableListOf(ClassFieldExpression("context"), resourceRef(it))
+				mutableListOf(FieldExpression("context"), resourceRef(it))
 			}
 		}
 		attribute{
 			field = "outAnimation"
 			attrType = arrayOf(AttrType.BOOLEAN)
 			methods("setOutAnimation"){
-				mutableListOf(ClassFieldExpression("context"), resourceRef(it))
+				mutableListOf(FieldExpression("context"), resourceRef(it))
 			}
 		}
 		attribute{

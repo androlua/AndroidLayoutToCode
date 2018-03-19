@@ -52,7 +52,9 @@ class LayoutConvertAction : BaseGenerateAction {
         val editor = event.getData(PlatformDataKeys.EDITOR)
         if(null!=project&&null!=editor) {
             val file = PsiUtilBase.getPsiFileInEditor(editor, project)
-            event.presentation.isEnabled=null!=Utils.getLayoutFileFromCaret(editor, file)
+            //屏蔽掉非java文件与查找不到layout文件场景,kotlin的支持,因为官方插件因素,待完善
+            event.presentation.isEnabled=file is PsiJavaFile&&
+                    null!=Utils.getLayoutFileFromCaret(editor, file)
         }
     }
 
@@ -99,10 +101,9 @@ class LayoutConvertAction : BaseGenerateAction {
 //                    inflate(context,R.layout.activity_main,this)
                     baseMatcher= OtherContext()
                 }
+                //生成方法
                 val converter=JavaCodeGenerate()
-                val out=converter.generate(project,baseMatcher,rootNode.children.first(),ViewGroup.LayoutParams())
-                println(out)
-
+                converter.generate(project,baseMatcher,rootNode.children.first(),ViewGroup.LayoutParams())
             }
         }
     }

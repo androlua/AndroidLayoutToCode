@@ -45,9 +45,9 @@ class ClassCallMethodExpression(val value: String) : ElementExpression() {
         return items
     }
 
-    override fun getJavaExpression(baseMatcher: BaseContext)=value
+    override fun getJavaExpression(baseContext: BaseContext)=value
 
-    override fun getKotlinExpression(baseMatcher: BaseContext)=value
+    override fun getKotlinExpression(baseContext: BaseContext)=value
 
 
 
