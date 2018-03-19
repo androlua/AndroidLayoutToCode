@@ -40,14 +40,14 @@ open class CalendarView : FrameLayout() {
 			//minData配置时为string类型,但方法设置为long型
 			field = "minDate"
 			attrType = arrayOf(AttrType.STRING)
-			comment { "//$it convert to long" }
+			comment { "//$it generate to long" }
 			property("minDate"){ long(it) }
 		}
 		attribute {
 			//maxData配置时为string类型,但方法设置为long型
 			field = "maxDate"
 			attrType = arrayOf(AttrType.STRING)
-			comment { "//$it convert to long" }
+			comment { "//$it generate to long" }
 			property("maxDate"){ long(it) }
 		}
 		attribute {

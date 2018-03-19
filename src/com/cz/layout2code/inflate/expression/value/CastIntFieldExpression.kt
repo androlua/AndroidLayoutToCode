@@ -1,7 +1,7 @@
 package com.cz.layout2code.inflate.expression.value
 
 import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * 转换Int字段表达式
@@ -14,9 +14,9 @@ class CastIntFieldExpression(val value: ElementExpression) : ElementExpression()
         return mutableListOf()
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher)="(int)${value.getJavaExpression(classMatcher)}"
+    override fun getJavaExpression(baseMatcher: BaseContext)="(int)${value.getJavaExpression(baseMatcher)}"
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher)="${value.getKotlinExpression(classMatcher)}.toInt()"
+    override fun getKotlinExpression(baseMatcher: BaseContext)="${value.getKotlinExpression(baseMatcher)}.toInt()"
 
 
 

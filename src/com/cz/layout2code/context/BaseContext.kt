@@ -1,4 +1,4 @@
-package com.cz.layout2code.matcher
+package com.cz.layout2code.context
 
 import com.cz.layout2code.inflate.item.ClassItem
 
@@ -6,7 +6,7 @@ import com.cz.layout2code.inflate.item.ClassItem
  * 基础类对接器
  * 如activity/fragment/dialog/view/等不同场下,元素的不同体现
  */
-abstract class BaseClassMatcher {
+abstract class BaseContext {
     /**
      * 获得类引用信息
      */

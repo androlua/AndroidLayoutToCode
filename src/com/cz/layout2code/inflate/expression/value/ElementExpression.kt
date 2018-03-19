@@ -1,7 +1,7 @@
 package com.cz.layout2code.inflate.expression.value
 
 import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * 元素引用表达式
@@ -35,10 +35,10 @@ abstract class ElementExpression {
     /**
      * 获得java取值的字符串形式
      */
-    abstract fun getJavaExpression(classMatcher: BaseClassMatcher):String
+    abstract fun getJavaExpression(baseMatcher: BaseContext):String
 
     /**
      * 获得kotlin取值的字符串形式
      */
-    abstract fun getKotlinExpression(classMatcher: BaseClassMatcher):String
+    abstract fun getKotlinExpression(baseMatcher: BaseContext):String
 }

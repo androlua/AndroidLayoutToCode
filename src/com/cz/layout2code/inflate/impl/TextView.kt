@@ -513,7 +513,7 @@ open class TextView : View() {
 						expression(shadowDy?.value, FloatFieldExpression("0")){ float(it) },
 						expression(shadowColor?.value, FloatFieldExpression("0")){ float(it) })
 			}
-			expressions.add(expression)
+			expressions.add(expression.callback(String()))
 		}
 	}
 
@@ -532,7 +532,7 @@ open class TextView : View() {
 						expression(drawableRight?.value,IntFieldExpression("0")){ resourceRef(it) },
 						expression(drawableBottom?.value,IntFieldExpression("0")){ resourceRef(it) })
 			}
-			expressions.add(expression)
+			expressions.add(expression.callback(String()))
 		}
 	}
 

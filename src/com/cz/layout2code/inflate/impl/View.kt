@@ -688,14 +688,13 @@ open class View {
 	 * 解析View属性集
 	 */
 	open fun inflateAttributes(viewNode:ViewNode){
-		viewNode.attributes.forEach{ attribute->
-			val findItem= viewStyleItems[attribute.name]
+		viewNode.attributes.forEach{
+			val findItem= viewStyleItems[it.name]
 			if(null!=findItem){
 				//添加控件配置属性
-				applyAttributes(attribute)
+				applyAttributes(it)
 				//回调对象取值
-				val newExpression=findItem.expression.callback(attribute.value)
-				expressions.add(newExpression)
+				expressions.add(findItem.callback(it.value))
 			}
 		}
 		//检测导包
@@ -733,7 +732,7 @@ open class View {
 						dimenPadding(padding.value),
 						dimenPadding(padding.value))
 			}
-			expressions.add(expression)
+			expressions.add(expression.callback(String()))
 		} else {
 			if (null != paddingHorizontal) {
 				paddingLeft = paddingHorizontal
@@ -751,7 +750,7 @@ open class View {
 					dimenPadding(paddingRight?.value),
 					dimenPadding(paddingBottom?.value))
 				}
-				expressions.add(expression)
+				expressions.add(expression.callback(String()))
 			} else if (null != paddingStart || null != paddingEnd) {
 				val expression=AttributeMethodMultiParamsExpression("setPadding"){
 					mutableListOf(dimenPadding(paddingStart?.value),
@@ -759,7 +758,7 @@ open class View {
 							dimenPadding(paddingEnd?.value),
 							dimenPadding(paddingBottom?.value))
 				}
-				expressions.add(expression)
+				expressions.add(expression.callback(String()))
 			}
 		}
 	}

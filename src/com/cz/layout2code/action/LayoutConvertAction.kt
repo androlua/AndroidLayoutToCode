@@ -4,11 +4,13 @@ import com.cz.convert.isActivity
 import com.cz.convert.isDialog
 import com.cz.convert.isFragment
 import com.cz.convert.isView
+import com.cz.layout2code.generate.JavaCodeGenerate
 import com.cz.layout2code.delegate.MessageDelegate
+import com.cz.layout2code.inflate.impl.ViewGroup
 import com.cz.layout2code.inflate.item.AttributeNode
 import com.cz.layout2code.inflate.item.DefineViewNode
 import com.cz.layout2code.inflate.item.ViewNode
-import com.cz.layout2code.matcher.*
+import com.cz.layout2code.context.*
 import com.cz.layout2code.util.Utils
 import com.intellij.codeInsight.CodeInsightActionHandler
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction
@@ -37,7 +39,7 @@ import java.io.File
  * idea 在开启两个不同的类加载器,导致同样的对象,无法作类型判断,无法强转.
  * java.lang.ClassCastException: org.jetbrains.kotlin.psi.KtFile cannot be cast to org.jetbrains.kotlin.psi.KtFile
  */
-public class LayoutConvertAction : BaseGenerateAction {
+class LayoutConvertAction : BaseGenerateAction {
     val defineWidgetAttrs= mutableListOf<DefineViewNode>()
 
     constructor() : super(null)
@@ -75,28 +77,31 @@ public class LayoutConvertAction : BaseGenerateAction {
                 val builder = SAXBuilder()//实例JDOM解析器
                 val document = builder.build(layoutFile)//读取xml文件
                 //递归解析所有节点,收集所有自定义控件
-                val parent = ViewNode("root", 0)
+                val rootNode = ViewNode("root", 0)
                 val customNodes = mutableListOf<ViewNode>()
-                parseElement(parent, document.rootElement, customNodes)
+                parseElement(rootNode, document.rootElement, customNodes)
                 //确定场景匹配器,负责上下文,以及其他字段的特例化
-                val classMatcher:BaseClassMatcher
+                val baseMatcher:BaseContext
                 if(clazz.isActivity()){
 //                    setContent(contentView)
-                    classMatcher=ActivityClassMatcher()
+                    baseMatcher=ActivityContext()
                 } else if(clazz.isFragment()){
 //                    inflater.inflate()
-                    classMatcher= FragmentClassMatcher()
+                    baseMatcher= FragmentContext()
                 } else if(clazz.isDialog()){
 //                    setContent(contentView)
-                    classMatcher= DialogClassMatcher()
+                    baseMatcher= DialogContext()
                 } else if(clazz.isView()){
 //                    inflate(context,R.layout.activity_main,this)
-                    classMatcher= ViewClassMatcher()
+                    baseMatcher= ViewContext()
                 } else {
                     //其他
 //                    inflate(context,R.layout.activity_main,this)
-                    classMatcher= OtherClassMatcher()
+                    baseMatcher= OtherContext()
                 }
+                val converter=JavaCodeGenerate()
+                val out=converter.generate(project,baseMatcher,rootNode.children.first(),ViewGroup.LayoutParams())
+                println(out)
 
             }
         }
@@ -149,16 +154,16 @@ public class LayoutConvertAction : BaseGenerateAction {
 //                            if(file is PsiJavaFile){
 //                                out.append("private View getContentView(Context context){\n")
 //                                out.append("\tResources resources = getResources();\n")
-//                                val converter = JavaCodeConverter()
-//                                out.append(converter.convert(project,parent.children.first()))
+//                                val converter = JavaCodeGenerate()
+//                                out.append(converter.generate(project,parent.children.first()))
 //                                out.append("}\n")
 //                            } else {
 ////                                out.append("private fun getContentView(context:Context):View{\n")
 ////                                out.append("\tval resources = getResources()\n")
-//                                val converter = KotlinCodeConverter()
-////                                out.append(converter.convert(project,parent.children.first()))
+//                                val converter = KotlinCodeGenerate()
+////                                out.append(converter.generate(project,parent.children.first()))
 ////                                out.append("}\n")
-//                                println(converter.convert(project,parent.children.first()))
+//                                println(converter.generate(project,parent.children.first()))
 //                            }
 //                        }
 //                    }
@@ -204,14 +209,14 @@ public class LayoutConvertAction : BaseGenerateAction {
 ////                            val inflate1 = View.inflate(this, R.layout.activity_main, parentLayout)
 ////                            val parentLayout1 = FrameLayout(this)
 ////                            val inflate = LayoutInflater.from(this).inflate(R.layout.activity_main, parentLayout1, false)
-//                            val matcher = ("(?<contentLayout>setContentView.+)|" +
+//                            val context = ("(?<contentLayout>setContentView.+)|" +
 //                                    "(inflate\\(\\w+,\\s*[\\w\\.]+,\\s*(?<viewInflate>\\w+)\\))|" +
-//                                    "(inflate\\([\\w\\.]+,\\s*(?<inflate>\\w+),\\s*\\w+\\))").toPattern().matcher(text)
+//                                    "(inflate\\([\\w\\.]+,\\s*(?<inflate>\\w+),\\s*\\w+\\))").toPattern().context(text)
 //                            var parentLayout:String?=null
-//                            if(matcher.find()){
-//                                if(null!=matcher.group("contentLayout")){
+//                            if(context.find()){
+//                                if(null!=context.group("contentLayout")){
 //
-//                                } else if(null!=matcher.group("viewInflate")||null!=matcher.group("inflate")){
+//                                } else if(null!=context.group("viewInflate")||null!=context.group("inflate")){
 //
 //                                }
 //                            }

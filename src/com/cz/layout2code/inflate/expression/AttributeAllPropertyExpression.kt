@@ -2,7 +2,7 @@ package com.cz.layout2code.inflate.expression
 
 import com.cz.layout2code.inflate.item.ImportItem
 import com.cz.layout2code.inflate.expression.value.ElementExpression
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * 属性表达式
@@ -22,12 +22,12 @@ class AttributeAllPropertyExpression(private val property:String,private val cal
         return expression.getImportList()
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher): String {
-        return "$property = ${expression.getKotlinExpression(classMatcher)}"
+    override fun getJavaExpression(baseMatcher: BaseContext): String {
+        return "$property = ${expression.getKotlinExpression(baseMatcher)}"
     }
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher): String {
-        return "$property = ${expression.getKotlinExpression(classMatcher)}"
+    override fun getKotlinExpression(baseMatcher: BaseContext): String {
+        return "$property = ${expression.getKotlinExpression(baseMatcher)}"
     }
 
 }

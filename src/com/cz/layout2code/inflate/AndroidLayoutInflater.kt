@@ -1,9 +1,6 @@
 package com.cz.layout2code.inflate
 
 import com.cz.layout2code.config.WidgetConfiguration
-import com.cz.layout2code.convert.BaseCodeConverter
-import com.cz.layout2code.convert.JavaCodeConverter
-import com.cz.layout2code.convert.KotlinCodeConverter
 import com.cz.layout2code.delegate.MessageDelegate
 import com.cz.layout2code.form.UnknownWidgetForm
 import com.cz.layout2code.inflate.item.AttributeNode
@@ -67,14 +64,14 @@ object AndroidLayoutInflater {
                 //直接生成代码
 //                processLayoutWidget(project,file,clazz,parent.children.first(),isJava)
 //            }
-//            var converter: BaseCodeConverter
+//            var converter: BaseCodeGenerate
 //            val root=parent.children.first()
 //            if(convertToJava){
 //                //java源码输出
-//                converter = JavaCodeConverter()
+//                converter = JavaCodeGenerate()
 //            } else {
 //                //kotlin anko输出
-//                println(KotlinCodeConverter().convert(project,root))
+//                println(KotlinCodeGenerate().generate(project,root))
 //            }
         }
     }

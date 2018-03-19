@@ -1,7 +1,7 @@
 package com.cz.layout2code.inflate.expression.value
 
 import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * float字段表达式
@@ -14,9 +14,9 @@ class FloatFieldExpression(val value: String) : ElementExpression() {
         return mutableListOf()
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher)="${value}f"
+    override fun getJavaExpression(baseMatcher: BaseContext)="${value}f"
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher)="$value.toFloat()"
+    override fun getKotlinExpression(baseMatcher: BaseContext)="$value.toFloat()"
 
 
 

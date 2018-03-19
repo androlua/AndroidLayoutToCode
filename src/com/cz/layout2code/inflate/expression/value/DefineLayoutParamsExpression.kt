@@ -1,7 +1,7 @@
 package com.cz.layout2code.inflate.expression.value
 
 import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * 声明LayoutParams表达式
@@ -12,13 +12,13 @@ class DefineLayoutParamsExpression(val widthDimenExpression:ElementExpression,
         return mutableListOf()
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher): String {
+    override fun getJavaExpression(baseMatcher: BaseContext): String {
         return "new ViewGroup.LayoutParams(" +
-                "${widthDimenExpression.getJavaExpression(classMatcher)},"+
-                "${heightDimenExpression.getJavaExpression(classMatcher)});"
+                "${widthDimenExpression.getJavaExpression(baseMatcher)},"+
+                "${heightDimenExpression.getJavaExpression(baseMatcher)})"
     }
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher): String {
+    override fun getKotlinExpression(baseMatcher: BaseContext): String {
         return "lparams()"
     }
 

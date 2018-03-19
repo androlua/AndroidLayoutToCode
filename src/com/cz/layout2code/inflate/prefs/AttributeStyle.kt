@@ -34,7 +34,7 @@ class AttributeStyle {
     fun property(action:PropertyItem.()->Unit){
         //记录自定义表达式
         val propertyItem = PropertyItem().apply(action)
-        expression =AttributePropertyExpression(propertyItem.property,propertyItem.value)
+        expression =AttributePropertyExpression(propertyItem.java,propertyItem.kotlin,propertyItem.value)
     }
 
     fun property(property:String,value:((String)->ElementExpression)){
@@ -60,6 +60,10 @@ class AttributeStyle {
 
     fun expression(item:AttributeContentExpression.()->Unit){
         expression=AttributeContentExpression().apply(item)
+    }
+
+    inline fun callback(value:String):ElementExpression{
+        return expression.callback(value)
     }
 
     class PropertyItem {

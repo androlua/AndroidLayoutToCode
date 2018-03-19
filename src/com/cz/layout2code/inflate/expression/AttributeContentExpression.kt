@@ -1,7 +1,7 @@
 package com.cz.layout2code.inflate.expression
 
 import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * 自定义内容表达式对象
@@ -9,8 +9,8 @@ import com.cz.layout2code.matcher.BaseClassMatcher
 class AttributeContentExpression: AttributeExpression() {
 
     private var importCallback:(()->MutableList<ImportItem>)?=null
-    private lateinit var javaCallback:(BaseClassMatcher,String)->String
-    private lateinit var kotlinCallback:(BaseClassMatcher,String)->String
+    private lateinit var javaCallback:(BaseContext, String)->String
+    private lateinit var kotlinCallback:(BaseContext, String)->String
     private lateinit var methodName:String
 
     override fun callback(value: String):AttributeExpression {
@@ -27,11 +27,11 @@ class AttributeContentExpression: AttributeExpression() {
         this.importCallback=callback
     }
 
-    fun javaExpression(callback:(BaseClassMatcher,String)->String){
+    fun javaExpression(callback:(BaseContext, String)->String){
         this.javaCallback=callback
     }
 
-    fun kotlinExpression(callback:(BaseClassMatcher,String)->String){
+    fun kotlinExpression(callback:(BaseContext, String)->String){
         this.javaCallback=callback
     }
 
@@ -39,12 +39,12 @@ class AttributeContentExpression: AttributeExpression() {
         return importCallback?.invoke()?: mutableListOf()
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher): String {
-        return javaCallback(classMatcher,methodName)
+    override fun getJavaExpression(baseMatcher: BaseContext): String {
+        return javaCallback(baseMatcher,methodName)
     }
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher): String {
-        return kotlinCallback(classMatcher,methodName)
+    override fun getKotlinExpression(baseMatcher: BaseContext): String {
+        return kotlinCallback(baseMatcher,methodName)
     }
 
 }

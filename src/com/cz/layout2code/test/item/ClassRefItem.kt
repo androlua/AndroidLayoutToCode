@@ -14,4 +14,8 @@ class ClassRefItem{
     val attributes= mutableListOf<String>()
     //内部类引用
     val innerClassRefItems= mutableListOf<ClassRefItem>()
+
+    override fun toString(): String {
+        return className
+    }
 }

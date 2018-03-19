@@ -10,4 +10,8 @@ class ClassItem{
     var document= String()
     //内部类
     val innerClasses= mutableListOf<ClassItem>()
+
+    override fun toString(): String {
+        return classDef
+    }
 }

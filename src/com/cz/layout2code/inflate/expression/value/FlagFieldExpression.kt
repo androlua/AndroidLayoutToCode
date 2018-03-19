@@ -1,7 +1,7 @@
 package com.cz.layout2code.inflate.expression.value
 
 import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 class FlagFieldExpression(paramsArray: List<String>) : ElementExpression() {
     private val expressionItems= mutableListOf<ElementExpression>()
@@ -15,12 +15,12 @@ class FlagFieldExpression(paramsArray: List<String>) : ElementExpression() {
         return items
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher): String {
-        return expressionItems.joinToString(" | ") { it.getJavaExpression(classMatcher) }
+    override fun getJavaExpression(baseMatcher: BaseContext): String {
+        return expressionItems.joinToString(" | ") { it.getJavaExpression(baseMatcher) }
     }
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher): String {
-        return expressionItems.joinToString(" or ") { it.getKotlinExpression(classMatcher) }
+    override fun getKotlinExpression(baseMatcher: BaseContext): String {
+        return expressionItems.joinToString(" or ") { it.getKotlinExpression(baseMatcher) }
     }
 
 }

@@ -38,13 +38,13 @@ open class DatePicker : FrameLayout() {
 		attribute{
 			field = "minDate"
 			attrType = arrayOf(AttrType.STRING)
-			comment { "$it convert to long" }
+			comment { "$it generate to long" }
 			property ("minDate"){ long(it) }
 		}
 		attribute{
 			field = "maxDate"
 			attrType = arrayOf(AttrType.STRING)
-			comment { "$it convert to long" }
+			comment { "$it generate to long" }
 			property ("maxDate"){ long(it) }
 		}
 		attribute{

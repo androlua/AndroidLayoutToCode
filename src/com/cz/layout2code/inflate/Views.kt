@@ -110,6 +110,10 @@ fun AttributeStyle.pointerIcon(pointerIcon:String)=pointerIconInner(pointerIcon)
 fun AttributeStyle.scrollIndicators(scrollIndicators:String)=scrollIndicatorsInner(scrollIndicators)
 fun AttributeStyle.justificationMode(justificationMode:String)=justificationModeInner(justificationMode)
 
+fun AttributeStyle.transcriptMode(transcriptMode:String)=transcriptModeInner(transcriptMode)
+fun AttributeStyle.listChoiceMode(listChoiceMode:String)=listChoiceModeInner(listChoiceMode)
+
+fun AttributeStyle.stretchMode(stretchMode:String)=stretchModeInner(stretchMode)
 
 private fun dimenInner(value:String):ElementExpression{
     if(value.startsWith("@")){
@@ -1102,5 +1106,59 @@ private fun justificationModeInner(justificationMode:String):ElementExpression{
     return ClassFieldExpression(when(justificationMode){
         "inter_word"->"Layout.JUSTIFICATION_MODE_INTER_WORD"
         else->"Layout.JUSTIFICATION_MODE_NONE"
+    })
+}
+
+
+/**
+ * @see AbsListView#TRANSCRIPT_MODE_DISABLED
+ * @see AbsListView#TRANSCRIPT_MODE_NORMAL
+ * @see AbsListView#TRANSCRIPT_MODE_ALWAYS_SCROLL
+ */
+private fun transcriptModeInner(transcriptMode:String):ElementExpression{
+    return ClassFieldExpression(when(transcriptMode){
+        "alwaysScroll"->"AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL"
+        "normal"->"AbsListView.TRANSCRIPT_MODE_NORMAL"
+        else->"AbsListView.TRANSCRIPT_MODE_DISABLED"
+    })
+}
+
+/**
+ * <enum name="none" value="0" />
+ * <enum name="singleChoice" value="1" />
+ * <enum name="multipleChoice" value="2" />
+ * <enum name="multipleChoiceModal" value="3" />
+ *
+ * AbsListView#CHOICE_MODE_NONE = 0;
+ * AbsListView#CHOICE_MODE_SINGLE = 1;
+ * AbsListView#CHOICE_MODE_MULTIPLE = 2;
+ * AbsListView#CHOICE_MODE_MULTIPLE_MODAL = 3;
+ */
+private fun listChoiceModeInner(listChoiceMode:String):ElementExpression{
+    return ClassFieldExpression(when(listChoiceMode){
+        "singleChoice"->"AbsListView.CHOICE_MODE_SINGLE"
+        "multipleChoice"->"AbsListView.CHOICE_MODE_MULTIPLE"
+        "multipleChoiceModal"->"AbsListView.CHOICE_MODE_MULTIPLE_MODAL"
+        else->"AbsListView.CHOICE_MODE_NONE"
+    })
+}
+
+/**
+ * <enum name="none" value="0" />
+ * <enum name="singleChoice" value="1" />
+ * <enum name="multipleChoice" value="2" />
+ * <enum name="multipleChoiceModal" value="3" />
+ *
+ * GridView#NO_STRETCH = 0;
+ * GridView#STRETCH_SPACING = 1;
+ * GridView#STRETCH_COLUMN_WIDTH = 2;
+ * GridView#STRETCH_SPACING_UNIFORM = 3;
+ */
+private fun stretchModeInner(stretchMode:String):ElementExpression{
+    return ClassFieldExpression(when(stretchMode){
+        "spacingWidth"->"GridView.STRETCH_SPACING"
+        "columnWidth"->"GridView.STRETCH_COLUMN_WIDTH"
+        "spacingWidthUniform"->"GridView.STRETCH_SPACING_UNIFORM"
+        else->"GridView.NO_STRETCH"
     })
 }

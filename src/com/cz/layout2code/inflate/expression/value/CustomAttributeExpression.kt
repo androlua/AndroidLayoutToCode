@@ -1,8 +1,7 @@
 package com.cz.layout2code.inflate.expression.value
 
 import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.inflate.expression.value.ElementExpression
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * 自定义属性表达式
@@ -15,11 +14,11 @@ class CustomAttributeExpression(private val name:String, private val value:Strin
         return mutableListOf()
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher): String {
+    override fun getJavaExpression(baseMatcher: BaseContext): String {
         return "//Custom attribute $name=$value"
     }
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher): String {
+    override fun getKotlinExpression(baseMatcher: BaseContext): String {
         return "//Custom attribute $name=$value"
     }
 

@@ -1,7 +1,7 @@
 package com.cz.layout2code.inflate.expression.value
 
 import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * 类调用方法表达式
@@ -14,7 +14,7 @@ class ClassCallMethodExpression(val value: String) : ElementExpression() {
     init {
         val matcher="(?<fieldName>[\\w\\.]+)+\\.(?<methodName>\\w+)\\((?<params>.*)\\)".toPattern().matcher(value)
         if(!matcher.find()){
-            throw IllegalArgumentException("Can't convert $value to method expression!")
+            throw IllegalArgumentException("Can't generate $value to method expression!")
         }
         //类表达式
         classField= ClassFieldExpression(matcher.group("fieldName"))
@@ -45,9 +45,9 @@ class ClassCallMethodExpression(val value: String) : ElementExpression() {
         return items
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher)=value
+    override fun getJavaExpression(baseMatcher: BaseContext)=value
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher)=value
+    override fun getKotlinExpression(baseMatcher: BaseContext)=value
 
 
 

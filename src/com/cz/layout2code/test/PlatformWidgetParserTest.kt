@@ -27,21 +27,56 @@ class PlatformWidgetParserTest {
      */
     @Test
     fun parse(){
-        //TODO 此处动态取用户目录下的adb path
-//        val folder= File("/Users/cz/Library/Android/sdk/sources/android-26/android")
-        val folder=File("D:\\Android\\Sdk\\sources\\android-25\\android")
+        val folder= File("/Users/cz/Library/Android/sdk/sources/android-27/android")
+//        val folder=File("D:\\Android\\Sdk\\sources\\android-25\\android")
         //合并目录内所有的类信息
-        val classItems = mergeFolder(File(folder,"/view/"), File(folder,"/widget/"))
+        val classItems = mergeFolder(File(folder,"/widget/"),File(folder,"/view/"))
         val classRefItems= mutableListOf<ClassRefItem>()
-        //解析出所有的类文档类引用
+//        //解析出所有的类文档类引用
         classItems.forEach { parseClassItem(it,null,classRefItems) }
-        //移除无用类,只保留类为View的无基类的class
+//        //移除无用类,只保留类为View的无基类的class
         classRefItems.removeAll { !isValid(it,classRefItems) }
-        //移除其他无用的内部类
+//        //移除其他无用的内部类
         classRefItems.forEach { it.innerClassRefItems.removeAll { it.className!="LayoutParams"&&it.className!="MarginLayoutParams" } }
-        //生成实现类
-        generateViewClass(classRefItems)
-
+        val createFolder=File("src/com/cz/layout2code/inflate/impl/")
+        //比较控件差异
+        if(createFolder.exists()){
+            val array=createFolder.listFiles{_,name-> name.endsWith("kt") }
+            val classItems=array.filter { it.name!="Widgets.kt" }.map { it.name.substringBefore(".") }.toMutableList()
+            //无属性控件集
+            var widgetFile=array.find { it.name=="Widgets.kt" }
+            if(null!=widgetFile){
+                val text=widgetFile.readText()
+                val matcher="open\\s+class\\s+(\\w+)".toPattern().matcher(text)
+                while(matcher.find()){
+                    val className=matcher.group(1)
+                    classItems.add(className)
+                }
+            }
+            //采集了当下所有控件,与现有控件作对比
+            classRefItems.removeAll { classItems.contains(it.className) }
+            //保存空属性控件到Widgets文件下
+            if(null==widgetFile){
+                widgetFile=File(createFolder,"Widgets.kt")
+                widgetFile.createNewFile()
+            }
+            val out=StringBuilder()
+            classRefItems.filter { it.attributes.isEmpty() }.forEach{
+                if(null!=it.superClass){
+                    out.append("open class ${it.className} : ${it.superClass}() {\n")
+                } else {
+                    out.append("open class ${it.className} {\n")
+                }
+                val className=it.className[0].toLowerCase()+it.className.substring(1)
+                out.append("\toverride fun getViewName()=\"$className\"\n")
+                out.append("\toverride fun getThemeViewName()=\"themed${it.className}\"\n")
+                out.append("}\n")
+            }
+            widgetFile.appendText(out.toString())
+            //写入其他控件
+            val items=classRefItems.filter { it.attributes.isNotEmpty() }.toMutableList()
+            generateViewClass(items)
+        }
     }
 
     /**
@@ -50,12 +85,10 @@ class PlatformWidgetParserTest {
      */
     private fun generateViewClass(classRefItems: MutableList<ClassRefItem>) {
         classRefItems.forEach { item->
-            val file=File("src/com.cz.layout2code/inflate/impl/${item.className}.kt")
+            val file=File("src/com/cz/layout2code/inflate/impl/${item.className}.kt")
             val packageName="com.cz.layout2code.inflate.impl"
             val out=StringBuilder()
             out.append("package $packageName\n\n")
-            //导包信息
-            out.append("import org.jdom.Element\n")
             buildClass(out,item)
             file.createNewFile()
             file.writeText(out.toString())
@@ -65,7 +98,7 @@ class PlatformWidgetParserTest {
     private fun buildClass(out: StringBuilder, classRefItem:ClassRefItem) {
         //注释信息
         out.append("/**\n")
-        out.append(" * Created by cz on 2017/12/19.\n")
+        out.append(" * Created by cz on 2018/3/19.\n")
         out.append(" * \n")
         out.append(" * ---------------${classRefItem.className} all expressions---------------\n")
         classRefItem.refItems.forEach { out.append(" * $it\n") }
@@ -85,7 +118,7 @@ class PlatformWidgetParserTest {
 
         out.append("\t\n")
         out.append("\t/**\n")
-        out.append("\t * 解析${classRefItem.className}属性集,并返回解析后的anko代码\n")
+        out.append("\t * 解析${classRefItem.className}属性集,并返回解析后的对象代码代码\n")
         out.append("\t */\n")
 
         var modifier=if(classRefItem.superClass==null) "open" else "override"
@@ -215,10 +248,14 @@ class PlatformWidgetParserTest {
     fun mergeFolder(vararg folders:File):MutableList<ClassItem>{
         val classItems= mutableListOf<ClassItem>()
         for(folder in folders){
-            classItems+=folder.listFiles().
+            println("folder:${folder.name} ${folder.listFiles().size}")
+        }
+        for(folder in folders){
+            val items=folder.listFiles().
                     filter { it.name.endsWith(".java") }.
                     map{parseSourceFile(it)}.
-                    filter { it.classDef.isNotEmpty()&&it.document.isNotEmpty() }//过滤掉没有检索出来信息,如interface
+                    filter { it.classDef.isNotEmpty() }//过滤掉没有检索出来信息,如interface
+            classItems+=items
         }
         return classItems
     }
@@ -257,7 +294,7 @@ class PlatformWidgetParserTest {
                     } else if("*/"==word||word.endsWith("*/")){
                         //离开文档区间
                         status= status xor DOC_SPACE
-                    } else if("class"==word){
+                    } else if("class"==word||"interface"==word){
                         //当类作用域不在注释时,出现类声明
                         if(0==(status and DOC_SPACE)&&0==(status and SINGLE_DOC_SPACE)){
                             status=status or DEF_CLASS
@@ -319,7 +356,7 @@ class PlatformWidgetParserTest {
         //分析引用信息
         val classRefItem= ClassRefItem()
         //步骤1:分析类声明
-        val matcher="(?<class>[^<\\s]+)\\s+(extends\\s+(?<super>[^<\\s]+))?".toPattern().matcher(classItem.classDef)
+        val matcher="(?<class>\\w+)(<.+?>)?\\s+(extends\\s+(?<super>\\w+)(<.+?>)?)?".toPattern().matcher(classItem.classDef)
         if(matcher.find()){
             classRefItem.className=matcher.group("class")
             classRefItem.superClass=matcher.group("super")

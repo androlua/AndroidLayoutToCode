@@ -21,6 +21,8 @@ object ClassReferences {
         item{ classPath="android.widget.LinearLayout"}
         item{ classPath="android.widget.ImageView" }
         item{ classPath="android.widget.RelativeLayout"}
+        item{ classPath="android.widget.AbsListView"}
+        item{ classPath="android.widget.GridView"}
         item{ classPath="android.text.TextUtils"}
         item{ classPath="android.text.InputType"}
         item{ classPath="android.text.util.Linkify"}

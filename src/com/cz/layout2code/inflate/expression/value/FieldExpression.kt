@@ -1,7 +1,7 @@
 package com.cz.layout2code.inflate.expression.value
 
 import com.cz.layout2code.inflate.item.ImportItem
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * 类字段表达式
@@ -14,8 +14,8 @@ class FieldExpression(private val classField: String) : ElementExpression() {
         return mutableListOf()
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher)=classField
+    override fun getJavaExpression(baseMatcher: BaseContext)=classField
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher)=classField
+    override fun getKotlinExpression(baseMatcher: BaseContext)=classField
 
 }

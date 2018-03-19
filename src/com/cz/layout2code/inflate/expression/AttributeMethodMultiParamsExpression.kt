@@ -2,7 +2,7 @@ package com.cz.layout2code.inflate.expression
 
 import com.cz.layout2code.inflate.item.ImportItem
 import com.cz.layout2code.inflate.expression.value.ElementExpression
-import com.cz.layout2code.matcher.BaseClassMatcher
+import com.cz.layout2code.context.BaseContext
 
 /**
  * 属性表达式
@@ -25,13 +25,13 @@ class AttributeMethodMultiParamsExpression(private val methodName: String,privat
         return importItems
     }
 
-    override fun getJavaExpression(classMatcher: BaseClassMatcher): String {
-        val params=expressions.joinToString(", "){ it.getJavaExpression(classMatcher) }
+    override fun getJavaExpression(baseMatcher: BaseContext): String {
+        val params=expressions.joinToString(", "){ it.getJavaExpression(baseMatcher) }
         return "$methodName($params);"
     }
 
-    override fun getKotlinExpression(classMatcher: BaseClassMatcher): String {
-        val params=expressions.joinToString(", "){ it.getKotlinExpression(classMatcher) }
+    override fun getKotlinExpression(baseMatcher: BaseContext): String {
+        val params=expressions.joinToString(", "){ it.getKotlinExpression(baseMatcher) }
         return "$methodName($params)"
     }
 

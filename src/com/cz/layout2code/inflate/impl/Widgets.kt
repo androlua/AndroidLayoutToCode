@@ -110,3 +110,47 @@ open class ZoomControls : LinearLayout() {
     override fun getViewName()="zoomControls"
     override fun getThemeViewName()="themedZoomControls"
 }
+open class DatePickerCalendarDelegate : DatePicker() {
+	override fun getViewName()="datePickerCalendarDelegate"
+	override fun getThemeViewName()="themedDatePickerCalendarDelegate"
+}
+open class DropDownListView : ListView() {
+	override fun getViewName()="dropDownListView"
+	override fun getThemeViewName()="themedDropDownListView"
+}
+open class CalendarViewLegacyDelegate : CalendarView() {
+	override fun getViewName()="calendarViewLegacyDelegate"
+	override fun getThemeViewName()="themedCalendarViewLegacyDelegate"
+}
+open class YearPickerView : ListView() {
+	override fun getViewName()="yearPickerView"
+	override fun getThemeViewName()="themedYearPickerView"
+}
+open class AdapterView : ViewGroup() {
+	override fun getViewName()="adapterView"
+	override fun getThemeViewName()="themedAdapterView"
+}
+open class StackView : AdapterViewAnimator() {
+	override fun getViewName()="stackView"
+	override fun getThemeViewName()="themedStackView"
+}
+open class CalendarViewMaterialDelegate : CalendarView() {
+	override fun getViewName()="calendarViewMaterialDelegate"
+	override fun getThemeViewName()="themedCalendarViewMaterialDelegate"
+}
+open class DayPickerView : ViewGroup() {
+	override fun getViewName()="dayPickerView"
+	override fun getThemeViewName()="themedDayPickerView"
+}
+open class TimePickerClockDelegate : TimePicker() {
+	override fun getViewName()="timePickerClockDelegate"
+	override fun getThemeViewName()="themedTimePickerClockDelegate"
+}
+open class TimePickerSpinnerDelegate : TimePicker() {
+	override fun getViewName()="timePickerSpinnerDelegate"
+	override fun getThemeViewName()="themedTimePickerSpinnerDelegate"
+}
+open class DateTimeView : TextView() {
+	override fun getViewName()="dateTimeView"
+	override fun getThemeViewName()="themedDateTimeView"
+}
