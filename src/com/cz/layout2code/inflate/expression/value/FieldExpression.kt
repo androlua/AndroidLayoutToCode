@@ -15,9 +15,7 @@ class FieldExpression(private val field: String) : ElementExpression() {
     }
 
     override fun getJavaExpression(context: BaseContext):String{
-        val javaField = context.getJavaField(field)
-        println("$field $javaField")
-        return javaField
+        return context.getJavaField(field)
     }
 
     override fun getKotlinExpression(context: BaseContext):String{

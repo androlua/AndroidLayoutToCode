@@ -3,6 +3,7 @@ package com.cz.layout2code.inflate.expression
 import com.cz.layout2code.inflate.item.ImportItem
 import com.cz.layout2code.inflate.expression.value.ElementExpression
 import com.cz.layout2code.context.BaseContext
+import com.cz.layout2code.inflate.VERSIONS
 
 /**
  * 属性表达式
@@ -11,7 +12,7 @@ import com.cz.layout2code.context.BaseContext
  */
 class AttributeAllPropertyExpression(private val property:String,private val callback:(String)->ElementExpression) : AttributeExpression() {
     lateinit var expression: ElementExpression
-
+    private val importList= mutableListOf<ImportItem>()
     override fun callback(value:String):AttributeExpression{
         val item=AttributeAllPropertyExpression(property,callback)
         item.expression=callback.invoke(value)
@@ -19,15 +20,32 @@ class AttributeAllPropertyExpression(private val property:String,private val cal
     }
 
     override fun getImportList(): MutableList<ImportItem> {
-        return expression.getImportList()
+        importList+=expression.getImportList()
+        return importList
     }
 
     override fun getJavaExpression(context: BaseContext): String {
-        return "$property = ${expression.getKotlinExpression(context)}"
+        return if(0==sdk){
+            "$property = ${expression.getKotlinExpression(context)}"
+        } else {
+            //附加版本class导入
+            importList.add(ImportItem("android.os.Build"))
+            "if(Build.VERSION_CODES.${VERSIONS[sdk]}<Build.VERSION.SDK_INT){\n"+
+                    "\t$property = ${expression.getKotlinExpression(context)}\n"+
+                    "}"
+        }
     }
 
     override fun getKotlinExpression(context: BaseContext): String {
-        return "$property = ${expression.getKotlinExpression(context)}"
+        return if(0==sdk){
+            "$property = ${expression.getKotlinExpression(context)}"
+        } else {
+            //附加版本class导入
+            importList.add(ImportItem("org.jetbrains.anko.doFromSdk"))
+            "doFromSdk(Build.VERSION_CODES.${VERSIONS[sdk]}){\n"+
+                    "\t$property = ${expression.getKotlinExpression(context)}\n"+
+                    "}"
+        }
     }
 
 }

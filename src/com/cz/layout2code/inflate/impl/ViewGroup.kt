@@ -163,7 +163,7 @@ open class ViewGroup : View() {
 
 		protected fun attribute(action: AttributeStyle.()->Unit){
 			val attributeStyle = AttributeStyle().apply(action)
-			viewStyleItems.put(attributeStyle.field,attributeStyle)
+			viewStyleItems[attributeStyle.field] = attributeStyle
 		}
 
 		/**
@@ -203,7 +203,7 @@ open class ViewGroup : View() {
 					//添加控件配置属性
 					applyAttributes(it)
 					//回调对象取值
-					val newExpression=findItem.expression.callback(it.value)
+					val newExpression=findItem.callback(it.value)
 					expressions.add(newExpression)
 				}
 			}

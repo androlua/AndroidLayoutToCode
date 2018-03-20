@@ -4,6 +4,7 @@ import com.cz.layout2code.inflate.expression.value.DefineViewClassExpression
 import com.cz.layout2code.inflate.impl.ViewGroup
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.context.BaseContext
+import com.cz.layout2code.delegate.MessageDelegate
 import com.cz.layout2code.inflate.ClassReferences
 import com.cz.layout2code.inflate.expression.value.CustomAttributeExpression
 import com.cz.layout2code.inflate.item.ImportItem
@@ -39,10 +40,12 @@ class JavaCodeGenerate(project: Project, context: BaseContext, clazz: PsiClass) 
             val out=StringBuilder()
             val content=generateCode(rootNode,layoutParams,null)
             val layoutName = layoutName(layoutFile.name.substringBefore("."))
-            out.append("private View get$layoutName(){\n")
+            val methodName="get$layoutName()"
+            out.append("private View $methodName(){\n")
             //添加场景前置表达式
             val preExpressions = context.getPreExpressions()
             preExpressions.forEach { _,value->
+                importList+=value.getImportList()
                 out.append("${value.getJavaExpression(context)}\n")
             }
             //添加内容体
@@ -69,6 +72,8 @@ class JavaCodeGenerate(project: Project, context: BaseContext, clazz: PsiClass) 
             importClassRef(file, javaPsiFacade, globalSearchScope, factory)
             //替换调用表达式
             replaceCallElement(containingElement, factory, layoutName)
+            //弹出消息提示
+            MessageDelegate.logEventMessage("Generate:${layoutFile.name} to method:$methodName complete!")
         }
     }
 
@@ -77,20 +82,19 @@ class JavaCodeGenerate(project: Project, context: BaseContext, clazz: PsiClass) 
      */
     private fun importClassRef(file: PsiJavaFile, javaPsiFacade: JavaPsiFacade, globalSearchScope: GlobalSearchScope, factory: PsiElementFactory) {
         val allImportReference = file.importList?.allImportStatements?.mapNotNull { it.importReference?.text }
-        importList.forEach(::println)
-//        importList.forEach {
-//            val classReference = it.getClassReference()
-//            if (null == allImportReference || allImportReference.none { it == classReference }) {
-//                val findClass = javaPsiFacade.findClass(classReference, globalSearchScope)
-//                //导入此class
-//                if (null != findClass) {
-//                    val importStatement = factory.createImportStatement(findClass)
-//                    if (null != importStatement) {
-//                        file.importList?.add(importStatement)
-//                    }
-//                }
-//            }
-//        }
+        importList.forEach {
+            val classReference = it.getClassReference()
+            if (null == allImportReference || allImportReference.none { it == classReference }) {
+                val findClass = javaPsiFacade.findClass(classReference, globalSearchScope)
+                //导入此class
+                if (null != findClass) {
+                    val importStatement = factory.createImportStatement(findClass)
+                    if (null != importStatement) {
+                        file.importList?.add(importStatement)
+                    }
+                }
+            }
+        }
     }
 
     /**

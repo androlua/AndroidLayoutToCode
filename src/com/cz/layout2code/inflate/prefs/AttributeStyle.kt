@@ -16,7 +16,7 @@ class AttributeStyle {
     //是否要以被转换,有些属性是完全内部封装,无法转换
     var convert=true
     //注释信息
-    internal var commentCallback:((String)->String)?=null
+    private var commentCallback:((String)->String)?=null
 
     lateinit var expression:AttributeExpression
 
@@ -63,7 +63,9 @@ class AttributeStyle {
     }
 
     inline fun callback(value:String):ElementExpression{
-        return expression.callback(value)
+        val attributeExpression = expression.callback(value)
+        attributeExpression.sdk=sdk
+        return attributeExpression
     }
 
     class PropertyItem {

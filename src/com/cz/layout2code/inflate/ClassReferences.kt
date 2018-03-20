@@ -9,6 +9,7 @@ object ClassReferences {
     private val references= mutableMapOf<String, ClassItem>()
     init {
         //其他操作类
+        item{ "android.os.Build" }
         item{ "android.animation.LayoutTransition"}
         item{ "android.graphics.Typeface" }
         item{ "android.graphics.PorterDuff" }
@@ -21,6 +22,7 @@ object ClassReferences {
         item{ "android.text.util.Linkify"}
         item{ "android.text.Layout"}
         item{ "android.content.res.Resources" }
+        item{ "android.support.v4.content.ContextCompat"}
 
         //所有系统控件
         item{ "android.view.TextureView" }

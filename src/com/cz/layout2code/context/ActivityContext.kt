@@ -1,6 +1,7 @@
 package com.cz.layout2code.context
 
 import com.cz.layout2code.inflate.expression.value.DefineClassExpression
+import com.cz.layout2code.inflate.expression.value.StringValueExpression
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
@@ -11,7 +12,10 @@ class ActivityContext(project: Project) : BaseContext(project) {
             "context"->"this"
             "resources"->{
                 //Resources resources = getResources();
-                addPreExpression(field,DefineClassExpression("Resources",field))
+                val expression = DefineClassExpression("Resources", field) {
+                    StringValueExpression("getResources()")
+                }
+                addPreExpression(field,expression)
                 field
             }
             else -> field
