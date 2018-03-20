@@ -104,7 +104,7 @@ class LayoutConvertAction : BaseGenerateAction {
                 val containingElement = getContainingElement(file, editor)
                 //生成方法
                 val converter=JavaCodeGenerate(project,baseMatcher,clazz)
-                converter.generate(containingElement,layoutFile,rootNode.children.first(),ViewGroup.LayoutParams())
+                converter.generate(file,containingElement,layoutFile,rootNode.children.first(),ViewGroup.LayoutParams())
             }
         }
     }

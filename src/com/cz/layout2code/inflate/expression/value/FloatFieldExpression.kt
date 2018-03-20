@@ -14,9 +14,9 @@ class FloatFieldExpression(val value: String) : ElementExpression() {
         return mutableListOf()
     }
 
-    override fun getJavaExpression(baseContext: BaseContext)="${value}f"
+    override fun getJavaExpression(context: BaseContext)="${value}f"
 
-    override fun getKotlinExpression(baseContext: BaseContext)="$value.toFloat()"
+    override fun getKotlinExpression(context: BaseContext)="$value.toFloat()"
 
 
 

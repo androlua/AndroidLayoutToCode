@@ -22,9 +22,9 @@ class ClassFieldExpression(val value: String) : ElementExpression() {
         return items
     }
 
-    override fun getJavaExpression(baseContext: BaseContext)=value
+    override fun getJavaExpression(context: BaseContext)=value
 
-    override fun getKotlinExpression(baseContext: BaseContext)=value
+    override fun getKotlinExpression(context: BaseContext)=value
 
 
 

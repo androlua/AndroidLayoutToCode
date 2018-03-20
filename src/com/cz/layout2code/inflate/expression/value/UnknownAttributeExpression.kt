@@ -14,11 +14,11 @@ class UnknownAttributeExpression(private val name:String, private val value:Stri
         return mutableListOf()
     }
 
-    override fun getJavaExpression(baseContext: BaseContext): String {
+    override fun getJavaExpression(context: BaseContext): String {
         return "//Unknown attribute $name=$value"
     }
 
-    override fun getKotlinExpression(baseContext: BaseContext): String {
+    override fun getKotlinExpression(context: BaseContext): String {
         return "//Unknown attribute $name=$value"
     }
 

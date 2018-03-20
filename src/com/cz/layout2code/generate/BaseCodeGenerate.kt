@@ -10,18 +10,19 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
 import java.io.File
 
 /**
  * Created by cz on 2018/3/1.
  */
-abstract class BaseCodeGenerate(val project: Project,val baseMatcher: BaseContext,val clazz:PsiClass) {
+abstract class BaseCodeGenerate(val project: Project, val context: BaseContext, val clazz:PsiClass) {
      private val PACKAGE_NAME="com.cz.layout2code.inflate.impl"
      /**
       * 转换对应语言文本
       */
-     abstract fun generate(containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams: ViewGroup.LayoutParams?=null)
+     abstract fun generate(file:PsiFile,containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams: ViewGroup.LayoutParams?=null)
      /**
       * 从节点获取到view体
       */

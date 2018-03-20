@@ -11,7 +11,7 @@ class ActivityContext(project: Project) : BaseContext(project) {
             "context"->"this"
             "resources"->{
                 //Resources resources = getResources();
-                addPreExpression(DefineClassExpression("Resources",field))
+                addPreExpression(field,DefineClassExpression("Resources",field))
                 field
             }
             else -> field

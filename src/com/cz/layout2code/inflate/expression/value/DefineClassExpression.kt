@@ -20,11 +20,11 @@ class DefineClassExpression(private val className:String,
         return items
     }
 
-    override fun getJavaExpression(baseContext: BaseContext): String {
+    override fun getJavaExpression(context: BaseContext): String {
         return "$className $fieldName = new $className();"
     }
 
-    override fun getKotlinExpression(baseContext: BaseContext): String {
+    override fun getKotlinExpression(context: BaseContext): String {
         return "val $fieldName = $className()"
     }
 

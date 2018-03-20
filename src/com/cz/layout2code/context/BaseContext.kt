@@ -11,15 +11,15 @@ import com.intellij.psi.PsiFile
  */
 abstract class BaseContext(val project:Project) {
     //前置表达式
-    private val preExpressions= mutableListOf<ElementExpression>()
+    private val preExpressions= mutableMapOf<String,ElementExpression>()
 
     fun getPreExpressions()=preExpressions
 
     /**
      * 添加前置表达式
      */
-    fun addPreExpression(expression: ElementExpression){
-        preExpressions.add(expression)
+    protected fun addPreExpression(field:String,expression: ElementExpression){
+        preExpressions[field]=expression
     }
     /**
      * 获得java映射字段

@@ -14,12 +14,14 @@ class FieldExpression(private val field: String) : ElementExpression() {
         return mutableListOf()
     }
 
-    override fun getJavaExpression(baseContext: BaseContext):String{
-        return baseContext.getJavaField(field)
+    override fun getJavaExpression(context: BaseContext):String{
+        val javaField = context.getJavaField(field)
+        println("$field $javaField")
+        return javaField
     }
 
-    override fun getKotlinExpression(baseContext: BaseContext):String{
-        return baseContext.getKotlinField(field)
+    override fun getKotlinExpression(context: BaseContext):String{
+        return context.getKotlinField(field)
     }
 
 }

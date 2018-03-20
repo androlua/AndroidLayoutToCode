@@ -22,12 +22,12 @@ class AttributeAllPropertyExpression(private val property:String,private val cal
         return expression.getImportList()
     }
 
-    override fun getJavaExpression(baseContext: BaseContext): String {
-        return "$property = ${expression.getKotlinExpression(baseContext)}"
+    override fun getJavaExpression(context: BaseContext): String {
+        return "$property = ${expression.getKotlinExpression(context)}"
     }
 
-    override fun getKotlinExpression(baseContext: BaseContext): String {
-        return "$property = ${expression.getKotlinExpression(baseContext)}"
+    override fun getKotlinExpression(context: BaseContext): String {
+        return "$property = ${expression.getKotlinExpression(context)}"
     }
 
 }

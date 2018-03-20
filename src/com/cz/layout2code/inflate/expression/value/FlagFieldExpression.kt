@@ -15,12 +15,12 @@ class FlagFieldExpression(paramsArray: List<String>) : ElementExpression() {
         return items
     }
 
-    override fun getJavaExpression(baseContext: BaseContext): String {
-        return expressionItems.joinToString(" | ") { it.getJavaExpression(baseContext) }
+    override fun getJavaExpression(context: BaseContext): String {
+        return expressionItems.joinToString(" | ") { it.getJavaExpression(context) }
     }
 
-    override fun getKotlinExpression(baseContext: BaseContext): String {
-        return expressionItems.joinToString(" or ") { it.getKotlinExpression(baseContext) }
+    override fun getKotlinExpression(context: BaseContext): String {
+        return expressionItems.joinToString(" or ") { it.getKotlinExpression(context) }
     }
 
 }

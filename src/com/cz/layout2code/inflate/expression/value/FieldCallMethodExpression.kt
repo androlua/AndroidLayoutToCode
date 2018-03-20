@@ -25,7 +25,7 @@ class FieldCallMethodExpression(val value: String) : ElementExpression() {
         if (null != params) {
             if (null != params) {
                 val pattern = "^\\p{Upper}([\\w\\.]+)".toRegex()
-                params.split("\\s*,\\s*").forEach {
+                params.split("\\s*,\\s*".toRegex()).forEach {
                     if (pattern.matches(it)) {
                         //类成员信息
                         methodParamItems.add(ClassFieldExpression(it))
@@ -48,9 +48,17 @@ class FieldCallMethodExpression(val value: String) : ElementExpression() {
         return items
     }
 
-    override fun getJavaExpression(baseContext: BaseContext)=value
+    override fun getJavaExpression(context: BaseContext):String{
+        //调用方法对象
+        val classField = classField.getJavaExpression(context)
+        //重新组织方法调用语句
+        return "$classField.$methodName(${methodParamItems.joinToString(", ") {it.getJavaExpression(context)}})"
+    }
 
-    override fun getKotlinExpression(baseContext: BaseContext)=value
+    override fun getKotlinExpression(context: BaseContext):String{
+        val classField = classField.getJavaExpression(context)
+        return "$classField.$methodName(${methodParamItems.joinToString(", ") {it.getJavaExpression(context)}})"
+    }
 
 
 

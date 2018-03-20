@@ -7,6 +7,7 @@ import com.cz.layout2code.context.BaseContext
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.util.containers.isNullOrEmpty
 import java.io.File
 
@@ -20,7 +21,7 @@ class KotlinCodeGenerate(project: Project, baseMatcher: BaseContext, clazz: PsiC
      * 自定义控件dsl扩展为
      * inline fun ViewManager.newViewPager(theme: Int = 0, init: NewViewPager.() -> Unit) = ankoView({ NewViewPager(it) }, theme, init)
      */
-    override fun generate(containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams:ViewGroup.LayoutParams?) {
+    override fun generate(file:PsiFile,containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams:ViewGroup.LayoutParams?) {
         val out=StringBuilder()
         val content=generateCode(node,layoutParams,null)
         val layoutName = layoutName(layoutFile.name.substringBefore("."))
@@ -41,7 +42,7 @@ class KotlinCodeGenerate(project: Project, baseMatcher: BaseContext, clazz: PsiC
             view.inflateAttributes(node)
             //控件声明
             val viewDefineItem=DefineViewClassExpression(view,node.name)
-            out.append("${"".padEnd(node.level,'\t')}${viewDefineItem.getKotlinExpression(baseMatcher)}{\n")
+            out.append("${"".padEnd(node.level,'\t')}${viewDefineItem.getKotlinExpression(context)}{\n")
             //父容器
             var layoutDimension = layoutParams?.inflateLayoutDimension(node,false)
             var layoutAttributes =layoutParams?.inflateLayoutAttributes(node)
@@ -51,12 +52,12 @@ class KotlinCodeGenerate(project: Project, baseMatcher: BaseContext, clazz: PsiC
             val tab="".padEnd(node.level+1,'\t')
             //开始正常属性组合
             view.expressions.forEach {
-                out.append("$tab${it.getKotlinExpression(baseMatcher)}\n")
+                out.append("$tab${it.getKotlinExpression(context)}\n")
             }
             //未知的属性引用集
             val unknownAttributes = node.getUnknownAttributeExpressions()
             unknownAttributes.forEach {
-                out.append("$tab${it.getKotlinExpression(baseMatcher)}\n")
+                out.append("$tab${it.getKotlinExpression(context)}\n")
             }
             //遍历子孩子节点
             node.children.forEach {
@@ -68,12 +69,12 @@ class KotlinCodeGenerate(project: Project, baseMatcher: BaseContext, clazz: PsiC
             //layout属性设定
             val layoutAttributesEmpty=layoutAttributes.isNullOrEmpty()
             if(null!=layoutDimension){
-                out.append(".${layoutDimension.getKotlinExpression(baseMatcher)}").
+                out.append(".${layoutDimension.getKotlinExpression(context)}").
                         append(if(layoutAttributesEmpty)"\n" else "{\n")
             }
             //添加layout属性
             layoutAttributes?.forEach {
-                out.append("$tab${it.getKotlinExpression(baseMatcher)}\n")
+                out.append("$tab${it.getKotlinExpression(context)}\n")
             }
             //闭合
             if(!layoutAttributesEmpty){

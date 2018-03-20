@@ -1,9 +1,6 @@
 package com.cz.layout2code.inflate
 
-import com.cz.layout2code.inflate.expression.value.ClassFieldExpression
-import com.cz.layout2code.inflate.expression.value.ElementExpression
-import com.cz.layout2code.inflate.expression.value.FlagFieldExpression
-import com.cz.layout2code.inflate.expression.value.StringValueExpression
+import com.cz.layout2code.inflate.expression.value.*
 import com.cz.layout2code.inflate.impl.*
 import com.cz.layout2code.inflate.prefs.AttributeStyle
 import javax.xml.bind.Element
@@ -215,28 +212,28 @@ private fun boolInner(value:String):ElementExpression{
 
 private fun colorInner(value:String):ElementExpression{
     //此处可能为"#开头"
-    var result=value
+    var expression:ElementExpression=StringValueExpression(value)
     val matcher= RESOURCE_PATTERN.matcher(value)
     if(matcher.find()) {
         val type = matcher.group("type")
         val ref = matcher.group("ref")
         val attr = matcher.group("attr")
-        result = if (null != attr) {
+        if (null != attr) {
             //资源引用
-            "R.attr.$attr"
+            expression=ClassFieldExpression("R.attr.$attr")
         } else if("drawable"==type){
-            "ContextCompat.getColorStateList(context,R.drawable.$ref)"
+            expression=ClassCallMethodExpression("ContextCompat.getColorStateList(context,R.drawable.$ref)")
         } else {
-            "ContextCompat.getColor(context,R.color.$ref)"
+            expression=ClassCallMethodExpression("ContextCompat.getColor(context,R.color.$ref)")
         }
     }
-    return ElementExpression.create(result)
+    return expression
 }
 
 private fun idInner(value:String)=resourceInner(value)
 
 private fun colorStateListInner(value:String):ElementExpression{
-    var result=String()
+    var expression:ElementExpression=StringValueExpression(value)
     val matcher= RESOURCE_PATTERN.matcher(value)
     if(matcher.find()) {
         val type = matcher.group("type")
@@ -244,14 +241,14 @@ private fun colorStateListInner(value:String):ElementExpression{
         val attr=matcher.group("attr")
         if(null!=attr){
             //资源引用
-            result= "R.attr.$attr"
+            expression= ClassFieldExpression("R.attr.$attr")
         } else if("drawable"==type){
-            result = "ContextCompat.getColorStateList(context,R.drawable.$ref)"
+            expression=ClassCallMethodExpression("ContextCompat.getColorStateList(context,R.drawable.$ref)")
         } else {
-            result = "//$ref is not a drawable ref! Can't reverse it!"
+            expression = CommentExpression("//$ref is not a drawable ref! Can't reverse it!")
         }
     }
-    return ElementExpression.create(result)
+    return expression
 }
 
 /**
@@ -259,7 +256,7 @@ private fun colorStateListInner(value:String):ElementExpression{
  */
 private fun resourceInner(value:String):ElementExpression{
     //资源引用
-    var result=String()
+    var expression:ElementExpression=StringValueExpression(value)
     val matcher= RESOURCE_PATTERN.matcher(value)
     if(matcher.find()){
         val type = matcher.group("type")
@@ -267,27 +264,28 @@ private fun resourceInner(value:String):ElementExpression{
         val attr=matcher.group("attr")
         if(null!=attr){
             //资源引用
-            result= "R.attr.$attr"
+            expression=ClassFieldExpression("R.attr.$attr")
         } else {
-            when(type){
-                "id"->result="R.id.$ref"
-                "string"->result="resources.getString(R.string.$ref)"
-                "dimen"->result="resources.getDimension(R.dimen.$ref)"
-                "integer"->result="resources.getInteger(R.integer.$ref)"
-                "color"->result="ContextCompat.getColor(context,R.color.$ref)"
-                "drawable"->result="ContextCompat.getDrawable(context,R.drawable.$ref)"
-                "mipmap"->result="ContextCompat.getDrawable(context,R.mipmap.$ref)"
-                "string"->result="context.getString(R.string.$ref)"
-                "array"->result="resources.getStringArray(R.array.$ref)"
-                "theme"->result="context.setTheme(R.style.$ref)"
-                "anim"->result="AnimationUtils.loadAnimation(context,R.anim.$ref)"
-                "bool"->result="resources.getBoolean(R.bool.$ref)"
-                "animator"->result="AnimatorInflater.loadAnimator(context,R.animator.$ref)"
-                "interpolator"->result="AnimationUtils.loadInterpolator(context,R.interpolator.$ref)"
+            expression=when(type){
+                "id"->ClassFieldExpression("R.id.$ref")
+                "string"->FieldCallMethodExpression("resources.getString(R.string.$ref)")
+                "dimen"->FieldCallMethodExpression("resources.getDimension(R.dimen.$ref)")
+                "integer"->FieldCallMethodExpression("resources.getInteger(R.integer.$ref)")
+                "color"->ClassCallMethodExpression("ContextCompat.getColor(context,R.color.$ref)")
+                "drawable"->ClassCallMethodExpression("ContextCompat.getDrawable(context,R.drawable.$ref)")
+                "mipmap"->ClassCallMethodExpression("ContextCompat.getDrawable(context,R.mipmap.$ref)")
+                "string"->FieldCallMethodExpression("context.getString(R.string.$ref)")
+                "array"->FieldCallMethodExpression("resources.getStringArray(R.array.$ref)")
+                "theme"->FieldCallMethodExpression("context.setTheme(R.style.$ref)")
+                "anim"->ClassCallMethodExpression("AnimationUtils.loadAnimation(context,R.anim.$ref)")
+                "bool"->FieldCallMethodExpression("resources.getBoolean(R.bool.$ref)")
+                "animator"->ClassCallMethodExpression("AnimatorInflater.loadAnimator(context,R.animator.$ref)")
+                "interpolator"->ClassCallMethodExpression("AnimationUtils.loadInterpolator(context,R.interpolator.$ref)")
+                else ->StringValueExpression(value)
             }
         }
     }
-    return ElementExpression.create(result)
+    return expression
 }
 
 /**

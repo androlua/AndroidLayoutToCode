@@ -24,12 +24,12 @@ class AttributePropertyExpression(private val java: String,private val kotlin:St
         return expression.getImportList()
     }
 
-    override fun getJavaExpression(baseContext: BaseContext): String {
-        return "$java(${expression.getKotlinExpression(baseContext)})"
+    override fun getJavaExpression(context: BaseContext): String {
+        return "$java(${expression.getKotlinExpression(context)})"
     }
 
-    override fun getKotlinExpression(baseContext: BaseContext): String {
-        return "$kotlin = ${expression.getKotlinExpression(baseContext)}"
+    override fun getKotlinExpression(context: BaseContext): String {
+        return "$kotlin = ${expression.getKotlinExpression(context)}"
     }
 
 }
