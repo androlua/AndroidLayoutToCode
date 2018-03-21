@@ -113,7 +113,7 @@ sourceSets {
 * exception 为自定义异常
 * context 为上下文场景匹配器
 * analysis 为自定义控件module数据分析包(暂未使用,自定义控件逻辑屏蔽)
-* from 设计一个ui界面
+* form 设计一个ui界面
 * generate 代码合并生成模块(主要生成java/kotlin代码)
 * model 涉及部分对象体
 * prefs为配置项
