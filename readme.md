@@ -92,14 +92,33 @@ sourceSets {
 #### 2018/2/26
 * 重写了引用库自定义属性与控件的获取流程
 
+#### 2018/3/21
+* 适配api27所有系统控件,以及所有能转换的属性.并做尽可能大的逻辑转化
+* 提供了较为健全的属性,以及表达式扩展机制,可以方便添加并扩展转换逻辑
+
+> 待完善
+> 1. xml转kotlin(逻辑己实现,有idea环境问题
+> 2. 自定义控件属性转换(己设计自定义控件转换模型)
+
 #### 包结构说明
 * action 为事件源
 * delegate 为工具定义,如弹出消息,刷新项目结构
 * exception 为自定义异常
-* inflateLayoutAttributes 为xml解析以及生成anko的控件映射类
-* model涉及部分对象体
+* context 为上下文场景匹配器
+* analysis 为自定义控件module数据分析包(暂未使用,自定义控件逻辑屏蔽)
+* from 设计一个ui界面
+* generate 代码合并生成模块(主要生成java/kotlin代码)
+* model 涉及部分对象体
 * prefs为配置项
 * util为一个扩展工具类
+
+* inflate
+    * expression 表达式模块,为构建所有值,与生成语句的表达式扩展
+        * value 为常规语句,其他为属性合并语句
+    * impl 为映射系统的控件模块,映射了系统所有控件,以及配置属性,包括LayoutParams
+    * item 常规的数据
+    * prefs 自定义控件配置
+    * Views 为所有属性映射值类 
 
 ####测试类介绍
 * test/LayoutParser 测试xml解析
