@@ -1,4 +1,11 @@
-###创建项目
+###项目介绍
+> 一个将android xml逻辑完全映射为代码的插件
+
+
+####演示
+![](https://github.com/momodae/AndroidLayoutToCode/blob/master/image/image1.gif) 
+
+
 > 关于创建项目,起始从Gradle建项目,再自己更改为Plugin插件项目
 [参考资料](http://planet.jboss.org/post/managing_dependencies_for_intellij_idea_plug_in_development)
 <br>
