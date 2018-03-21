@@ -6,11 +6,19 @@ import com.intellij.openapi.project.Project
 class OtherContext(project: Project) : BaseContext(project) {
 
     override fun getJavaField(field: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return field
     }
 
     override fun getKotlinField(field: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return field
+    }
+
+    override fun getJavaMethod(method: String): String {
+        return method
+    }
+
+    override fun getKotlinMethod(method: String): String {
+        return method
     }
 
 }

@@ -24,6 +24,8 @@ object ClassReferences {
         item{ "android.content.res.Resources" }
         item{ "android.support.v4.content.ContextCompat"}
 
+        item{ "android.util.TypedValue" }
+
         //所有系统控件
         item{ "android.view.TextureView" }
         item{ "android.view.ViewGroup" }

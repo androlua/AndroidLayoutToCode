@@ -9,34 +9,13 @@ import com.cz.layout2code.context.BaseContext
 class FieldCallMethodExpression(val value: String) : ElementExpression() {
     //调用成员
     private val classField:FieldExpression
-    //当前调用方法名称
-    private val methodName:String
-    //当前方法参数
-    private val methodParamItems = mutableListOf<ElementExpression>()
+    private val callMethodExpression:CallMethodExpression
     init {
-        val matcher = "(?<fieldName>[\\w\\.]+)+\\.(?<methodName>\\w+)\\((?<params>.*)\\)".toPattern().matcher(value)
-        if (!matcher.find()) {
-            throw IllegalArgumentException("Can't generate $value to method expression!")
-        }
-        classField = FieldExpression(matcher.group("fieldName"))
-
-        methodName = matcher.group("methodName")
-        val params = matcher.group("params")
-        if (null != params) {
-            if (null != params) {
-                val pattern = "^\\p{Upper}([\\w\\.]+)".toRegex()
-                params.split("\\s*,\\s*".toRegex()).forEach {
-                    if (pattern.matches(it)) {
-                        //类成员信息
-                        methodParamItems.add(ClassFieldExpression(it))
-                    } else {
-                        //成员字段
-                        methodParamItems.add(FieldExpression(it))
-                    }
-                }
-
-            }
-        }
+        val fieldName=value.substringBefore(".")
+        //类表达式
+        classField= FieldExpression(fieldName)
+        val callMethodValue=value.substringAfter(".")
+        callMethodExpression=CallMethodExpression(callMethodValue)
     }
 
     /**
@@ -44,7 +23,7 @@ class FieldCallMethodExpression(val value: String) : ElementExpression() {
      */
     override fun getImportList(): MutableList<ImportItem> {
         val items=classField.getImportList()
-        methodParamItems.forEach { items+=it.getImportList() }
+        items+=callMethodExpression.getImportList()
         return items
     }
 
@@ -52,12 +31,12 @@ class FieldCallMethodExpression(val value: String) : ElementExpression() {
         //调用方法对象
         val classField = classField.getJavaExpression(context)
         //重新组织方法调用语句
-        return "$classField.$methodName(${methodParamItems.joinToString(", ") {it.getJavaExpression(context)}})"
+        return "$classField.${callMethodExpression.getJavaExpression(context)}"
     }
 
     override fun getKotlinExpression(context: BaseContext):String{
         val classField = classField.getJavaExpression(context)
-        return "$classField.$methodName(${methodParamItems.joinToString(", ") {it.getJavaExpression(context)}})"
+        return "$classField.${callMethodExpression.getKotlinExpression(context)}"
     }
 
 

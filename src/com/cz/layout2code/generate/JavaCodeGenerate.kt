@@ -6,7 +6,9 @@ import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.context.BaseContext
 import com.cz.layout2code.delegate.MessageDelegate
 import com.cz.layout2code.inflate.ClassReferences
-import com.cz.layout2code.inflate.expression.value.CustomAttributeExpression
+import com.cz.layout2code.inflate.expression.value.CommentExpression
+import com.cz.layout2code.inflate.impl.View
+import com.cz.layout2code.inflate.impl.custom.ViewWrapper
 import com.cz.layout2code.inflate.item.ImportItem
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
@@ -26,27 +28,26 @@ class JavaCodeGenerate(project: Project, context: BaseContext, clazz: PsiClass) 
         const val LAYOUT_PARAMS="ViewGroup.LayoutParams"
     }
     private val out=StringBuilder()
-    //导入包
-    private val importList= mutableSetOf<ImportItem>()
     //控件名称记录
     private val widgetNameItems= mutableMapOf<String,Int>()
 
     /**
      * 转换代码为java输入
      */
-    override fun generate(file:PsiFile,containingElement:PsiElement?,layoutFile: File, rootNode: ViewNode, layoutParams: ViewGroup.LayoutParams?) {
+    override fun generate(file:PsiFile,containingElement:PsiElement?,layoutFile: File, rootNode: ViewNode, layoutParams: ViewGroup.LayoutParams) {
         WriteCommandAction.runWriteCommandAction(project){
             //组织布局方法
             val out=StringBuilder()
             val content=generateCode(rootNode,layoutParams,null)
             val layoutName = layoutName(layoutFile.name.substringBefore("."))
-            val methodName="get$layoutName()"
+            val methodName="get$layoutName"
+            //导入View包
+            importList.add(ImportItem("android.view.View"))
             out.append("private View $methodName(){\n")
             //添加场景前置表达式
             val preExpressions = context.getPreExpressions()
             preExpressions.forEach { _,value->
-                importList+=value.getImportList()
-                out.append("${value.getJavaExpression(context)}\n")
+                out.append("${callJavaExpression(value,context)}\n")
             }
             //添加内容体
             out.append("$content")
@@ -54,15 +55,25 @@ class JavaCodeGenerate(project: Project, context: BaseContext, clazz: PsiClass) 
 
             //插入方法
             val factory = JavaPsiFacade.getElementFactory(project)
-            //替换当前语句
             var containingMethod = containingElement?.getContainingMethod()
             if(null==containingMethod){
                 containingMethod=clazz.methods.last()
             }
-            if(null!=containingMethod){
-                val generateMethod = factory.createMethodFromText(out.toString(), null)
+
+            //插入生成方法体
+            ensureMethodItem(methodName)
+            val generateMethod = factory.createMethodFromText(out.toString(), null)
+            clazz?.addAfter(generateMethod, containingMethod)
+
+            //插入前置方法
+            val methodExpressions = context.getPreMethodExpressions()
+            methodExpressions.forEach { _, expression ->
+                //创建前置方法
+                ensureMethodItem(expression.methodName)
+                val generateMethod = factory.createMethodFromText(callJavaExpression(expression,context), null)
                 clazz?.addAfter(generateMethod, containingMethod)
             }
+
             //导入表达式信息
             val file=file as PsiJavaFile
             val javaPsiFacade = JavaPsiFacade.getInstance(project)
@@ -120,14 +131,21 @@ class JavaCodeGenerate(project: Project, context: BaseContext, clazz: PsiClass) 
         }
     }
 
-    private fun generateCode(node: ViewNode, layoutParams: ViewGroup.LayoutParams?, parentName:String?): String {
+    private fun generateCode(node: ViewNode, parentLayoutParams: ViewGroup.LayoutParams, parentName:String?): String {
         var parentViewName=parentName
         //当前为根节点
-        var layoutParams=layoutParams
+        var parentLayoutParams=parentLayoutParams
         val viewName=getViewName(node)
         //从节点获取view
         val view = getViewFromNode(project, node)
-        if(null!=view){
+        if(null==view){
+            //该控件查找不到模板
+            out.append("\t//${node.name} is not found\n")
+            node.attributes.forEach {
+                out.append("\t//${it.nameSpace}:${it.name}=${it.value}\n")
+            }
+            out.append("\n")
+        } else {
             //装载属性
             view.inflateAttributes(node)
             //控件声
@@ -140,53 +158,52 @@ class JavaCodeGenerate(project: Project, context: BaseContext, clazz: PsiClass) 
                 }
             }
             val viewDefineItem=DefineViewClassExpression(view,referenceName,viewName)
-            out.append("${viewDefineItem.getJavaExpression(context)}\n")
-            importList+=viewDefineItem.getImportList()
+            out.append("${callJavaExpression(viewDefineItem,context)}\n")
             //添加到父控件
             if(null!=parentViewName){
                 out.append("$parentViewName.addView($viewName);\n")
             }
-            //父容器
-            var layoutDimension = layoutParams?.inflateLayoutDimension(node)
-            var layoutAttributes =layoutParams?.inflateLayoutAttributes(node)
-            if(view is ViewGroup){
-                layoutParams = view.getLayoutParams()
-            }
+            //装载layoutParams属性
+            var layoutDimension = parentLayoutParams.inflateLayoutDimension(node)
+            parentLayoutParams?.inflateLayoutAttributes(node)
             //开始正常属性组合
             view.expressions.forEach {
-                //加入表达式导包
-                importList+=it.getImportList()
                 //添加表达式信息
-                if(it is CustomAttributeExpression){
+                if(it is CommentExpression){
                     //这里提示自定义控件暂不支持
-                    out.append("${it.getJavaExpression(context)};\n")
+                    out.append("${callJavaExpression(it,context)};\n")
                 } else {
-                    out.append("$viewName.${it.getJavaExpression(context)};\n")
+                    out.append("$viewName.${callJavaExpression(it,context)};\n")
                 }
             }
             //未知的属性引用集
             val unknownAttributes = node.getUnknownAttributeExpressions()
             unknownAttributes.forEach {
-                out.append("${it.getJavaExpression(context)}\n")
+                out.append("${callJavaExpression(it,context)}\n")
             }
             //layout属性设定
             val count = widgetNameItems.getOrPut(LAYOUT_PARAMS) { 0 }
             val layoutParamsName="layoutParams$count"
+            val layoutExpressions = parentLayoutParams.expressions
             if(null!=layoutDimension){
-                //加入导入信息
-                importList+=layoutDimension.getImportList()
-                if(layoutAttributes.isNullOrEmpty()){
-                    out.append("$viewName.setLayoutParams(${layoutDimension.getJavaExpression(context)});\n")
+                if(layoutExpressions.isNullOrEmpty()){
+                    out.append("$viewName.setLayoutParams(${callJavaExpression(layoutDimension,context)});\n")
                 } else {
                     //记录控件个数
                     widgetNameItems[LAYOUT_PARAMS]=count+1
-                    out.append("ViewGroup.LayoutParams $layoutParamsName = ${layoutDimension.getJavaExpression(context)};\n")
+                    val layoutParamsClassName=parentLayoutParams::class.java.name.substringAfterLast(".")
+                    out.append("${layoutParamsClassName.replace("$",".")} $layoutParamsName = ${callJavaExpression(layoutDimension,context)};\n")
                     out.append("$viewName.setLayoutParams($layoutParamsName);\n")
                 }
             }
             //添加layout属性
-            layoutAttributes?.forEach {
-                out.append("$layoutParamsName.${it.getJavaExpression(context)};\n")
+            layoutExpressions?.forEach {
+                out.append("$layoutParamsName.${callJavaExpression(it,context)};\n")
+            }
+            //记录当前控件的LayoutParams
+            val layoutParams = getLayoutParams(view)
+            if(null!=layoutParams){
+                parentLayoutParams = layoutParams
             }
             //记录节点名称
             parentViewName=viewName
@@ -196,12 +213,28 @@ class JavaCodeGenerate(project: Project, context: BaseContext, clazz: PsiClass) 
         //遍历子孩子节点
         node.children.forEach {
             //遍历子节点
-            generateCode(it,layoutParams,parentViewName)
+            generateCode(it,parentLayoutParams,parentViewName)
         }
         if(null==parentName){
             out.append("return $viewName;\n")
         }
         return out.toString()
+    }
+
+    /**
+     * 获得控件的LayoutParams对象
+     */
+    private fun getLayoutParams(view: View): ViewGroup.LayoutParams? {
+        var view=view
+        if (view is ViewWrapper) {
+            //自定义控件取父控件节点
+            view = view.getWrapperView()
+        }
+        var layoutParams: ViewGroup.LayoutParams?=null
+        if (view is ViewGroup) {
+            layoutParams = view.getLayoutParams()
+        }
+        return layoutParams
     }
 
     /**

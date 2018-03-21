@@ -2,6 +2,8 @@ package com.cz.layout2code.inflate.impl
 //------------------------------------------------------------
 // 以下控件没有自定义属性,只需要默认复写,保持继承树层级关系即可
 //------------------------------------------------------------
+internal const val WIDGET_PACKAGE="com.cz.layout2code.inflate.impl"
+
 open class Button : TextView() {
     override fun getViewName()="button"
     override fun getThemeViewName()="themedButton"
@@ -13,8 +15,8 @@ open class CheckBox : CompoundButton() {
 open class AbsoluteLayout : ViewGroup() {
     override fun getViewName()="absoluteLayout"
     override fun getThemeViewName()="themedAbsoluteLayout"
-    override fun getLayoutParams()=LayoutParams()
-    open class LayoutParams : ViewGroup.LayoutParams()
+    override fun getLayoutParams() =LayoutParams()
+    open class LayoutParams : MarginLayoutParams()
 }
 open class ActionMenuView : LinearLayout() {
     override fun getViewName()="actionMenuView"

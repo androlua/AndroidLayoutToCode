@@ -1,16 +1,13 @@
 package com.cz.layout2code.inflate.impl
 
 import com.cz.layout2code.inflate.*
-import com.cz.layout2code.inflate.expression.value.ClassFieldExpression
-import com.cz.layout2code.inflate.expression.value.DefineLayoutParamsExpression
-import com.cz.layout2code.inflate.expression.value.ElementExpression
-import com.cz.layout2code.inflate.expression.value.StringValueExpression
+import com.cz.layout2code.inflate.expression.value.*
 import com.cz.layout2code.inflate.item.AttributeNode
 import com.cz.layout2code.inflate.item.ImportItem
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.inflate.prefs.AttrType
 import com.cz.layout2code.inflate.prefs.AttributeStyle
-import org.jdom.Element
+
 /**
  * Created by cz on 2017/12/19.
  * 
@@ -131,7 +128,7 @@ open class ViewGroup : View() {
 	 */
 	override fun getThemeViewName()="themedViewGroup"
 
-	open fun getLayoutParams()=LayoutParams()
+	open fun getLayoutParams()=MarginLayoutParams()
 
 	/**
 	 * Created by cz on 2017/12/19.
@@ -143,7 +140,7 @@ open class ViewGroup : View() {
 	 */
 	open class LayoutParams {
 		val expressions= mutableListOf<ElementExpression>()
-		val viewStyleItems = mutableMapOf<String,AttributeStyle>()
+		private val viewStyleItems = mutableMapOf<String,AttributeStyle>()
 
 		init {
 			//直接合并处理
@@ -186,28 +183,26 @@ open class ViewGroup : View() {
 			val widthDimension=layoutDimension(widthElement?.value)
 			val heightDimension=layoutDimension(heightElement?.value)
 			applyAttributes(widthElement,heightElement)
+			val layoutParamsClassName=this::class.java.name.substringAfterLast(".")
 			//添加布局基本配置集
-			return DefineLayoutParamsExpression(widthDimension,heightDimension)
+			return DefineLayoutParamsExpression(layoutParamsClassName.replace("$","."),widthDimension,heightDimension)
 		}
 
 		/**
 		 * 解析LayoutParams属性集,并返回解析后的转换对象
 		 */
-		open fun inflateLayoutAttributes(element:ViewNode):MutableList<ElementExpression>{
-			//检索到layout系统属性
-			val converterItems = mutableListOf<ElementExpression>()
+		open fun inflateLayoutAttributes(element:ViewNode){
 			//添加其他属性集
+			expressions.clear()
 			element.attributes.forEach{
 				val findItem= viewStyleItems[it.name]
 				if(null!=findItem){
 					//添加控件配置属性
 					applyAttributes(it)
 					//回调对象取值
-					val newExpression=findItem.callback(it.value)
-					expressions.add(newExpression)
+					expressions.add(findItem.callback(it.value))
 				}
 			}
-			return converterItems
 		}
 
 		/**
@@ -237,19 +232,19 @@ open class ViewGroup : View() {
 			attribute{
 				field = "layout_margin"
 				attrType = arrayOf(AttrType.DIMENSION)
-				allProperty("margin"){dimen(it)}
+				methods("setMargins"){ mutableListOf(dimenInt(it),dimenInt(it),dimenInt(it),dimenInt(it))}
 			}
 			attribute{
 				field = "layout_marginHorizontal"
 				attrType = arrayOf(AttrType.DIMENSION)
 				expression {
 					javaExpression {matcher,value->
-						"leftMargin=${dimen(value).getJavaExpression(matcher)}\n"+
-						"rightMargin=${dimen(value).getJavaExpression(matcher)}"
+						"leftMargin=${dimenInt(value).getJavaExpression(matcher)}\n"+
+						"rightMargin=${dimenInt(value).getJavaExpression(matcher)}"
 					}
 					kotlinExpression {matcher,value->
-						"leftMargin=${dimen(value).getKotlinExpression(matcher)}\n"+
-						"rightMargin=${dimen(value).getKotlinExpression(matcher)}"
+						"leftMargin=${dimenInt(value).getKotlinExpression(matcher)}\n"+
+						"rightMargin=${dimenInt(value).getKotlinExpression(matcher)}"
 					}
 				}
 			}
@@ -258,44 +253,44 @@ open class ViewGroup : View() {
 				attrType = arrayOf(AttrType.DIMENSION)
 				expression {
 					javaExpression { matcher,value->
-						"topMargin=${dimen(value).getJavaExpression(matcher)}"
-						"bottomMargin=${dimen(value).getJavaExpression(matcher)}"
+						"topMargin=${dimenInt(value).getJavaExpression(matcher)}"
+						"bottomMargin=${dimenInt(value).getJavaExpression(matcher)}"
 					}
 					kotlinExpression {matcher,value->
-						"topMargin=${dimen(value).getKotlinExpression(matcher)}"
-						"bottomMargin=${dimen(value).getKotlinExpression(matcher)}"
+						"topMargin=${dimenInt(value).getKotlinExpression(matcher)}"
+						"bottomMargin=${dimenInt(value).getKotlinExpression(matcher)}"
 					}
 				}
 			}
 			attribute{
 				field = "layout_marginLeft"
 				attrType = arrayOf(AttrType.DIMENSION)
-				allProperty("leftMargin"){dimen(it)}
+				allProperty("leftMargin"){dimenInt(it)}
 			}
 			attribute{
 				field = "layout_marginTop"
 				attrType = arrayOf(AttrType.DIMENSION)
-				allProperty("topMargin"){dimen(it)}
+				allProperty("topMargin"){dimenInt(it)}
 			}
 			attribute{
 				field = "layout_marginRight"
 				attrType = arrayOf(AttrType.DIMENSION)
-				allProperty("rightMargin"){dimen(it)}
+				allProperty("rightMargin"){dimenInt(it)}
 			}
 			attribute{
 				field = "layout_marginBottom"
 				attrType = arrayOf(AttrType.DIMENSION)
-				allProperty("bottomMargin"){dimen(it)}
+				allProperty("bottomMargin"){dimenInt(it)}
 			}
 			attribute{
 				field = "layout_marginStart"
 				attrType = arrayOf(AttrType.DIMENSION)
-				allProperty("startMargin"){dimen(it)}
+				allProperty("startMargin"){dimenInt(it)}
 			}
 			attribute{
 				field = "layout_marginEnd"
 				attrType = arrayOf(AttrType.DIMENSION)
-				allProperty("endMargin"){dimen(it)}
+				allProperty("endMargin"){dimenInt(it)}
 			}
 		}
 

@@ -60,6 +60,7 @@ fun ViewGroup.LayoutParams.resourceRef(value:String)=resourceRefInner(value)
  */
 fun ViewGroup.LayoutParams.layoutDimension(value:String?)= layoutDimensionInner(value)
 fun AttributeStyle.dimen(value:String)=dimenInner(value)
+fun AttributeStyle.dimenInt(value:String)=CastIntFieldExpression(dimen(value))
 fun AttributeStyle.string(value:String)=stringInner(value)
 fun AttributeStyle.int(value:String)=intInner(value)
 fun AttributeStyle.float(value:String)=floatInner(value)
@@ -157,7 +158,7 @@ private fun dimensionValueInner(value: String): ElementExpression {
     // float:浮点型,后加f
     // sp/dp/dip/px
     // 固定值
-    var result = String()
+    var expression:ElementExpression=StringValueExpression(value)
     val matcher = DIMEN_PATTERN.matcher(value)
     if (matcher.find()) {
         val int = matcher.group("int")
@@ -166,16 +167,15 @@ private fun dimensionValueInner(value: String): ElementExpression {
         val unit = matcher.group("unit")
         val number = int?:float?:"0"
         if (null == unit) {
-            result = number
+            expression=StringValueExpression(number)
         } else {
-            result = when (unit) {
-                "sp" -> "sp($number)"
-                "dip", "dp" -> "dp($number)"
-                else ->number
+            when (unit) {
+                "sp" -> expression=CallMethodExpression("sp($number)")
+                "dip", "dp" -> expression=CallMethodExpression("dp($number)")
             }
         }
     }
-    return ElementExpression.create(result)
+    return expression
 }
 
 private fun intInner(value:String):ElementExpression{

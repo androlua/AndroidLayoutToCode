@@ -6,15 +6,14 @@ import com.cz.layout2code.context.BaseContext
 /**
  * 自定义内容表达式对象
  */
-class AttributeContentExpression: AttributeExpression() {
-
+class AttributeMethodBlockExpression: AttributeExpression() {
     private var importCallback:(()->MutableList<ImportItem>)?=null
     private lateinit var javaCallback:(BaseContext, String)->String
     private lateinit var kotlinCallback:(BaseContext, String)->String
     private lateinit var methodName:String
 
     override fun callback(value: String):AttributeExpression {
-        val item=AttributeContentExpression()
+        val item=AttributeMethodBlockExpression()
         item.importCallback=importCallback
         item.javaCallback=javaCallback
         item.kotlinCallback=kotlinCallback
@@ -32,18 +31,19 @@ class AttributeContentExpression: AttributeExpression() {
     }
 
     fun kotlinExpression(callback:(BaseContext, String)->String){
-        this.javaCallback=callback
+        this.kotlinCallback=callback
     }
 
     override fun getImportList(): MutableList<ImportItem> {
-        return importCallback?.invoke()?: mutableListOf()
+        importItems+=(importCallback?.invoke()?: mutableListOf())
+        return importItems
     }
 
-    override fun getJavaExpression(context: BaseContext): String {
+    override fun getJavaAttributeExpression(context: BaseContext): String {
         return javaCallback(context,methodName)
     }
 
-    override fun getKotlinExpression(context: BaseContext): String {
+    override fun getKotlinAttributeExpression(context: BaseContext): String {
         return kotlinCallback(context,methodName)
     }
 

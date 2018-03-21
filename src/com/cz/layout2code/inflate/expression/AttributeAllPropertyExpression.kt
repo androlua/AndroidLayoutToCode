@@ -12,7 +12,6 @@ import com.cz.layout2code.inflate.VERSIONS
  */
 class AttributeAllPropertyExpression(private val property:String,private val callback:(String)->ElementExpression) : AttributeExpression() {
     lateinit var expression: ElementExpression
-    private val importList= mutableListOf<ImportItem>()
     override fun callback(value:String):AttributeExpression{
         val item=AttributeAllPropertyExpression(property,callback)
         item.expression=callback.invoke(value)
@@ -20,32 +19,16 @@ class AttributeAllPropertyExpression(private val property:String,private val cal
     }
 
     override fun getImportList(): MutableList<ImportItem> {
-        importList+=expression.getImportList()
-        return importList
+        importItems+=expression.getImportList()
+        return importItems
     }
 
-    override fun getJavaExpression(context: BaseContext): String {
-        return if(0==sdk){
-            "$property = ${expression.getKotlinExpression(context)}"
-        } else {
-            //附加版本class导入
-            importList.add(ImportItem("android.os.Build"))
-            "if(Build.VERSION_CODES.${VERSIONS[sdk]}<Build.VERSION.SDK_INT){\n"+
-                    "\t$property = ${expression.getKotlinExpression(context)}\n"+
-                    "}"
-        }
+    override fun getJavaAttributeExpression(context:BaseContext): String {
+        return "$property = ${expression.getJavaExpression(context)}"
     }
 
-    override fun getKotlinExpression(context: BaseContext): String {
-        return if(0==sdk){
-            "$property = ${expression.getKotlinExpression(context)}"
-        } else {
-            //附加版本class导入
-            importList.add(ImportItem("org.jetbrains.anko.doFromSdk"))
-            "doFromSdk(Build.VERSION_CODES.${VERSIONS[sdk]}){\n"+
-                    "\t$property = ${expression.getKotlinExpression(context)}\n"+
-                    "}"
-        }
+    override fun getKotlinAttributeExpression(context:BaseContext): String {
+        return "$property = ${expression.getKotlinExpression(context)}"
     }
 
 }

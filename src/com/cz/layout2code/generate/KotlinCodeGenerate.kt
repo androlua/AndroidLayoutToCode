@@ -21,7 +21,7 @@ class KotlinCodeGenerate(project: Project, baseMatcher: BaseContext, clazz: PsiC
      * 自定义控件dsl扩展为
      * inline fun ViewManager.newViewPager(theme: Int = 0, init: NewViewPager.() -> Unit) = ankoView({ NewViewPager(it) }, theme, init)
      */
-    override fun generate(file:PsiFile,containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams:ViewGroup.LayoutParams?) {
+    override fun generate(file:PsiFile,containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams:ViewGroup.LayoutParams) {
         val out=StringBuilder()
         val content=generateCode(node,layoutParams,null)
         val layoutName = layoutName(layoutFile.name.substringBefore("."))
@@ -44,8 +44,7 @@ class KotlinCodeGenerate(project: Project, baseMatcher: BaseContext, clazz: PsiC
             val viewDefineItem=DefineViewClassExpression(view,node.name)
             out.append("${"".padEnd(node.level,'\t')}${viewDefineItem.getKotlinExpression(context)}{\n")
             //父容器
-            var layoutDimension = layoutParams?.inflateLayoutDimension(node,false)
-            var layoutAttributes =layoutParams?.inflateLayoutAttributes(node)
+            layoutParams?.inflateLayoutAttributes(node)
             if(view is ViewGroup){
                 layoutParams = view.getLayoutParams()
             }
@@ -67,13 +66,15 @@ class KotlinCodeGenerate(project: Project, baseMatcher: BaseContext, clazz: PsiC
             //闭合节点
             out.append("${"".padEnd(node.level,'\t')}}")
             //layout属性设定
-            val layoutAttributesEmpty=layoutAttributes.isNullOrEmpty()
+            var layoutDimension = layoutParams?.inflateLayoutDimension(node,false)
+            val layoutExpressions = layoutParams?.expressions
+            val layoutAttributesEmpty=layoutExpressions.isNullOrEmpty()
             if(null!=layoutDimension){
                 out.append(".${layoutDimension.getKotlinExpression(context)}").
                         append(if(layoutAttributesEmpty)"\n" else "{\n")
             }
             //添加layout属性
-            layoutAttributes?.forEach {
+            layoutExpressions?.forEach {
                 out.append("$tab${it.getKotlinExpression(context)}\n")
             }
             //闭合

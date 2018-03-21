@@ -58,8 +58,8 @@ class AttributeStyle {
         expression =AttributeMethodMultiParamsExpression(method,value)
     }
 
-    fun expression(item:AttributeContentExpression.()->Unit){
-        expression=AttributeContentExpression().apply(item)
+    fun expression(item:AttributeMethodBlockExpression.()->Unit){
+        expression=AttributeMethodBlockExpression().apply(item)
     }
 
     inline fun callback(value:String):ElementExpression{

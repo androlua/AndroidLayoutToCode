@@ -11,7 +11,6 @@ import com.cz.layout2code.inflate.VERSIONS
  */
 class AttributeMethodExpression(private val methodName: String,private val callback:((String)->ElementExpression)) : AttributeExpression() {
     lateinit var expression: ElementExpression
-    private val importList= mutableListOf<ImportItem>()
 
     override fun callback(value:String):AttributeExpression{
         val item=AttributeMethodExpression(methodName,callback)
@@ -20,32 +19,16 @@ class AttributeMethodExpression(private val methodName: String,private val callb
     }
 
     override fun getImportList(): MutableList<ImportItem> {
-        importList+=expression.getImportList()
-        return importList
+        importItems+=expression.getImportList()
+        return importItems
     }
 
-    override fun getJavaExpression(context: BaseContext): String {
-        return if(0==sdk){
-            "$methodName(${expression.getJavaExpression(context)});"
-        } else {
-            //附加版本class导入
-            importList.add(ImportItem("android.os.Build"))
-            "if(Build.VERSION_CODES.${VERSIONS[sdk]}<Build.VERSION.SDK_INT){\n"+
-                    "\t$methodName(${expression.getJavaExpression(context)});\n"
-                    "}"
-        }
+    override fun getJavaAttributeExpression(context: BaseContext): String {
+        return "$methodName(${expression.getJavaExpression(context)});"
     }
 
-    override fun getKotlinExpression(context: BaseContext): String {
-        return if(0==sdk){
-            "$methodName(${expression.getKotlinExpression(context)})"
-        } else {
-            //附加版本class导入
-            importList.add(ImportItem("org.jetbrains.anko.doFromSdk"))
-            "doFromSdk(Build.VERSION_CODES.${VERSIONS[sdk]}){\n"+
-                    "\t$methodName(${expression.getKotlinExpression(context)})\n"+
-                    "}"
-        }
+    override fun getKotlinAttributeExpression(context: BaseContext): String {
+        return "$methodName(${expression.getKotlinExpression(context)})"
     }
 
 }

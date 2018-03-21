@@ -1,9 +1,10 @@
 package com.cz.layout2code.context
 
-import com.cz.layout2code.inflate.expression.value.DefineClassExpression
 import com.cz.layout2code.inflate.expression.value.StringValueExpression
+import com.cz.layout2code.inflate.item.ImportItem
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
+
+
 
 class ActivityContext(project: Project) : BaseContext(project) {
 
@@ -12,10 +13,9 @@ class ActivityContext(project: Project) : BaseContext(project) {
             "context"->"this"
             "resources"->{
                 //Resources resources = getResources();
-                val expression = DefineClassExpression("Resources", field) {
+                defineClass("Resources", field) {
                     StringValueExpression("getResources()")
                 }
-                addPreExpression(field,expression)
                 field
             }
             else -> field
@@ -27,6 +27,46 @@ class ActivityContext(project: Project) : BaseContext(project) {
             "context"->"this"
             "resources"->"resources"
             else -> field
+        }
+    }
+
+    override fun getJavaMethod(method: String): String {
+        return when(method){
+            "dp"->{
+                methodExpression(method){
+                    import { mutableListOf(ImportItem("android.util.TypedValue")) }
+                    javaExpression {
+                        "private float dp(float value){\n" +
+                        "\treturn TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,value,getResources().getDisplayMetrics());\n" +
+                        "}"
+                    }
+                }
+                method
+            }
+            "sp"->{
+                methodExpression(method){
+                    import { mutableListOf(ImportItem("android.util.TypedValue")) }
+                    javaExpression {
+                        "private float sp(float value){\n" +
+                        "\treturn TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,value,getResources().getDisplayMetrics());\n" +
+                        "}"
+                    }
+                }
+                method
+            }
+            else ->method
+        }
+    }
+
+    override fun getKotlinMethod(method: String): String {
+        return when(method){
+            "dp"->{
+                method
+            }
+            "sp"->{
+                method
+            }
+            else ->method
         }
     }
 

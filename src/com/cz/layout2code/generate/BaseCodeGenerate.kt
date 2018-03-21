@@ -6,11 +6,13 @@ import com.cz.layout2code.inflate.impl.ViewGroup
 import com.cz.layout2code.inflate.impl.custom.CustomViewWrapper
 import com.cz.layout2code.inflate.item.ViewNode
 import com.cz.layout2code.context.BaseContext
+import com.cz.layout2code.delegate.MessageDelegate
+import com.cz.layout2code.inflate.expression.value.ElementExpression
+import com.cz.layout2code.inflate.impl.WIDGET_PACKAGE
+import com.cz.layout2code.inflate.impl.custom.CompatViewWrapper
+import com.cz.layout2code.inflate.item.ImportItem
 import com.intellij.openapi.project.Project
-import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiClass
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
+import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
 import java.io.File
 
@@ -18,11 +20,12 @@ import java.io.File
  * Created by cz on 2018/3/1.
  */
 abstract class BaseCodeGenerate(val project: Project, val context: BaseContext, val clazz:PsiClass) {
-     private val PACKAGE_NAME="com.cz.layout2code.inflate.impl"
+    //导入包
+    protected val importList= mutableSetOf<ImportItem>()
      /**
       * 转换对应语言文本
       */
-     abstract fun generate(file:PsiFile,containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams: ViewGroup.LayoutParams?=null)
+     abstract fun generate(file:PsiFile,containingElement: PsiElement?, layoutFile: File, node: ViewNode, layoutParams: ViewGroup.LayoutParams)
      /**
       * 从节点获取到view体
       */
@@ -33,48 +36,18 @@ abstract class BaseCodeGenerate(val project: Project, val context: BaseContext, 
                view= CustomViewWrapper.wrapper(project, node)
           } else if(node.isCompatView){
                //v7
-               view=getParentView(project, node)
-               view?.isCompatView = true
-               return view
+              view= CompatViewWrapper.wrapper(project, node)
           } else {
                //系统控件
                try {
                     //com.cz.layout2code.inflate.impl.LinearLayout
-                    val clazz = Class.forName(PACKAGE_NAME+"." + node.name)
+                    val clazz = Class.forName(WIDGET_PACKAGE+"." + node.name)
                     view = clazz.newInstance() as View
                } catch (e: Exception) {
-                    print("$PACKAGE_NAME.${node.name} not found!")
+                    print("$WIDGET_PACKAGE.${node.name} not found!")
                }
           }
           return view
-     }
-
-     /**
-      * 查找到系统基类view
-      */
-     private fun getParentView(project: Project, node: ViewNode):View? {
-          var findClass = JavaPsiFacade.getInstance(project).findClass(node.name, GlobalSearchScope.everythingScope(project))
-          while (null != findClass) {
-               val qualifiedName = findClass.qualifiedName
-               if (null != qualifiedName) {
-                    val index = qualifiedName.lastIndexOf(".")
-                    val packageName = qualifiedName.substring(0, index)
-                    val className = qualifiedName.substring(index + 1)
-                    //代表为系统控件
-                    if (CustomViewWrapper.androidPackages.any{it==packageName}) {
-                         val classNode = CustomViewWrapper.viewNodes.find { className == it.className }
-                         return if(null!=classNode){
-                              try{
-                                   Class.forName(PACKAGE_NAME +"."+classNode.className).newInstance() as? View
-                              } catch (e:Exception){
-                                   null
-                              }
-                         } else null
-                    }
-               }
-               findClass = findClass.superClass
-          }
-          return null
      }
 
      inline fun idName(id:String):String{
@@ -98,4 +71,34 @@ abstract class BaseCodeGenerate(val project: Project, val context: BaseContext, 
           }
           return result
      }
+
+
+     /**
+      * 查找指定方法
+      */
+     protected fun findMethodItem(methodName: String): PsiMethod? {
+          val methodItems = clazz.findMethodsByName(methodName, false)
+          return if (methodItems.isNotEmpty()) methodItems.first() else null
+     }
+
+     /**
+      * 检测方法是否存在,存在则直接删除
+      */
+     protected fun ensureMethodItem(methodName: String) {
+          val findMethod = findMethodItem(methodName)
+          if (null != findMethod) {
+               findMethod.delete()
+               MessageDelegate.logEventMessage("Generate:$methodName but it existed, Deleted it!")
+          }
+     }
+
+    protected fun callJavaExpression(expression:ElementExpression,context:BaseContext):String{
+        importList+=expression.getImportList()
+        return expression.getJavaExpression(context)
+    }
+
+    protected fun callKotlinExpression(expression:ElementExpression,context:BaseContext):String{
+        importList+=expression.getImportList()
+        return expression.getKotlinExpression(context)
+    }
 }

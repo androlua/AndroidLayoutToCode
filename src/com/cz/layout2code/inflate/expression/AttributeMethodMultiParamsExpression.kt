@@ -11,7 +11,6 @@ import com.cz.layout2code.inflate.VERSIONS
  */
 class AttributeMethodMultiParamsExpression(private val methodName: String,private val callback:(String)->MutableList<ElementExpression>) : AttributeExpression() {
     private lateinit var expressions:MutableList<ElementExpression>
-    private val importList= mutableListOf<ImportItem>()
 
     override fun callback(value:String):AttributeExpression{
         val item=AttributeMethodMultiParamsExpression(methodName,callback)
@@ -21,35 +20,19 @@ class AttributeMethodMultiParamsExpression(private val methodName: String,privat
 
     override fun getImportList(): MutableList<ImportItem> {
         expressions.forEach {
-            importList+=it.getImportList()
+            importItems+=it.getImportList()
         }
-        return importList
+        return importItems
     }
 
-    override fun getJavaExpression(context: BaseContext): String {
+    override fun getJavaAttributeExpression(context: BaseContext): String {
         val params=expressions.joinToString(", "){ it.getJavaExpression(context) }
-        return if(0==sdk){
-            "$methodName($params)"
-        } else {
-            //附加版本class导入
-            importList.add(ImportItem("android.os.Build"))
-            "if(Build.VERSION_CODES.${VERSIONS[sdk]}<Build.VERSION.SDK_INT){\n"+
-                    "\t$methodName($params)\n"+
-                    "}"
-        }
+        return "$methodName($params)"
     }
 
-    override fun getKotlinExpression(context: BaseContext): String {
+    override fun getKotlinAttributeExpression(context: BaseContext): String {
         val params=expressions.joinToString(", "){ it.getKotlinExpression(context) }
-        return if(0==sdk){
-            "$methodName($params)"
-        } else {
-            //附加版本class导入
-            importList.add(ImportItem("org.jetbrains.anko.doFromSdk"))
-            "doFromSdk(Build.VERSION_CODES.${VERSIONS[sdk]}){\n"+
-                    "\t$methodName($params)\n"+
-                    "}"
-        }
+        return "$methodName($params)"
     }
 
 }
